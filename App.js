@@ -1,4 +1,4 @@
-import { StyleSheet, View, Platform } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -67,6 +67,7 @@ export default function App() {
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="chatbubble-ellipses" size={size} color={color} />
             ),
+          tabBarBadge:5
           }}
         />
         <Tab.Screen
@@ -75,7 +76,7 @@ export default function App() {
           options={{
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="person" size={size} color={color} />
-            ),
+              )
           }}
         />
       </Tab.Navigator>
