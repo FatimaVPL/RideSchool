@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import PerfilScreen from './Screens/PerfilScreen'
+import SolicitarRide from './Screens/SolicitarRide';
 import { PaperProvider, Searchbar, Text } from 'react-native-paper';
 import Navegacion from './Screens/ButtonTabScreen';
 
