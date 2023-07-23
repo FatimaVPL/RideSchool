@@ -1,5 +1,4 @@
 import { StyleSheet} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -7,6 +6,9 @@ import InicioScreen from './InicioScreen';
 import PerfilScreen from './PerfilScreen';
 import RidesScreen from './RidesScreen';
 import ChatScreen from './ChatScreen';
+import CambiarRolScreen from './CambiarRolScreen';
+import LoginScreen from './LoginScreen';
+import CrearCuentaScreen from './CrearCuentaScreen';
 
 
 
@@ -14,7 +16,7 @@ const Tab = createBottomTabNavigator();
 
 function ButtonTabScren() {
   return (
-    <NavigationContainer>
+   
      <Tab.Navigator>
         <Tab.Screen
           name="Inicio"
@@ -53,8 +55,25 @@ function ButtonTabScren() {
               )
           }}
         />
+         <Tab.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={color} />
+              )
+          }}
+        />
+          <Tab.Screen
+          name="Crear C"
+          component={CrearCuentaScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={color} />
+              )
+          }}
+        />
       </Tab.Navigator>
-    </NavigationContainer>
   );
 }
 
