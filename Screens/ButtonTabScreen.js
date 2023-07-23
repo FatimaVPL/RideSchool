@@ -4,7 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import InicioScreen from './InicioScreen';
 import PerfilScreen from './PerfilScreen';
-import RidesScreen from './RidesScreen';
+import SolicitarRide from './SolicitarRide';
 import ChatScreen from './ChatScreen';
 import CambiarRolScreen from './CambiarRolScreen';
 import LoginScreen from './LoginScreen';
@@ -29,7 +29,7 @@ function ButtonTabScren() {
         />
         <Tab.Screen
           name="Rides"
-          component={RidesScreen}
+          component={SolicitarRide}
           options={{
             tabBarIcon: ({ color, size }) => (
               <MaterialIcons name="directions-car" size={size} color={color} />

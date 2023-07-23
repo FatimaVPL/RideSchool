@@ -11,6 +11,7 @@ import Login from './screens/LoginEmailScreen';
 import Registro from './screens/RegistroScreen';
 
 
+
 const Stack = createStackNavigator();
 function App() {
   const [initializing, setInitializing] = useState(true);
