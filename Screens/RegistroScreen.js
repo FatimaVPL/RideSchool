@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, TextInput, Text, Modal } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, TextInput, Text, Modal } from 'react-native';
 import { firebase } from '../config-firebase';
 
 const RegistroScreen = () => {
@@ -31,7 +31,7 @@ const RegistroScreen = () => {
                 })
                 .then(()=>{
                     setShowModal(true);
-                    setModalMessage('Se mando un link de verificación a tu correo');
+                    setModalMessage('Se mandó un link de verificación a tu correo');
                 }).catch(
                     (error)=>{
                         setShowModal(true);

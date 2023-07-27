@@ -3,10 +3,21 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Avatar, Text, Divider } from 'react-native-paper';
+import { firebase } from '../config-firebase';
 
 
 
 const PerfilScreen = ({ navigation }) => {
+  const handleLogout = async () => {
+    try {
+      await firebase.auth().signOut();
+     
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error.message);
+      // Maneja cualquier error que ocurra durante el cierre de sesión.
+    }
+  };
+  
   const cambiarRol = () => {
     navigation.navigate('Cambiar Rol');
   };
@@ -53,6 +64,12 @@ const PerfilScreen = ({ navigation }) => {
           <Text variant='labelLarge'>Ajustes generales</Text>
         </View>
       </TouchableOpacity>
+      <TouchableOpacity onPress={handleLogout}>
+          <View style={styles.settingsItem}>
+            <Ionicons name="log-out" size={24} color="#DC3803" />
+            <Text variant='labelLarge' style={styles.logOutItem}>Cerrar sesión</Text>
+          </View>
+        </TouchableOpacity>
         <Divider/>
       </View>
     </View>
@@ -87,8 +104,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
-    marginBottom: 10
+    marginBottom: 10,
   },
+  logOutItem: {
+    color: '#DC3803'
+  }
 });
 
 export default PerfilScreen;
