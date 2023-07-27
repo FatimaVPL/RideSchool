@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import Navegacion from './screens/ButtonTabScreen';
 import { NavigationContainer } from '@react-navigation/native';
-import PerfilScreen from './screens/PerfilScreen';
-import CambiarRolScreen from './screens/CambiarRolScreen';
+import Navegacion from './Screens/ButtonTabScreen';
+import PerfilScreen from './Screens/PerfilScreen';
+import CambiarRolScreen from './Screens/CambiarRolScreen';
 import { createStackNavigator } from '@react-navigation/stack';
-import NotificacionesScreen from './screens/NotificacionesScreen';
-import AjustesGeneralesScreen from './screens/AjustesGeneralesScreen';
+import NotificacionesScreen from './Screens/NotificacionesScreen';
+import AjustesGeneralesScreen from './Screens/AjustesGeneralesScreen';
 import { firebase } from './config-firebase';
-import Login from './screens/LoginEmailScreen';
-import Registro from './screens/RegistroScreen';
+import Login from './Screens/LoginEmailScreen';
+import Registro from './Screens/RegistroScreen';
 
 
 
