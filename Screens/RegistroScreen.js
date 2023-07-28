@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { View, TouchableOpacity, StyleSheet, TextInput, Text, Modal } from 'react-native';
 import { firebase } from '../config-firebase';
 
-const RegistroScreen = () => {
+const RegistroScreen = ({navigation}) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [firstName, setFirstName] = useState('')
@@ -65,6 +65,7 @@ const RegistroScreen = () => {
     }
     return (
         <View style={styles.container}>
+          <TouchableOpacity onPress={()=>navigation.navigate('LoginEmail')}><Text>atras</Text></TouchableOpacity>
           <Text style={styles.bienvenida}>Comienza esta nueva experiencia</Text>
           <TextInput
             style={styles.input}
