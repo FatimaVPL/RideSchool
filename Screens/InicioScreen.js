@@ -1,10 +1,21 @@
 import React from 'react';
+import { TouchableOpacity } from 'react-native';
 import { View, Text, StyleSheet } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
 const InicioScreen = () => {
+
+  const {logoutUser, clearUsage} = useAuth()
+
   return (
     <View style={styles.container}>
       <Text>Inicio</Text>
+      <TouchableOpacity onPress={ logoutUser }>
+        <Text>Salir</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={ clearUsage }>
+        <Text>Limpiar Async Storage</Text>
+      </TouchableOpacity>
     </View>
   );
 };
