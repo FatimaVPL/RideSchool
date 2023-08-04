@@ -14,8 +14,6 @@ export function AuthProvider({ children }) {
     const [firstTime, setFirstTime] = useState(true)
     const [initializing, setInitializing] = useState(true);
 
-
-
     async function checkUsage() {
         try {
             const value = await AsyncStorage.getItem('usage')
@@ -28,9 +26,9 @@ export function AuthProvider({ children }) {
     }
 
     useEffect(() => {
+        checkUsage()
         const subscriber = firebase.auth().onAuthStateChanged(async (user) => {
             setUser(user);
-            await checkUsage()
             setInitializing(false);
         });
         return subscriber
@@ -45,6 +43,22 @@ export function AuthProvider({ children }) {
         }
     }
 
+    const registerUser = async ({email, password, firstName="", lastName=""}) => {
+        await firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then(() => {
+                firebase.firestore().collection('users')
+                    .doc(firebase.auth().currentUser.uid)
+                    .set({
+                        firstName,
+                        lastName,
+                        email,
+                    })
+            })
+            .catch((error) => {
+                alert(error)
+            })
+    }
+
     const clearUsage = async () => {
         try {
             await AsyncStorage.removeItem('usage');
@@ -52,9 +66,10 @@ export function AuthProvider({ children }) {
             // saving error
         }
     }
+
     const setUsage = async () => {
         try {
-            await AsyncStorage.setItem('usage','true');
+            await AsyncStorage.setItem('usage', 'true');
             setFirstTime(false)
         } catch (e) {
             // saving error
@@ -68,7 +83,8 @@ export function AuthProvider({ children }) {
             logoutUser,
             clearUsage,
             firstTime,
-            setUsage
+            setUsage,
+            registerUser
         }}>
             {children}
         </AuthContext.Provider>
