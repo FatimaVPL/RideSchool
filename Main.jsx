@@ -5,13 +5,14 @@ import CambiarRolScreen from './Screens/CambiarRolScreen';
 import { createStackNavigator } from '@react-navigation/stack';
 import NotificacionesScreen from './Screens/NotificacionesScreen';
 import AjustesGeneralesScreen from './Screens/AjustesGeneralesScreen';
-import Login from './Screens/LoginEmailScreen';
-import Registro from './Screens/RegistroScreen';
 import { ThemeProvider } from './hooks/ThemeContext';
 import { PaperProvider } from 'react-native-paper';
-import WelcomeScreen from './Screens/WelcomeScreen';
 import { useAuth } from './context/AuthContext';
 import Loader from './components/Loader';
+import LoginEmailScreen from './Screens/LoginSession/LoginEmailScreen';
+import OnboardingScreen from './Screens/LoginSession/OnboardingScreen';
+import Registro from './Screens/LoginSession/RegistroScreen';
+import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
 
 const Main = () => {
 
@@ -23,15 +24,20 @@ const Main = () => {
       {initializing ? <Loader /> : !user ?
         <Stack.Navigator>
           {
-            firstTime && 
-            <Stack.Screen 
-              name="Welcome"
-              component={WelcomeScreen}
-            />
+            firstTime && <>
+              <Stack.Screen
+                name="Welcome"
+                component={WelcomeScreen}
+              />
+              <Stack.Screen
+                name="Onboarding"
+                component={OnboardingScreen}
+              />
+            </>
           }
           <Stack.Screen
             name='LoginEmail'
-            component={Login}
+            component={LoginEmailScreen}
           />
           <Stack.Screen
             name='Registro'

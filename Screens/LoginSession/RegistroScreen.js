@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { View, TouchableOpacity, StyleSheet, TextInput, Text, Modal } from 'react-native';
-import { firebase } from '../config-firebase';
+import { firebase } from '../../config-firebase';
 
 const RegistroScreen = ({navigation}) => {
     const [email, setEmail] = useState('')
@@ -63,6 +63,7 @@ const RegistroScreen = ({navigation}) => {
             setModalMessage('El correo debe ser matricula@alumnos.itsur.edu.mx');
         }
     }
+    
     return (
         <View style={styles.container}>
           <TouchableOpacity onPress={()=>navigation.navigate('LoginEmail')}><Text>atras</Text></TouchableOpacity>

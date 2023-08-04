@@ -1,10 +1,8 @@
 import React, {useState} from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image, StatusBar } from 'react-native';
-import {firebase} from '../config-firebase';
-import { useNavigation } from '@react-navigation/native';
+import {firebase} from '../../config-firebase';
 
-const LoginEmailScreen = () => {
-    const navigation = useNavigation();
+const LoginEmailScreen = ({navigation}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -18,7 +16,7 @@ const LoginEmailScreen = () => {
 
     return(
         <View style={styles.container}>
-      <Image style={styles.logo} source={require('../assets/ride-school.png')} />
+      <Image style={styles.logo} source={require('../../assets/ride-school.png')} />
       <Text style={styles.bienvenida} variant='headlineLarge'>Ingresa con tu cuenta</Text>
 
       <TextInput
