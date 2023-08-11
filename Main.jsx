@@ -13,6 +13,7 @@ import LoginEmailScreen from './Screens/LoginSession/LoginEmailScreen';
 import OnboardingScreen from './Screens/LoginSession/OnboardingScreen';
 import Registro from './Screens/LoginSession/RegistroScreen';
 import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
+import SolicitarRide from './Screens/SolicitarRide';
 
 const Main = () => {
 
@@ -21,7 +22,7 @@ const Main = () => {
 
   return (
     <>
-      {initializing ? <Loader /> : !user ?
+      { /*initializing ? <Loader /> : !user ?
         <Stack.Navigator>
           {
             firstTime && <>
@@ -45,7 +46,7 @@ const Main = () => {
           />
         </Stack.Navigator>
         :
-
+*/
         <Stack.Navigator>
           <Stack.Screen
             name="Home"
@@ -53,6 +54,7 @@ const Main = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="Perfil" component={PerfilScreen} />
+          <Stack.Screen name="SolicitarRide" component={SolicitarRide} options={{ presentation: "modal" }} />
           <Stack.Screen name="Cambiar Rol" component={CambiarRolScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Notificaciones" component={NotificacionesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Ajustes Generales" component={AjustesGeneralesScreen} options={{ presentation: "modal" }} />

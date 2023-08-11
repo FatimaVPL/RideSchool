@@ -6,6 +6,7 @@ import InicioScreen from './InicioScreen';
 import PerfilScreen from './PerfilScreen';
 import SolicitarRide from './SolicitarRide';
 import ChatScreen from './ChatScreen';
+import RidesScreen from './RidesScreen';
 
 
 
@@ -27,7 +28,7 @@ function ButtonTabScreen() {
         />
         <Tab.Screen
           name="Rides"
-          component={SolicitarRide}
+          component={RidesScreen}
           options={{
             tabBarIcon: ({ color, size }) => (
               <MaterialIcons name="directions-car" size={size} color={color} />
