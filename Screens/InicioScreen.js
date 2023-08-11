@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const InicioScreen = () => {
 
-  const {logoutUser, clearUsage} = useAuth()
+  const {logoutUser, clearUsage, user} = useAuth()
 
   return (
     <View style={styles.container}>
@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+
   },
 });
 

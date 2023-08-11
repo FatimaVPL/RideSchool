@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { firebase } from '../config-firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { auth } from '../config-firebase'
 
 const AuthContext = createContext();
 
@@ -26,8 +28,14 @@ export function AuthProvider({ children }) {
     }
 
     useEffect(() => {
-        checkUsage()
-        const subscriber = firebase.auth().onAuthStateChanged(async (user) => {
+        //checkUsage()
+        const subscriber = onAuthStateChanged(auth, async(user) => {
+            console.log(' Auth Changed in Context :')
+            if (user) {
+                console.log('true')
+            } else {
+                console.log('false')
+            }
             setUser(user);
             setInitializing(false);
         });
@@ -43,7 +51,7 @@ export function AuthProvider({ children }) {
         }
     }
 
-    const registerUser = async ({email, password, firstName="", lastName=""}) => {
+    const registerUser = async ({ email, password, firstName = "", lastName = "" }) => {
         await firebase.auth().createUserWithEmailAndPassword(email, password)
             .then(() => {
                 firebase.firestore().collection('users')

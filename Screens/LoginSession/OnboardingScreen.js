@@ -101,6 +101,7 @@ const OnboardingScreen = ({ navigation }) => {
          else {
             // Crear Un Registro
             console.log(formData)
+            setUsage()
             registerUser({
                email: formData.noControl.toLowerCase().trim() + "@alumnos.itsur.edu.mx",
                password: formData.password,
