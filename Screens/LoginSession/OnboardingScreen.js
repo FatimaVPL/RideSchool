@@ -83,14 +83,14 @@ const OnboardingScreen = ({ navigation }) => {
          title: 'Ingresa tu número de control',
          info: 'Por motivos de seguridad, necesitamos verificar que eres un estudiante vigente.',
          svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
-         input: [{ atr: "noControl" }]
+         //input: [{ atr: "noControl" }]
       },
       {
          id: 3,
          title: 'Crea una contraseña',
          info: 'Ingresa una contraseña segura para proteger tu cuenta.',
          svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
-         input: [{ atr: "password" }, { atr: "passwordConfirm" }]
+         //input: [{ atr: "password" }, { atr: "passwordConfirm" }]
       }
    ]
 

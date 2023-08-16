@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { firebase } from '../config-firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { auth } from '../config-firebase'
+import { auth, db } from '../config-firebase'
 
 const AuthContext = createContext();
 
@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         //checkUsage()
-        const subscriber = onAuthStateChanged(auth, async(user) => {
+        const subscriber = onAuthStateChanged(auth, async (user) => {
             console.log(' Auth Changed in Context :')
             if (user) {
                 console.log('true')
@@ -51,20 +51,29 @@ export function AuthProvider({ children }) {
         }
     }
 
-    const registerUser = async ({ email, password, firstName = "", lastName = "" }) => {
-        await firebase.auth().createUserWithEmailAndPassword(email, password)
-            .then(() => {
-                firebase.firestore().collection('users')
-                    .doc(firebase.auth().currentUser.uid)
-                    .set({
-                        firstName,
-                        lastName,
-                        email,
-                    })
-            })
-            .catch((error) => {
-                alert(error)
-            })
+    const registerUser = async ({ email, password, role, firstName = "", lastName = "" }) => {
+        try {
+            // Create user with email and password
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+
+            if (userCredential.user) {
+                const user = userCredential.user;
+
+                // Create a new user document in Firestore
+                await db.collection('users').doc(email).set({
+                    uid: user.uid,
+                    email: user.email,
+                    role,
+                    firstName,
+                    lastName,
+                });
+
+                console.log('User created and added to Firestore.');
+            }
+
+        } catch (err) {
+            console.error(err.message);
+        }
     }
 
     const clearUsage = async () => {
@@ -77,8 +86,11 @@ export function AuthProvider({ children }) {
 
     const setUsage = async () => {
         try {
-            await AsyncStorage.setItem('usage', 'true');
-            setFirstTime(false)
+            const value = await AsyncStorage.getItem('usage')
+            if (value !== null) {
+                setFirstTime(false)
+                await AsyncStorage.setItem('usage', 'true');
+            }
         } catch (e) {
             // saving error
         }
