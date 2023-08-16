@@ -22,7 +22,7 @@ const Main = () => {
 
   return (
     <>
-      { /*initializing ? <Loader /> : !user ?
+      { initializing ? <Loader /> : !user ?
         <Stack.Navigator>
           {
             firstTime && <>
@@ -46,7 +46,7 @@ const Main = () => {
           />
         </Stack.Navigator>
         :
-*/
+
         <Stack.Navigator>
           <Stack.Screen
             name="Home"
