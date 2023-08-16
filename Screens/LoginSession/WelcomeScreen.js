@@ -25,7 +25,7 @@ const WelcomeScreen = ({ navigation }) => {
                     alignItems: 'center',
                     marginTop: 20,
                 }}>
-                    <View style={[{ width }, { display: 'flex', height: '100%' }]}>
+                    <View style={[{ width:400 }, { display: 'flex', height: 300, marginTop:30 }]}>
                         <Lottie source={require('../../assets/LottieFiles/RideSchool.json')} />
                     </View>
                 </View>
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
         width: '80%',
         height: 70,
         marginTop: 10,
-        backgroundColor: '#FCD85E', //por definir en dark
+        backgroundColor: '#E1A43B', //por definir en dark
         padding: 10,
         borderRadius: 10,
         shadowColor: "#000", //por definir en dark
