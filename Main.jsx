@@ -46,7 +46,6 @@ const Main = () => {
           />
         </Stack.Navigator>
         :
-
         <Stack.Navigator>
           <Stack.Screen
             name="Home"

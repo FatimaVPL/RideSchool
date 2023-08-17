@@ -11,30 +11,14 @@ import {
    Platform,
    Animated,
    Keyboard,
+
 } from "react-native"
 import { TextInput } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
 import { useTheme } from "../../hooks/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
-/**
- * Dumy Shit
- */
-const dumyAlumnos = [
-   { noControl: "s19120122", nombre: "Pepe" },
-   { noControl: "s19120123", nombre: "Jorge" },
-   { noControl: "s19120124", nombre: "Jose" },
-   { noControl: "s19120125", nombre: "Maria" },
-]
-function sleep(ms) {
-   return new Promise(resolve => setTimeout(resolve, ms));
-}
 
-async function dumyBuscarAlumno(noControl) {
-   await sleep(2000)
-   if (!dumyAlumnos.some(almno => almno.noControl === noControl)) {
-      throw new Error('No es un alumno')
-   }
-}
+
 /************************************************************ */
 
 const OnboardingScreen = ({ navigation }) => {
@@ -52,7 +36,13 @@ const OnboardingScreen = ({ navigation }) => {
 
    const [keyboardVisible, setKeyboardVisible] = useState(false)
 
+   const [passwordsMatchError, setPasswordsMatchError] = useState(false);
+   const [passwordVisible, setPasswordVisible] = useState(true);
 
+   const [showLastSlide, setShowLastSlide] = useState(false);
+
+   
+   /*************************************************** */
    useEffect(() => {
       const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
          setKeyboardVisible(true);
@@ -71,31 +61,48 @@ const OnboardingScreen = ({ navigation }) => {
    const slides = [
       {
          id: 1,
-         /* title: '¿Cómo planeas usar RideSchool?',
-          info: 'Con RideSchool, podrás ofrecer rides a otros estudiantes o solicitarlos tú? Puedes cambiar tus preferencias más tarde desde tu perfil.',*/
-         title: 'Elije uno de los roles, para comenzar',
-         info: 'Con RideSchool, podrás ofrecer rides a otros estudiantes o solicitarlos tú. Puedes cambiar tu rol tarde desde tu perfil.',
-         svg: <Lottie source={require('../../assets/LottieFiles/passagerOrCar.json')} />,
-         options: [{ label: "Pasajero", value: "pasajero" }, { label: "Chofer", value: "chofer" }]
+         title: 'Ingresa tu correo institucional',
+         info: 'Por motivos de seguridad, necesitamos verificar que eres un estudiante vigente mediante tu correo.',
+         svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
+         input: [{ atr: "email" }]
       },
       {
          id: 2,
-         title: 'Ingresa tu número de control',
-         info: 'Por motivos de seguridad, necesitamos verificar que eres un estudiante vigente.',
+         title: 'Completa tu perfil',
+         info: 'Cuentanos más de ti, para identificarte mejor.',
          svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
-         input: [{ atr: "noControl" }]
+         inputName: [{ atr: "name" }, { atr: "lastName" }]
       },
       {
          id: 3,
-         title: 'Crea una contraseña',
-         info: 'Ingresa una contraseña segura para proteger tu cuenta.',
+         title: 'Haz más segura tu cuenta',
+         info: 'Recuerda que una buena contraseña hace más segura tu cuenta.',
          svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
-         input: [{ atr: "password" }, { atr: "passwordConfirm" }]
-      }
-   ]
+         inputPassword: [{ atr: "password" }, { atr: "passwordConfirm" }]
+      },
+      {
+         id: 4,
+         title: 'Elije uno de los roles, para comenzar',
+         info: 'Con RideSchool, podrás ofrecer rides a otros estudiantes o solicitarlos tú. Puedes cambiar tu rol tarde desde tu perfil.',
+         svg: <Lottie source={require('../../assets/LottieFiles/passagerOrCar.json')} />,
+         options: [{ label: "Pasajero", value: "pasajero" }, { label: "Conductor", value: "conductor" }]
+      },
+      {
+         id: 5,
+         title: 'Completa el perfil de conductor',
+         info: 'Para ser conductor, debes de completar los siguientes datos.',
+         svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
+         input: [{ atr: "tipoAutomovil" }, { atr: "licencia" }]
+      },
+   ].filter(item => item.id !== 5 || (showLastSlide && formData.role === "conductor"))
 
    const handleSelectRole = (role) => {
       setFormData(p => ({ ...p, role: role }))
+      if(role=== "conductor"){
+         setShowLastSlide(true)
+      }else{
+         setShowLastSlide(false)
+      }
    }
    const handleChangeText = (atr, text) => {
       setFormData(p => ({ ...p, [atr]: text }))
@@ -106,29 +113,35 @@ const OnboardingScreen = ({ navigation }) => {
    }).current
 
    /* Pasar a la siguiente pantalla */
-   /* Pasar a la siguiente pantalla */
    const scrollTo = async () => {
       try {
          setLoading(true)
          // No es la ultima pantalla
          if (selectedScreen < slides.length - 1) {
-            if (selectedScreen === 2) {
-               // TODO : Verificar que sea un alumno
-               await dumyBuscarAlumno(formData.noControl.toLowerCase().trim())
-            }
             slidesRef.current.scrollToIndex({ index: selectedScreen + 1 })
             setSelectedScreen(p => p + 1)
          }
          else {
+            // Validar que las contraseñas sean iguales
+
+            if (formData.password !== formData.passwordConfirm) {
+               setPasswordsMatchError(true); // Actualiza el estado para mostrar el mensaje de error
+               return; // Detén la ejecución si las contraseñas no coinciden
+            }
+
+
             // Crear Un Registro
-            console.log(formData)
+            // console.log(formData)
             setUsage()
+
             registerUser({
-               email: formData.noControl.toLowerCase().trim() + "@alumnos.itsur.edu.mx",
+               email: formData.email,
+               name: formData.name,
+               lastName: formData.lastName,
                password: formData.password,
-               role: formData.role,
-               firstName: dumyAlumnos.find(almno => almno.noControl === formData.noControl.toLowerCase().trim()).nombre
+               role: formData.role
             })
+
          }
       } catch (err) {
          alert(err)
@@ -138,7 +151,7 @@ const OnboardingScreen = ({ navigation }) => {
    }
 
    const Screen = ({ item }) => {
-      const { title, info, svg, options, input } = item
+      const { title, info, svg, options, input, inputPassword, inputName} = item
 
       return (
          <>
@@ -215,6 +228,73 @@ const OnboardingScreen = ({ navigation }) => {
                         </View>
                      }
                      {
+                        inputPassword &&
+                        <View style={{ display: 'flex' }}>
+                           {inputPassword.map((field, indx) =>
+                              <TextInput
+                                 // ref={inputRefs.current[field.atr]}
+                                 style={{
+                                    width: 300,
+                                    height: 50,
+                                    backgroundColor: 'white',
+                                    borderRadius: 8,
+                                    shadowColor: '#000',
+                                    shadowOffset: {
+                                       width: 0,
+                                       height: 2,
+                                    },
+                                    shadowOpacity: 0.25,
+                                    shadowRadius: 3.84,
+                                    elevation: 5,
+                                    paddingHorizontal: 16,
+                                    marginTop: 10,
+                                 }}
+                                 key={`${field.atr}-${indx}`}
+                                 value={formData[field.atr]}
+                                 onChangeText={(text) => handleChangeText(field.atr, text)}
+                                 placeholder={`${indx}` == 0 ? "Ingresa tu contraseña": "Repite tu contraseña"}
+                                 placeholderTextColor="#888"
+                                 secureTextEntry={passwordVisible}
+                                 right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
+                              autoFocus={false}
+                              />
+                           )}
+                        </View>
+                     }
+                              {
+                        inputName &&
+                        <View style={{}}>
+                           {inputName.map((field, indx) =>
+                              <TextInput
+                                 // ref={inputRefs.current[field.atr]}
+                                 style={{
+                                    width: 300,
+                                    height: 50,
+                                    backgroundColor: 'white',
+                                    borderRadius: 8,
+                                    shadowColor: '#000',
+                                    shadowOffset: {
+                                       width: 0,
+                                       height: 2,
+                                    },
+                                    shadowOpacity: 0.25,
+                                    shadowRadius: 3.84,
+                                    elevation: 5,
+                                    paddingHorizontal: 16,
+                                    marginTop: 10,
+                                 }}
+                                 key={`${field.atr}-${indx}`}
+                                 value={formData[field.atr]}
+                                 onChangeText={(text) => handleChangeText(field.atr, text)}
+                                 placeholder={`${indx}` == 0 ? "Ingresa tus nombre(s)": "Ingresa tu apellido"}
+                                 placeholderTextColor="#888"
+                                 autoCapitalize="none"
+                              />
+
+                           )}
+                        </View>
+                     }
+                     {
                         input &&
                         <View style={{}}>
                            {input.map((field, indx) =>
@@ -239,13 +319,20 @@ const OnboardingScreen = ({ navigation }) => {
                                  key={`${field.atr}-${indx}`}
                                  value={formData[field.atr]}
                                  onChangeText={(text) => handleChangeText(field.atr, text)}
-                                 placeholder="Escribe aquí"
+                                 placeholder= "Ingresa tu correo"
                                  placeholderTextColor="#888"
-                                 autoFocus={true}
+                                 autoCapitalize="none"
                               />
 
                            )}
                         </View>
+                     }
+
+                     {passwordsMatchError && (
+                        <Text style={{ color: '#EC5B57', marginBottom: 10, marginTop: 10, textAlign: 'center' }}>
+                           Las contraseñas no coinciden. Por favor, inténtalo nuevamente.
+                        </Text>
+                     )
                      }
                   </View>
                </View>
@@ -274,7 +361,7 @@ const OnboardingScreen = ({ navigation }) => {
                   <FlatList
                      ref={slidesRef}
                      data={slides}
-                     //scrollEnabled={false}
+                     //scrollEnabled={true}
                      onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: false, })}
                      renderItem={Screen}
                      horizontal
@@ -357,8 +444,6 @@ const OnboardingScreen = ({ navigation }) => {
                         shadowOpacity: 0.27,
                         shadowRadius: 4.65,
                         elevation: 6,
-
-
                      }}>
                      <Text style={{
                         color: 'white',
