@@ -13,10 +13,11 @@ import {
    Keyboard,
 
 } from "react-native"
-import { TextInput } from 'react-native-paper'
+import { TextInput, RadioButton } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
 import { useTheme } from "../../hooks/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
+import {Formik} from 'formik';
 
 
 /************************************************************ */
@@ -41,8 +42,14 @@ const OnboardingScreen = ({ navigation }) => {
 
    const [showLastSlide, setShowLastSlide] = useState(false);
 
-   
-   /*************************************************** */
+   const [tipoAuto, setTipoAuto] = useState('Sí');
+   const [licencia, setLicencia] = useState('Sí');
+
+
+
+
+
+   // Visibilidad del teclado 
    useEffect(() => {
       const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
          setKeyboardVisible(true);
@@ -56,8 +63,8 @@ const OnboardingScreen = ({ navigation }) => {
          keyboardDidHideListener.remove();
       };
    }, []);
-
-
+   
+   /**********************************  Slides *******************************************/
    const slides = [
       {
          id: 1,
@@ -90,17 +97,20 @@ const OnboardingScreen = ({ navigation }) => {
       {
          id: 5,
          title: 'Completa el perfil de conductor',
-         info: 'Para ser conductor, debes de completar los siguientes datos.',
+        //info: 'Para ser conductor, debes de completar los siguientes datos.',
          svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
-         input: [{ atr: "tipoAutomovil" }, { atr: "licencia" }]
+         text1: [{value:"Elije el tipo de vehículo con el que cuentas:"}],
+         optionsConductor: [{ label: "Motocicleta", value: "Sí" }, { label: "Automóvil", value: "No" }],
+         text2: [{value:"¿Cuentas con licencia?:"}],
+         optionsLicencia: [{ label: "Sí", value: "Sí" }, { label: "No", value: "No" }]
       },
    ].filter(item => item.id !== 5 || (showLastSlide && formData.role === "conductor"))
 
    const handleSelectRole = (role) => {
       setFormData(p => ({ ...p, role: role }))
-      if(role=== "conductor"){
+      if (role === "conductor") {
          setShowLastSlide(true)
-      }else{
+      } else {
          setShowLastSlide(false)
       }
    }
@@ -129,7 +139,6 @@ const OnboardingScreen = ({ navigation }) => {
                return; // Detén la ejecución si las contraseñas no coinciden
             }
 
-
             // Crear Un Registro
             // console.log(formData)
             setUsage()
@@ -151,8 +160,7 @@ const OnboardingScreen = ({ navigation }) => {
    }
 
    const Screen = ({ item }) => {
-      const { title, info, svg, options, input, inputPassword, inputName} = item
-
+      const { title, info, svg, options, input, inputPassword, inputName, optionsConductor, optionsLicencia, text1, text2 } = item
       return (
          <>
             <View style={[{ width }, { display: 'flex' }]}>
@@ -214,6 +222,16 @@ const OnboardingScreen = ({ navigation }) => {
                         {info}
                      </Text>
                      {
+                        text1 &&
+                        <View style={{ display: 'flex' }}>
+                           {text1.map((option, indx) =>
+                                 <Text style={{ fontWeight: 'bold', marginTop:10, color:'#DCA934',  fontSize: 16}}>
+                                    {option.value}
+                                 </Text>
+                             )}
+                        </View>
+                     }
+                     {
                         options &&
                         <View style={{ display: 'flex' }}>
                            {options.map((option, indx) =>
@@ -221,7 +239,7 @@ const OnboardingScreen = ({ navigation }) => {
                                  key={`${option.value}-${indx}`}
                                  style={formData?.role === option.value ? styles.selectedOption : styles.option}
                                  onPress={() => handleSelectRole(option.value)}>
-                                 <Text style={{ color: 'white', fontWeight: 'bold', }}>{/* Updated color to white */}
+                                 <Text style={{ color: 'white', fontWeight: 'bold', }}>
                                     {option.label}
                                  </Text>
                               </TouchableOpacity>)}
@@ -252,16 +270,16 @@ const OnboardingScreen = ({ navigation }) => {
                                  key={`${field.atr}-${indx}`}
                                  value={formData[field.atr]}
                                  onChangeText={(text) => handleChangeText(field.atr, text)}
-                                 placeholder={`${indx}` == 0 ? "Ingresa tu contraseña": "Repite tu contraseña"}
+                                 placeholder={`${indx}` == 0 ? "Ingresa tu contraseña" : "Repite tu contraseña"}
                                  placeholderTextColor="#888"
                                  secureTextEntry={passwordVisible}
                                  right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
-                              autoFocus={false}
+                                 autoFocus={false}
                               />
                            )}
                         </View>
                      }
-                              {
+                     {
                         inputName &&
                         <View style={{}}>
                            {inputName.map((field, indx) =>
@@ -286,12 +304,56 @@ const OnboardingScreen = ({ navigation }) => {
                                  key={`${field.atr}-${indx}`}
                                  value={formData[field.atr]}
                                  onChangeText={(text) => handleChangeText(field.atr, text)}
-                                 placeholder={`${indx}` == 0 ? "Ingresa tus nombre(s)": "Ingresa tu apellido"}
+                                 placeholder={`${indx}` == 0 ? "Ingresa tus nombre(s)" : "Ingresa tu apellido"}
                                  placeholderTextColor="#888"
                                  autoCapitalize="none"
                               />
 
                            )}
+                        </View>
+                     }
+                     {
+                        optionsConductor &&
+                        <View style={{}}>
+                           <RadioButton.Group onValueChange={newValue => setTipoAuto(newValue)} value={tipoAuto}>
+                           <View style={{ flexDirection: 'row', alignItems: 'center',}}>
+                              {optionsConductor.map((option, index) => (
+                                 <RadioButton.Item
+                                 color="green"
+                                 labelStyle={{ color: '#606060'}}
+                                 key={index}
+                                 label={option.label}
+                                 value={option.value} />
+                              ))}
+                               </View>
+                           </RadioButton.Group>
+                        </View>
+                     }
+                       {
+                        text2 &&
+                        <View style={{ display: 'flex' }}>
+                           {text2.map((option, indx) =>
+                                 <Text style={{ fontWeight: 'bold', marginTop:10, color:'#DCA934', fontSize: 16}}>
+                                    {option.value}
+                                 </Text>
+                             )}
+                        </View>
+                     }
+                          {
+                        optionsLicencia &&
+                        <View style={{}}>
+                           <RadioButton.Group onValueChange={newValue => setLicencia(newValue)} value={licencia}>
+                           <View style={{ flexDirection: 'row', alignItems: 'center',}}>
+                              {optionsLicencia.map((option, index) => (
+                                 <RadioButton.Item
+                                 color="green"
+                                 labelStyle={{ color: '#606060'}}
+                                 key={index}
+                                 label={option.label}
+                                 value={option.value} />
+                              ))}
+                               </View>
+                           </RadioButton.Group>
                         </View>
                      }
                      {
@@ -319,7 +381,7 @@ const OnboardingScreen = ({ navigation }) => {
                                  key={`${field.atr}-${indx}`}
                                  value={formData[field.atr]}
                                  onChangeText={(text) => handleChangeText(field.atr, text)}
-                                 placeholder= "Ingresa tu correo"
+                                 placeholder="Ingresa tu correo"
                                  placeholderTextColor="#888"
                                  autoCapitalize="none"
                               />
