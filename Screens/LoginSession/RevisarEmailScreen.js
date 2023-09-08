@@ -6,7 +6,7 @@ import { TouchableOpacity } from "react-native";
 import { StyleSheet } from "react-native";
 import Lottie from 'lottie-react-native';
 
-const WelcomeScreen = ({ navigation }) => {
+const RevisarEmailScreen = ({ navigation }) => {
 
     const { colors } = useTheme()
     const { width } = useWindowDimensions()
@@ -25,9 +25,6 @@ const WelcomeScreen = ({ navigation }) => {
                     alignItems: 'center',
                     marginTop: 20,
                 }}>
-                    <View style={[{ width:400 }, { display: 'flex', height: 300, marginTop:30 }]}>
-                        <Lottie source={require('../../assets/LottieFiles/RideSchool.json')} />
-                    </View>
                 </View>
                 <View
                     style={{
@@ -43,42 +40,19 @@ const WelcomeScreen = ({ navigation }) => {
                     <Text
                         style={{
                             textAlign: 'center',
-                            fontSize: 27,
-                            fontWeight: '900',
-                            marginBottom: 15,
-                            color: colors.primary
-                        }}>
-                        Bienvenido a RideSchool !
-                    </Text>
-
-                    <Text
-                        style={{
-                            textAlign: 'center',
                             fontSize: 18,
                             marginBottom: 15,
                             color: colors.text2,
                             fontWeight: "500",
                         }}>
-                        Hacemos posibles los rides más rápidos y seguros para estudiantes.
+                       Revisa tu correo electronico para poder loguearte!
                     </Text>
                 </View>
-            </View>
-            <View style={styles.container}>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('Onboarding')}
-                    style={[styles.button]}>
-                    <Text style={styles.text}>Comenzar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('LoginEmail')}
-                    style={[styles.button]}>
-                    <Text style={styles.text}>Ya tengo Cuenta</Text>
-                </TouchableOpacity>
             </View>
         </View>
     )
 }
-export default WelcomeScreen;
+export default RevisarEmailScreen;
 
 const styles = StyleSheet.create({
     container: {

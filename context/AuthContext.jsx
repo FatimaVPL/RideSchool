@@ -1,80 +1,120 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { firebase } from '../config-firebase';
+import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import { firebase, auth, db } from '../config-firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { auth, db } from '../config-firebase'
+import { onAuthStateChanged } from "firebase/auth";
 
 const AuthContext = createContext();
-
+let subscriber = null;
 export function useAuth() {
     return useContext(AuthContext);
 }
 
 export function AuthProvider({ children }) {
 
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null)
     const [firstTime, setFirstTime] = useState(true)
-    const [initializing, setInitializing] = useState(true);
+    const [initializing, setInitializing] = useState(true)
 
-    async function checkUsage() {
-        try {
-            const value = await AsyncStorage.getItem('usage')
-            if (value !== null) {
-                setFirstTime(false)
-            }
-        } catch (e) {
-            console.log('Error al obtener datos de uso: ', e)
-        }
-    }
-
-    useEffect(() => {
-        //checkUsage()
-        const subscriber = onAuthStateChanged(auth, async (user) => {
-            console.log(' Auth Changed in Context :')
-            if (user) {
-                console.log('true')
+useEffect(() => {
+    subscriber = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // Obtener el estado de verificación del correo electrónico
+            const emailVerified = user.emailVerified
+            if (emailVerified) {
+                setUser(user)
             } else {
-                console.log('false')
+                // El usuario no ha verificado su correo electrónico
+                setUser(null)
+                //setUser(user)
             }
-            setUser(user);
-            setInitializing(false);
-        });
-        return subscriber
-    }, []);
+            console.log(user.emailVerified)
+        } else {
+            setUser(null);
+        }
+        setInitializing(false);
+    })
+    return subscriber;
+}, [])
+
+ // Refrescar estado de usario 
+ const refreshUser = async () => {
+  try {
+    const refreshedUser = auth.currentUser
+    if (refreshedUser) {
+      const emailVerified = refreshedUser.emailVerified;
+      if (emailVerified) {
+        setUser(refreshedUser);
+      } else {
+       // alert("Verifica tu correo institucional y da clic al link de verifiación que se te mandó")
+        setUser(null);
+      }
+    } else {
+      setUser(null);
+    }
+  } catch (error) {
+    alert("Existen errores de verificación de email", error.message);
+  }}
+
 
     const logoutUser = async () => {
         try {
-            await firebase.auth().signOut();
-            setUser(null)
+          await firebase.auth().signOut();
+          setUser(null);
         } catch (error) {
-            console.log('Error al cerrar sesión: ', error);
+          // Manejo de errores específicos
+          switch (error.code) {
+            case "auth/network-request-failed":
+              alert("Se produjo un error de red al cerrar sesión. Verifica tu conexión a Internet.");
+              break;
+            default:
+              alert("Error al cerrar sesión: " + error.message);
+              break;
+          }
         }
-    }
+      }
+      
 
-    const registerUser = async ({ email, password, role, firstName = "", lastName = "" }) => {
+    const registerUser = async ({ email, password, role, firstName = "", lastName = "", tipoVehiculo, licencia }) => {
         try {
-            // Create user with email and password
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-
-            if (userCredential.user) {
-                const user = userCredential.user;
-
-                // Create a new user document in Firestore
-                await db.collection('users').doc(email).set({
-                    uid: user.uid,
-                    email: user.email,
-                    role,
-                    firstName,
-                    lastName,
-                });
-
-                console.log('User created and added to Firestore.');
-            }
-
-        } catch (err) {
-            console.error(err.message);
+          // Crear uusario con contraseña
+          const userCredential = await auth.createUserWithEmailAndPassword(email, password)
+      
+          if (userCredential.user) {
+            // Enviar verificación por correo electrónico
+            await userCredential.user.sendEmailVerification();
+            alert("Verifica tu correo institucional y da clic en el enlace que se te ha mandado. Después de verificar tu correo, después espera un momento para volver a iniciar sesión.");
+          }
+          const user = userCredential.user
+          // Crear un nuevo documento de usuario en Firestore
+          await db.collection('users').doc(email).set({
+            uid: user.uid,
+            email: user.email,
+            role,
+            firstName,
+            lastName,
+            tipoVehiculo,
+            licencia
+          });
+        } catch (error) {
+          // Manejar errores específicos
+          switch (error.code) {
+            case "auth/email-already-in-use":
+              alert("El correo electrónico ya está en uso");
+              break;
+            case "auth/invalid-email":
+              alert("Correo electrónico no válido");
+              break;
+            case "auth/weak-password":
+              alert("Contraseña débil, debe contener al menos 6 caracteres");
+              break;
+            default:
+              alert("Se produjo un error al crear el usuario", error.message);
+              break;
+          }
         }
-    }
+      }
+      
 
     const clearUsage = async () => {
         try {
@@ -98,15 +138,43 @@ export function AuthProvider({ children }) {
 
     return (
         <AuthContext.Provider value={{
+            setUser,
             user,
             initializing,
             logoutUser,
             clearUsage,
             firstTime,
             setUsage,
-            registerUser
+            registerUser, 
+            refreshUser
         }}>
             {children}
         </AuthContext.Provider>
     )
 }
+
+const styles = StyleSheet.create({
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 20,
+        width: '80%',
+        alignItems: 'center',
+    },
+    loginButton: {
+        backgroundColor: '#007bff',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 10,
+    },
+    loginButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
+});

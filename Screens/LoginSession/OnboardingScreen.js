@@ -11,24 +11,33 @@ import {
    Platform,
    Animated,
    Keyboard,
-
 } from "react-native"
 import { TextInput, RadioButton } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
 import { useTheme } from "../../hooks/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
-import {Formik} from 'formik';
+import { object, string, ref } from 'yup';
+import { Formik, validateYupSchema } from 'formik';
+//import {firebase, db} from '../../config-firebase';
+import CorreosActivos from "./CorreosActivos";
 
-
-/************************************************************ */
 
 const OnboardingScreen = ({ navigation }) => {
-
-   const { setUsage, registerUser } = useAuth()
+   const { setUsage, registerUser, firstTime } = useAuth()
    const { colors } = useTheme()
    const { width } = useWindowDimensions()
 
-   const [formData, setFormData] = useState({})
+   const [formData, setFormData] = useState({
+      email: "",
+      name: "",
+      lastName: "",
+      password: "",
+      passwordConfirm: "",
+      role: "",
+      tipoVehiculo: "motocicleta",
+      licencia: "motocicleta",
+   })
+
    const [selectedScreen, setSelectedScreen] = useState(0)
    const [loading, setLoading] = useState(false)
 
@@ -37,17 +46,15 @@ const OnboardingScreen = ({ navigation }) => {
 
    const [keyboardVisible, setKeyboardVisible] = useState(false)
 
-   const [passwordsMatchError, setPasswordsMatchError] = useState(false);
-   const [passwordVisible, setPasswordVisible] = useState(true);
+   const [passwordVisible, setPasswordVisible] = useState(true)
 
-   const [showLastSlide, setShowLastSlide] = useState(false);
-
-   const [tipoAuto, setTipoAuto] = useState('Sí');
-   const [licencia, setLicencia] = useState('Sí');
+   const [showLastSlide, setShowLastSlide] = useState(false)
 
 
-
-
+   //Variables de control de estado de error
+   let isEmailInvalid = true;
+   let isNameInvalid = true;
+   let isPasswordInvalid = true;
 
    // Visibilidad del teclado 
    useEffect(() => {
@@ -63,13 +70,46 @@ const OnboardingScreen = ({ navigation }) => {
          keyboardDidHideListener.remove();
       };
    }, []);
-   
+
+   //Esquema de validación
+   const validationSchema = object().shape({
+      email: string()
+         .required("Campo obligatorio")
+         .email('Dirección de correo electrónico inválida')
+         .max(31, "Deben ser 31 caracteres")
+         .test('domain', 'El dominio debe ser alumnos.itsur.edu.mx', value => {
+            if (!value) return false;
+            const domain = value.split('@')[1];
+            return domain === 'alumnos.itsur.edu.mx';
+         }),
+      name: string()
+         .required("Campo obligatorio")
+         .min(4, "Debe ser un nombre válido")
+         .max(20, "Debe ser menor a 20")
+         .matches(/^[A-Za-z-áéíóúÁÉÍÓÚ]*$/, "Debe contener solo letras"),
+      lastName: string()
+         .required("Campo obligatorio")
+         .min(4, "Debe ser un nombre válido")
+         .max(20, "Debe ser menor a 20")
+         .matches(/^[A-Za-z-áéíóúÁÉÍÓÚ ]*$/, "Debe contener solo letras"),
+      password: string()
+         .required("Campo obligatorio")
+         .min(8, "Debe ser mayor o igual a 8")
+         .max(16, "Debe ser menor a 17"),
+      passwordConfirm:
+         string()
+            .required("Campo obligatorio")
+            .oneOf([ref('password'), null], 'Deben coincidir ambas contraseñas')
+            .min(8, "Debe ser mayor o igual a 8")
+            .max(16, "Debe ser menor a 17")
+   });
+
    /**********************************  Slides *******************************************/
    const slides = [
       {
          id: 1,
          title: 'Ingresa tu correo institucional',
-         info: 'Por motivos de seguridad, necesitamos verificar que eres un estudiante vigente mediante tu correo.',
+         info: 'Necesitamos verificar que eres un estudiante vigente.',
          svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
          input: [{ atr: "email" }]
       },
@@ -89,26 +129,33 @@ const OnboardingScreen = ({ navigation }) => {
       },
       {
          id: 4,
-         title: 'Elije uno de los roles, para comenzar',
-         info: 'Con RideSchool, podrás ofrecer rides a otros estudiantes o solicitarlos tú. Puedes cambiar tu rol tarde desde tu perfil.',
+         title: 'Da clic a uno de los roles, para comenzar',
+         info: 'Podrás ofrecer rides a otros estudiantes o solicitarlos tú. Puedes cambiar tu rol más tarde desde tu perfil.',
          svg: <Lottie source={require('../../assets/LottieFiles/passagerOrCar.json')} />,
-         options: [{ label: "Pasajero", value: "pasajero" }, { label: "Conductor", value: "conductor" }]
+         options: [{ label: "Pasajero", value: "Pasajero" }, { label: "Conductor", value: "Conductor" }]
       },
       {
          id: 5,
          title: 'Completa el perfil de conductor',
-        //info: 'Para ser conductor, debes de completar los siguientes datos.',
+         //info: 'Para ser conductor, debes de completar los siguientes datos.',
          svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
-         text1: [{value:"Elije el tipo de vehículo con el que cuentas:"}],
-         optionsConductor: [{ label: "Motocicleta", value: "Sí" }, { label: "Automóvil", value: "No" }],
-         text2: [{value:"¿Cuentas con licencia?:"}],
-         optionsLicencia: [{ label: "Sí", value: "Sí" }, { label: "No", value: "No" }]
+         text1: [{ value: "Elije el tipo de vehículo con el que cuentas:" }],
+         optionsConductor: [{ label: "Motocicleta", value: "motocicleta" }, { label: "Automóvil", value: "automovil" }, { label: "Ambos", value: "ambos" }],
       },
-   ].filter(item => item.id !== 5 || (showLastSlide && formData.role === "conductor"))
+      {
+         id: 6,
+         title: 'Completa el perfil de conductor',
+         // info: 'Para ser conductor, debes de completar los siguientes datos.',
+         svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
+         text2: [{ value: "¿Tienes licencia de motocicleta, automóvil o ambas?" }],
+         optionsLicencia: [{ label: "Motocicleta", value: "motocicleta" }, { label: "Automóvil", value: "automovil" }, { label: "Ambos", value: "ambas" }, { label: "Ninguna", value: "ninguna" }]
+      }
+   ].filter(item => item.id !== 5 && item.id !== 6 || (showLastSlide && formData.role === "Conductor"))
 
    const handleSelectRole = (role) => {
       setFormData(p => ({ ...p, role: role }))
-      if (role === "conductor") {
+      //Si se elige conductor aparecen otros slides
+      if (role === "Conductor") {
          setShowLastSlide(true)
       } else {
          setShowLastSlide(false)
@@ -118,9 +165,19 @@ const OnboardingScreen = ({ navigation }) => {
       setFormData(p => ({ ...p, [atr]: text }))
    }
 
+   const handleTipoAuto = (value) => {
+      setFormData(p => ({ ...p, tipoVehiculo: value }))
+   }
+
+   const handleLicencia = (value) => {
+      setFormData(p => ({ ...p, licencia: value }))
+   }
+
    const onViewableItemsChanged = useRef(({ viewableItems }) => {
       setSelectedScreen(viewableItems[0].index)
    }).current
+
+
 
    /* Pasar a la siguiente pantalla */
    const scrollTo = async () => {
@@ -128,29 +185,78 @@ const OnboardingScreen = ({ navigation }) => {
          setLoading(true)
          // No es la ultima pantalla
          if (selectedScreen < slides.length - 1) {
-            slidesRef.current.scrollToIndex({ index: selectedScreen + 1 })
-            setSelectedScreen(p => p + 1)
+            switch (selectedScreen) {
+               case 0:
+                  if (!isEmailInvalid && formData.email.trim() !== "") {
+                     slidesRef.current.scrollToIndex({ index: selectedScreen + 1 });
+                  }
+                  break;
+               case 1:
+                  if (!isNameInvalid && formData.name.trim() !== "" && formData.lastName.trim() !== "") {
+                     slidesRef.current.scrollToIndex({ index: selectedScreen + 1 });
+                     setSelectedScreen(selectedScreen + 1);
+                  }
+                  break;
+               case 2:
+                  if (!isPasswordInvalid && formData.password.trim() !== "" && formData.passwordConfirm.trim() !== "") {
+                     slidesRef.current.scrollToIndex({ index: selectedScreen + 1 });
+                     setSelectedScreen(selectedScreen + 1);
+                  }
+                  break;
+               case 3:
+                  if (formData.role !== "") {
+                     slidesRef.current.scrollToIndex({ index: selectedScreen + 1 });
+                     setSelectedScreen(selectedScreen + 1);
+                  }
+                  break;
+               case 4:
+                  slidesRef.current.scrollToIndex({ index: selectedScreen + 1 });
+                  setSelectedScreen(selectedScreen + 1);
+                  break;
+
+            }
          }
          else {
-            // Validar que las contraseñas sean iguales
-
-            if (formData.password !== formData.passwordConfirm) {
-               setPasswordsMatchError(true); // Actualiza el estado para mostrar el mensaje de error
-               return; // Detén la ejecución si las contraseñas no coinciden
+            if (formData.role === "Conductor") {
+               switch (selectedScreen) {
+                  case 4:
+                     slidesRef.current.scrollToIndex({ index: selectedScreen + 1 });
+                     setSelectedScreen(selectedScreen + 1);
+                     break;
+                  case 5:
+                     // Crear Un Registro
+                     if (formData.role !== "") {
+                        CorreosActivos({correo: formData.email})
+                        .then((result)=>{
+                           if (result) {
+                              // Hacer algo si el correo existe en la base de datos
+                              crearUsuario()
+                            } else {
+                             alert("Tu correo actualmente no está vigente")
+                            }
+                        }).catch((error)=>{
+                           alert("Ocurrio un error al verificar tu email")
+                        })
+                     }
+                     break;
+               }
+            } else {
+               // Crear registro
+               if (formData.role !== "") {
+                  CorreosActivos({correo: formData.email})
+                  .then((result)=>{
+                     if (result) {
+                        // Hacer algo si el correo existe en la base de datos
+                        crearUsuario()
+                      } else {
+                       alert("Tu correo actualmente no está vigente")
+                      }
+                  }).catch((error)=>{
+                     alert("Ocurrio un error al verificar tu email")
+                  })
+                 
+               }
             }
-
-            // Crear Un Registro
-            // console.log(formData)
-            setUsage()
-
-            registerUser({
-               email: formData.email,
-               name: formData.name,
-               lastName: formData.lastName,
-               password: formData.password,
-               role: formData.role
-            })
-
          }
       } catch (err) {
          alert(err)
@@ -159,246 +265,331 @@ const OnboardingScreen = ({ navigation }) => {
       }
    }
 
+   const crearUsuario = async () => {
+         if (formData.role !== "Conductor") {
+            formData.tipoVehiculo = "";
+            formData.licencia = "";
+          }
+        
+          try {
+            // Registro de usuario
+            await registerUser({
+              email: formData.email,
+              password: formData.password,
+              role: formData.role,
+              firstName: formData.name,
+              lastName: formData.lastName,
+              tipoVehiculo: formData.tipoVehiculo,
+              licencia: formData.licencia,
+            })
+            setUsage()
+            navigation.navigate('LoginEmail')
+          } catch (error) {
+            console.error("Error al registrar el usuario", error)
+          }
+    }
+    
+/* Regresa los slides */
+   const regresar = () => {
+      if (selectedScreen > 0) {
+         slidesRef.current.scrollToIndex({ index: selectedScreen - 1 });
+         setSelectedScreen(selectedScreen - 1);
+      }
+   }
+
+
+   /* Componente condicional */
    const Screen = ({ item }) => {
       const { title, info, svg, options, input, inputPassword, inputName, optionsConductor, optionsLicencia, text1, text2 } = item
       return (
          <>
-            <View style={[{ width }, { display: 'flex' }]}>
-               <StatusBar
-                  animated={true}
-                  barStyle={'light'}
-               />
-               <View style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  color: colors.text,
-                  position: 'relative',
-                  paddingBottom: keyboardVisible ? 300 : 0, // Ajusta este valor según sea necesario
-               }}>
-
-                  <View style={{
-                     display: 'flex',
-                     flex: 0.4,
-                     justifyContent: 'center',
-                     alignItems: 'center',
-                     marginTop: 20,
-                  }}>
-                     <View style={[
-                        { width }, { display: 'flex', height: '100%' }]}>
-                        {svg}
-                     </View>
-                  </View>
-                  <View
-                     style={{
-                        flex: 0.6,
-                        paddingHorizontal: 25,
+            <Formik
+               enableReinitialize={true}
+               initialValues={{ email: formData.email, name: formData.name, lastName: formData.lastName, password: formData.password, passwordConfirm: formData.passwordConfirm }}
+               validationSchema={validationSchema}
+               validateOnMount={true}
+            >
+               {({ handleBlur,handleChange, touched, errors, values }) => (
+                  <View style={[{ width }, { display: 'flex' }]}>
+                     <StatusBar
+                        animated={true}
+                        barStyle={'light'}
+                     />
+                     <View style={{
+                        flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'flex-start',
-                        alignItems: 'center',
-                        marginTop: 60,
-                     }}
-                  >
-                     <Text
-                        style={{
-                           textAlign: 'center',
-                           fontSize: 27,
-                           fontWeight: '900',
-                           marginBottom: 15,
-                           color: colors.primary
+                        color: colors.text,
+                        position: 'relative',
+                        paddingBottom: keyboardVisible ? 300 : 0,
+                     }}>
+                        <View style={{
+                           display: 'flex',
+                           flex: 0.4,
+                           justifyContent: 'center',
+                           alignItems: 'center',
                         }}>
-                        {title}
-                     </Text>
+                           <View style={[
+                              { width }, { display: 'flex', height: '80%' }]}>
+                              {svg}
+                           </View>
+                        </View>
+                        <View
+                           style={{
+                              flex: 0.6,
+                              paddingHorizontal: 25,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'flex-start',
+                              alignItems: 'center',
+                              marginTop: 30,
+                           }}
+                        >
+                           <Text
+                              style={{
+                                 textAlign: 'center',
+                                 fontSize: 27,
+                                 fontWeight: '900',
+                                 marginBottom: 15,
+                                 color: colors.primary
+                              }}>
+                              {title}
+                           </Text>
 
-                     <Text
-                        style={{
-                           textAlign: 'center',
-                           fontSize: 18,
-                           marginBottom: 15,
-                           color: colors.text2,
-                           fontWeight: "500",
-                        }}>
-                        {info}
-                     </Text>
-                     {
-                        text1 &&
-                        <View style={{ display: 'flex' }}>
-                           {text1.map((option, indx) =>
-                                 <Text style={{ fontWeight: 'bold', marginTop:10, color:'#DCA934',  fontSize: 16}}>
-                                    {option.value}
-                                 </Text>
-                             )}
-                        </View>
-                     }
-                     {
-                        options &&
-                        <View style={{ display: 'flex' }}>
-                           {options.map((option, indx) =>
-                              <TouchableOpacity
-                                 key={`${option.value}-${indx}`}
-                                 style={formData?.role === option.value ? styles.selectedOption : styles.option}
-                                 onPress={() => handleSelectRole(option.value)}>
-                                 <Text style={{ color: 'white', fontWeight: 'bold', }}>
-                                    {option.label}
-                                 </Text>
-                              </TouchableOpacity>)}
-                        </View>
-                     }
-                     {
-                        inputPassword &&
-                        <View style={{ display: 'flex' }}>
-                           {inputPassword.map((field, indx) =>
-                              <TextInput
-                                 // ref={inputRefs.current[field.atr]}
-                                 style={{
-                                    width: 300,
-                                    height: 50,
-                                    backgroundColor: 'white',
-                                    borderRadius: 8,
-                                    shadowColor: '#000',
-                                    shadowOffset: {
-                                       width: 0,
-                                       height: 2,
-                                    },
-                                    shadowOpacity: 0.25,
-                                    shadowRadius: 3.84,
-                                    elevation: 5,
-                                    paddingHorizontal: 16,
-                                    marginTop: 10,
-                                 }}
-                                 key={`${field.atr}-${indx}`}
-                                 value={formData[field.atr]}
-                                 onChangeText={(text) => handleChangeText(field.atr, text)}
-                                 placeholder={`${indx}` == 0 ? "Ingresa tu contraseña" : "Repite tu contraseña"}
-                                 placeholderTextColor="#888"
-                                 secureTextEntry={passwordVisible}
-                                 right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
-                                 autoFocus={false}
-                              />
-                           )}
-                        </View>
-                     }
-                     {
-                        inputName &&
-                        <View style={{}}>
-                           {inputName.map((field, indx) =>
-                              <TextInput
-                                 // ref={inputRefs.current[field.atr]}
-                                 style={{
-                                    width: 300,
-                                    height: 50,
-                                    backgroundColor: 'white',
-                                    borderRadius: 8,
-                                    shadowColor: '#000',
-                                    shadowOffset: {
-                                       width: 0,
-                                       height: 2,
-                                    },
-                                    shadowOpacity: 0.25,
-                                    shadowRadius: 3.84,
-                                    elevation: 5,
-                                    paddingHorizontal: 16,
-                                    marginTop: 10,
-                                 }}
-                                 key={`${field.atr}-${indx}`}
-                                 value={formData[field.atr]}
-                                 onChangeText={(text) => handleChangeText(field.atr, text)}
-                                 placeholder={`${indx}` == 0 ? "Ingresa tus nombre(s)" : "Ingresa tu apellido"}
-                                 placeholderTextColor="#888"
-                                 autoCapitalize="none"
-                              />
+                           <Text
+                              style={{
+                                 textAlign: 'center',
+                                 fontSize: 18,
+                                 marginBottom: 15,
+                                 color: colors.text2,
+                                 fontWeight: "500",
+                              }}>
+                              {info}
+                           </Text>
+                           {
+                              text1 &&
+                              <View style={{ display: 'flex' }}>
+                                 {text1.map((option, indx) =>
+                                    <Text style={{ fontWeight: 'bold', marginTop: 10, color: '#DCA934', fontSize: 16 }}>
+                                       {option.value}
+                                    </Text>
+                                 )}
+                              </View>
+                           }
 
-                           )}
-                        </View>
-                     }
-                     {
-                        optionsConductor &&
-                        <View style={{}}>
-                           <RadioButton.Group onValueChange={newValue => setTipoAuto(newValue)} value={tipoAuto}>
-                           <View style={{ flexDirection: 'row', alignItems: 'center',}}>
-                              {optionsConductor.map((option, index) => (
-                                 <RadioButton.Item
-                                 color="green"
-                                 labelStyle={{ color: '#606060'}}
-                                 key={index}
-                                 label={option.label}
-                                 value={option.value} />
-                              ))}
-                               </View>
-                           </RadioButton.Group>
-                        </View>
-                     }
-                       {
-                        text2 &&
-                        <View style={{ display: 'flex' }}>
-                           {text2.map((option, indx) =>
-                                 <Text style={{ fontWeight: 'bold', marginTop:10, color:'#DCA934', fontSize: 16}}>
-                                    {option.value}
-                                 </Text>
-                             )}
-                        </View>
-                     }
-                          {
-                        optionsLicencia &&
-                        <View style={{}}>
-                           <RadioButton.Group onValueChange={newValue => setLicencia(newValue)} value={licencia}>
-                           <View style={{ flexDirection: 'row', alignItems: 'center',}}>
-                              {optionsLicencia.map((option, index) => (
-                                 <RadioButton.Item
-                                 color="green"
-                                 labelStyle={{ color: '#606060'}}
-                                 key={index}
-                                 label={option.label}
-                                 value={option.value} />
-                              ))}
-                               </View>
-                           </RadioButton.Group>
-                        </View>
-                     }
-                     {
-                        input &&
-                        <View style={{}}>
-                           {input.map((field, indx) =>
-                              <TextInput
-                                 // ref={inputRefs.current[field.atr]}
-                                 style={{
-                                    width: 300,
-                                    height: 50,
-                                    backgroundColor: 'white',
-                                    borderRadius: 8,
-                                    shadowColor: '#000',
-                                    shadowOffset: {
-                                       width: 0,
-                                       height: 2,
-                                    },
-                                    shadowOpacity: 0.25,
-                                    shadowRadius: 3.84,
-                                    elevation: 5,
-                                    paddingHorizontal: 16,
-                                    marginTop: 10,
-                                 }}
-                                 key={`${field.atr}-${indx}`}
-                                 value={formData[field.atr]}
-                                 onChangeText={(text) => handleChangeText(field.atr, text)}
-                                 placeholder="Ingresa tu correo"
-                                 placeholderTextColor="#888"
-                                 autoCapitalize="none"
-                              />
+                           {
+                              options &&
+                              <View style={{ display: 'flex' }}>
+                                 {options.map((option, indx) => (
+                                    <TouchableOpacity
+                                       key={`${option.value}-${indx}`}
+                                       style={formData?.role === option.value ? styles.selectedOption : styles.option}
+                                       onPress={() => handleSelectRole(option.value)}>
+                                       <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                                          {option.label}
+                                       </Text>
 
-                           )}
-                        </View>
-                     }
+                                    </TouchableOpacity>
 
-                     {passwordsMatchError && (
-                        <Text style={{ color: '#EC5B57', marginBottom: 10, marginTop: 10, textAlign: 'center' }}>
-                           Las contraseñas no coinciden. Por favor, inténtalo nuevamente.
-                        </Text>
-                     )
-                     }
-                  </View>
-               </View>
-            </View>
+                                 ))}
+                              </View>
+                           }
+                           {
+                              inputPassword &&
+                              <View style={{ display: 'flex' }}>
+                                 {inputPassword.map((field, indx) =>
+                                    <View key={`${field.atr}-${indx}`}>
+                                       <TextInput
+                                          style={{
+                                             width: 300,
+                                             height: 50,
+                                             backgroundColor: 'white',
+                                             borderRadius: 8,
+                                             shadowColor: '#000',
+                                             shadowOffset: {
+                                                width: 0,
+                                                height: 2,
+                                             },
+                                             shadowOpacity: 0.25,
+                                             shadowRadius: 3.84,
+                                             elevation: 5,
+                                             paddingHorizontal: 16,
+                                             marginTop: 10,
+                                          }}
+                                          key={`${field.atr}-${indx}`}
+                                        //  value={formData[field.atr]}
+                                        //  onChangeText={(text) => handleChangeText(field.atr, text)}
+                                          value = {values[field.atr]}
+                                          onChangeText={ (text)  => {handleChangeText(field.atr, text), handleChange(field.atr)}}
+                                          placeholder={`${indx}` == 0 ? "Ingresa tu contraseña" : "Repite tu contraseña"}
+                                          placeholderTextColor="#888"
+                                          secureTextEntry={passwordVisible}
+                                          right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
+                                          //autoFocus={false}
+                                          onBlur={handleBlur(field.atr)}
+                                       />
+                                       {touched[field.atr] && errors[field.atr] && <Text style={{ color: "red" }}>{errors[field.atr]}</Text>}
+                                       {
+                                          touched[field.atr] && errors[field.atr] ? isPasswordInvalid = true : isPasswordInvalid = false
+                                       }
+                                    </View>
+                                 )}
+                              </View>
+                           }
+                           {
+                              inputName &&
+                              <View style={{}}>
+                                 {inputName.map((field, indx) =>
+                                    <View key={`${field.atr}-${indx}`}>
+                                       <TextInput
+                                          style={{
+                                             width: 300,
+                                             height: 50,
+                                             backgroundColor: 'white',
+                                             borderRadius: 8,
+                                             shadowColor: '#000',
+                                             shadowOffset: {
+                                                width: 0,
+                                                height: 2,
+                                             },
+                                             shadowOpacity: 0.25,
+                                             shadowRadius: 3.84,
+                                             elevation: 5,
+                                             paddingHorizontal: 16,
+                                             marginTop: 10,
+                                          }}
+                                          key={`${field.atr}-${indx}`}
+                                         // value={formData[field.atr]}
+                                         // onChangeText={(text) => handleChangeText(field.atr, text)}
+                                          value = {values[field.atr]}
+                                          onChangeText={ (text)  => {handleChangeText(field.atr, text), handleChange(field.atr)} }
+                                          placeholder={`${indx}` == 0 ? "Ingresa tus nombre(s)" : "Ingresa tu apellido"}
+                                          placeholderTextColor="#888"
+                                          onBlur={handleBlur(field.atr)}
+                                       />
+                                       {touched[field.atr] && errors[field.atr] && <Text style={{ color: "red" }}>{errors[field.atr]}</Text>}
+                                       {
+                                          touched[field.atr] && errors[field.atr] ? isNameInvalid = true : isNameInvalid = false
+                                       }
+                                    </View>
+                                 )}
+                              </View>
+                           }
+                           {
+                              optionsConductor &&
+                              <View style={{}}>
+                                 <RadioButton.Group
+                                    onValueChange={newValue => handleTipoAuto(newValue)} value={formData.tipoVehiculo}>
+                                    <View style={{ flexDirection: 'column' }}>
+                                       {optionsConductor.map((option, index) => (
+                                          (index % 2 === 0) && (
+                                             <View key={`${option.value}-${index}`} style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                                <RadioButton.Item
+                                                   color="green"
+                                                   labelStyle={{ color: '#606060' }}
+                                                   label={optionsConductor[index].label}
+                                                   value={optionsConductor[index].value}
+                                                />
+                                                {index + 1 < optionsConductor.length && (
+                                                   <RadioButton.Item
+                                                      color="green"
+                                                      labelStyle={{ color: '#606060' }}
+                                                      label={optionsConductor[index + 1].label}
+                                                      value={optionsConductor[index + 1].value}
+                                                   />
+                                                )}
+                                             </View>
+                                          )
+                                       ))}
+                                    </View>
+                                 </RadioButton.Group>
+                              </View>
+                           }
+                           {
+                              text2 &&
+                              <View style={{ display: 'flex' }}>
+                                 {text2.map((option, indx) =>
+                                    <Text style={{ fontWeight: 'bold', marginTop: 10, color: '#DCA934', fontSize: 16 }}>
+                                       {option.value}
+                                    </Text>
+                                 )}
+                              </View>
+                           }
+                           {
+                              optionsLicencia &&
+                              <View style={{}}>
+                                 <RadioButton.Group onValueChange={newValue => handleLicencia(newValue)} value={formData.licencia}>
+                                    <View style={{ flexDirection: 'column' }}>
+                                       {optionsLicencia.map((option, index) => (
+                                          (index % 2 === 0) && (
+                                             <View key={`${index.value}-${index}`} style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                                <RadioButton.Item
+                                                   color="green"
+                                                   labelStyle={{ color: '#606060' }}
+                                                   label={optionsLicencia[index].label}
+                                                   value={optionsLicencia[index].value}
+                                                />
+                                                {index + 1 < optionsLicencia.length && (
+                                                   <RadioButton.Item
+                                                      color="green"
+                                                      labelStyle={{ color: '#606060' }}
+                                                      label={optionsLicencia[index + 1].label}
+                                                      value={optionsLicencia[index + 1].value}
+                                                   />
+                                                )}
+                                             </View>
+                                          )
+                                       ))}
+                                    </View>
+                                 </RadioButton.Group>
+                              </View>
+                           }
+                           {
+                              input &&
+                              <View style={{}}>
+                                 {input.map((field, indx) =>
+                                    <View key={`${field.atr}-${indx}`}>
+                                       <TextInput
+                                          style={{
+                                             color: 'black',
+                                             width: 350,
+                                             height: 50,
+                                             backgroundColor: 'white',
+                                             borderRadius: 8,
+                                             shadowColor: '#000',
+                                             shadowOffset: {
+                                                width: 0,
+                                                height: 2,
+                                             },
+                                             shadowOpacity: 0.25,
+                                             shadowRadius: 3.84,
+                                             elevation: 5,
+                                             paddingHorizontal: 16,
+                                             marginTop: 10,
+                                          }}
+                                          key={`${field.atr}-${indx}`}
+                                         // value={formData[field.atr]}
+                                         // onChangeText={(text) => handleChangeText(field.atr, text)}
+                                          value = {values[field.atr]}
+                                          onChangeText={ (text)  => {handleChangeText(field.atr, text), handleChange((field.atr))} }
+                                          placeholder="Ingresa tu correo"
+                                          placeholderTextColor="#888"
+                                          autoCapitalize="none"
+                                          onBlur={handleBlur(field.atr)}
+                                       />
+                                       {
+                                          touched[field.atr] && errors[field.atr] && <Text style={{ color: "red" }}>{errors[field.atr]}</Text>}
+                                       {
+                                          touched[field.atr] && errors[field.atr] ? isEmailInvalid = true : isEmailInvalid = false
+                                       }
+                                    </View>
+                                 )}
+                              </View>
+                           }
+                        </View>
+                     </View>
+                  </View>)}
+            </Formik>
          </>
       )
    }
@@ -423,7 +614,7 @@ const OnboardingScreen = ({ navigation }) => {
                   <FlatList
                      ref={slidesRef}
                      data={slides}
-                     //scrollEnabled={true}
+                     scrollEnabled={false}
                      onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: false, })}
                      renderItem={Screen}
                      horizontal
@@ -434,8 +625,6 @@ const OnboardingScreen = ({ navigation }) => {
                   />
                </View>
             </KeyboardAvoidingView>
-
-
             {/*  Controles  */}
             <View style={{
                width: '100%',
@@ -478,7 +667,7 @@ const OnboardingScreen = ({ navigation }) => {
                   }
                </View>
 
-               {/* Boton de Continuar */}
+               {/* Boton de contiuar y regresar */}
                <View style={{
                   flex: 1,
                   display: 'flex',
@@ -486,14 +675,45 @@ const OnboardingScreen = ({ navigation }) => {
                   paddingHorizontal: 35,
                   paddingBottom: 10,
                   display: 'flex',
-
+                  alignItems: 'center',
+                  justifyContent: 'center',
                }}>
+                  <TouchableOpacity
+                     // TODO: Styles disabled
+                     disabled={loading}
+                     onPress={regresar}
+                     style={{
+                        width: '40%',
+                        height: 60,
+                        backgroundColor: '#A0A0A0', //por definir en dark
+                        marginEnd: 10,
+                        padding: 10,
+                        borderRadius: 10,
+                        shadowColor: "#000", //por definir en dark
+                        shadowOffset: {
+                           width: 0,
+                           height: 3,
+                        },
+                        shadowOpacity: 0.27,
+                        shadowRadius: 4.65,
+                        elevation: 6,
+                     }}>
+                     <Text style={{
+                        color: 'white',
+                        fontSize: 20,
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+
+                     }}>
+                        Regresar
+                     </Text>
+                  </TouchableOpacity>
                   <TouchableOpacity
                      // TODO: Styles disabled
                      disabled={loading}
                      onPress={scrollTo}
                      style={{
-                        width: '100%',
+                        width: '40%',
                         height: 60,
                         backgroundColor: 'green', //por definir en dark
                         padding: 10,
