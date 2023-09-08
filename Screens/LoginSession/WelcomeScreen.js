@@ -25,7 +25,7 @@ const WelcomeScreen = ({ navigation }) => {
                     alignItems: 'center',
                     marginTop: 20,
                 }}>
-                    <View style={[{ width }, { display: 'flex', height: '100%' }]}>
+                    <View style={[{ width:400 }, { display: 'flex', height: 300, marginTop:30 }]}>
                         <Lottie source={require('../../assets/LottieFiles/RideSchool.json')} />
                     </View>
                 </View>
@@ -59,21 +59,21 @@ const WelcomeScreen = ({ navigation }) => {
                             color: colors.text2,
                             fontWeight: "500",
                         }}>
-                        Hacemos posibles los ride\'s más rapidos y seguros para estudiantes.
+                        Hacemos posibles los rides más rapidos y seguros para estudiantes.
                     </Text>
 
                 </View>
             </View>
-            <View>
+            <View style={styles.container}>
                 <TouchableOpacity
                     onPress={() => navigation.navigate('Onboarding')}
                     style={[styles.button]}>
-                    <Text>Comenzar</Text>
+                    <Text style={styles.text}>Comenzar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => navigation.navigate('LoginEmail')}
                     style={[styles.button]}>
-                    <Text>Ya tengo Cuenta</Text>
+                    <Text style={styles.text}>Ya tengo Cuenta</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -82,11 +82,30 @@ const WelcomeScreen = ({ navigation }) => {
 export default WelcomeScreen;
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center'
+    },
+    text: {
+        textAlign: 'center',
+        color: 'white',
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
     button: {
-        backgroundColor: 'green',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-        marginBottom: 10,
+        width: '80%',
+        height: 70,
+        marginTop: 10,
+        backgroundColor: '#E1A43B', //por definir en dark
+        padding: 10,
+        borderRadius: 10,
+        shadowColor: "#000", //por definir en dark
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.27,
+        shadowRadius: 4.65,
+        elevation: 6,
     }
 })

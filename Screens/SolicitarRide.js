@@ -58,8 +58,6 @@ const SolicitarRide = ({ navigation }) => {
             return;
         }
         const { coords } = await Location.getCurrentPositionAsync({});
-        //console.log('current location loaded:', location.coords)
-        //setRoute(p => ({ ...p, origin: { latitude: coords.latitude, longitude: coords.longitude } }));
         setHomePlace({ description: 'Ubicacion Actual', geometry: { location: { lat: coords.latitude, lng: coords.longitude } } })
     }
 
@@ -259,8 +257,6 @@ const SolicitarRide = ({ navigation }) => {
                     </TouchableOpacity>
                 }
             </View>
-
-
         </View>
     );
 };

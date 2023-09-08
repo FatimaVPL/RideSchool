@@ -1,3 +1,4 @@
+import {useEffect} from 'react'
 import { StyleSheet} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,12 +10,19 @@ import ChatScreen from './ChatScreen';
 import RidesScreen from './RidesScreen';
 import RidesSolicitados from './RidesSolicitados';
 import GestionarOfertas from './GestionarOfertas';
+import {useAuth} from '../context/AuthContext'
 
 const Tab = createBottomTabNavigator();
 
 function ButtonTabScreen() {
+  
+  const {user,setUsage } = useAuth()
+
+  useEffect(()=>{
+    setUsage()
+  },[])
+
   return (
-   
      <Tab.Navigator>
         <Tab.Screen
           name="Inicio"
