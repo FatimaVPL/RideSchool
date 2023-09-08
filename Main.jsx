@@ -5,8 +5,6 @@ import CambiarRolScreen from './Screens/CambiarRolScreen';
 import { createStackNavigator } from '@react-navigation/stack';
 import NotificacionesScreen from './Screens/NotificacionesScreen';
 import AjustesGeneralesScreen from './Screens/AjustesGeneralesScreen';
-import { ThemeProvider } from './hooks/ThemeContext';
-import { PaperProvider } from 'react-native-paper';
 import { useAuth } from './context/AuthContext';
 import Loader from './components/Loader';
 import LoginEmailScreen from './Screens/LoginSession/LoginEmailScreen';
@@ -22,7 +20,7 @@ const Main = () => {
 
   return (
     <>
-      { initializing ? <Loader /> : !user ?
+      { initializing ? <Loader /> : !user  ?
         <Stack.Navigator>
           {
             firstTime && <>
@@ -62,4 +60,4 @@ const Main = () => {
     </>
   )
 }
-export default Main
+export default Main 
