@@ -1,86 +1,68 @@
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
-import { List, Switch, Button } from 'react-native-paper';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import React from 'react';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 
-const AjustesGeneralesScreen = ({navigation}) => {
-  const [preferencias, setPreferencias] = useState({
-    recibirNotificaciones: false,
-    mostrarUbicacion: true,
-    compartirViajes: false,
-  });
-  const [numeroTelefono, setNumeroTelefono] = useState('');
-
-  const togglePreferencia = (preferencia) => {
-    setPreferencias({
-      ...preferencias,
-      [preferencia]: !preferencias[preferencia],
-    });
-  };
-
-  const handleGuardarTelefono = () => {
-    // Aquí puedes realizar la lógica para guardar el número de teléfono en tu aplicación
-    console.log('Teléfono guardado:', numeroTelefono);
-  };
-
+const AjustesGeneralesScreen = () => {
   return (
-    <View>
-      <List.Section>
-        <List.Subheader>Preferencias</List.Subheader>
-        <List.Item
-          title="Recibir notificaciones"
-          right={() => (
-            <Switch
-              value={preferencias.recibirNotificaciones}
-              onValueChange={() => togglePreferencia('recibirNotificaciones')}
-            />
-          )}
-        />
-        <List.Item
-          title="Mostrar ubicación"
-          right={() => (
-            <Switch
-              value={preferencias.mostrarUbicacion}
-              onValueChange={() => togglePreferencia('mostrarUbicacion')}
-            />
-          )}
-        />
-        <List.Item
-          title="Compartir viajes"
-          right={() => (
-            <Switch
-              value={preferencias.compartirViajes}
-              onValueChange={() => togglePreferencia('compartirViajes')}
-            />
-          )}
-        />
-      </List.Section>
-
-      <List.Section>
-        <List.Subheader>Agregar número de teléfono</List.Subheader>
-        <List.Item
-          title="Número de teléfono"
-          right={() => (
-            <TextInput
-              value={numeroTelefono}
-              onChangeText={setNumeroTelefono}
-              keyboardType="phone-pad"
-            />
-          )}
-        />
-        <Button mode="contained" onPress={handleGuardarTelefono} style={styles.button}>
-          Guardar
-        </Button>
-      </List.Section>
+    <View style={styles.container}>
+      <Text style={styles.title1}>Titulo 1</Text>
+      <Text style={styles.title2}>Titulo 2</Text>
+      <Text style={styles.title3}>Titulo 3</Text>
+      <Text style={styles.normalText1}>Soy texto normal</Text>
+      <Text>Soy texto sin configuración</Text>
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>Guardar</Text>
+      </TouchableOpacity>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
-    button:{
-        width: 200,
-        marginStart:100,
-        marginTop:10,
-        backgroundColor: 'green'
+  container: {
+    backgroundColor: '#262626',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  normalText1: {
+    textAlign: 'justify',
+    fontSize: 20,
+    color: 'white'
+  },
+  title1: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 35,
+  },
+  title2: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 30,
+  },
+  title3: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 25,
+  },
+  button: {
+    width: 200,
+    marginTop: 10,
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
     },
-  });
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    elevation: 6,
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 20,
+  },
+});
+
 export default AjustesGeneralesScreen;

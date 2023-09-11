@@ -1,3 +1,4 @@
+import {useEffect} from 'react'
 import { StyleSheet} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -7,15 +8,21 @@ import PerfilScreen from './PerfilScreen';
 import SolicitarRide from './SolicitarRide';
 import ChatScreen from './ChatScreen';
 import RidesScreen from './RidesScreen';
-
-
-
+import RidesSolicitados from './RidesSolicitados';
+import GestionarOfertas from './GestionarOfertas';
+import {useAuth} from '../context/AuthContext'
 
 const Tab = createBottomTabNavigator();
 
 function ButtonTabScreen() {
+  
+  const {user,setUsage } = useAuth()
+
+  useEffect(()=>{
+    setUsage()
+  },[])
+
   return (
-   
      <Tab.Navigator>
         <Tab.Screen
           name="Inicio"
@@ -28,10 +35,19 @@ function ButtonTabScreen() {
         />
         <Tab.Screen
           name="Rides"
-          component={RidesScreen}
+          component={RidesSolicitados}
           options={{
             tabBarIcon: ({ color, size }) => (
               <MaterialIcons name="directions-car" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Ofertas"
+          component={GestionarOfertas}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="pin-drop" size={size} color={color} />
             ),
           }}
         />

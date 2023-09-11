@@ -5,8 +5,6 @@ import CambiarRolScreen from './Screens/CambiarRolScreen';
 import { createStackNavigator } from '@react-navigation/stack';
 import NotificacionesScreen from './Screens/NotificacionesScreen';
 import AjustesGeneralesScreen from './Screens/AjustesGeneralesScreen';
-import { ThemeProvider } from './hooks/ThemeContext';
-import { PaperProvider } from 'react-native-paper';
 import { useAuth } from './context/AuthContext';
 import Loader from './components/Loader';
 import LoginEmailScreen from './Screens/LoginSession/LoginEmailScreen';
@@ -14,6 +12,9 @@ import OnboardingScreen from './Screens/LoginSession/OnboardingScreen';
 import Registro from './Screens/LoginSession/RegistroScreen';
 import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
 import FrmSolicitarRide from './Screens/FrmSolicitarRide';
+import SolicitarRide from './Screens/SolicitarRide';
+import GestionarOfertas from './Screens/GestionarOfertas';
+
 const Main = () => {
 
   const Stack = createStackNavigator();
@@ -21,7 +22,7 @@ const Main = () => {
 
   return (
     <>
-      { /*initializing ? <Loader /> : !user ?
+      { initializing ? <Loader /> : !user  ?
         <Stack.Navigator>
           {
             firstTime && <>
@@ -45,7 +46,6 @@ const Main = () => {
           />
         </Stack.Navigator>
         :
-*/
         <Stack.Navigator>
           <Stack.Screen
             name="Home"
@@ -57,9 +57,10 @@ const Main = () => {
           <Stack.Screen name="Notificaciones" component={NotificacionesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Ajustes Generales" component={AjustesGeneralesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Solicitar Ride" component={FrmSolicitarRide} options={{ presentation: "modal" }} />
+          <Stack.Screen name="GestionarOfertas" component={GestionarOfertas} options={{ presentation: "modal" }} />
         </Stack.Navigator>
       }
     </>
   )
 }
-export default Main
+export default Main 
