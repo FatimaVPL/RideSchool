@@ -24,7 +24,7 @@ const LoginEmailScreen = ({ navigation }) => {
     try {
        // El usuario ha iniciado sesión con éxito
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      console.log("User: ", )
+      //console.log("User: ", )
     } catch (error) {
       // Manejo de errores específicos
       switch (error.code) {

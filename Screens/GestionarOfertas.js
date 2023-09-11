@@ -1,12 +1,14 @@
 import * as React from "react";
+import {useEffect, useState} from 'react'
 import { View, StyleSheet, TouchableOpacity, Modal, Pressable, FlatList } from "react-native";
 import { AirbnbRating } from 'react-native-elements';
 import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { firebase } from '../config-firebase';
+import { db } from '../config-firebase';
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_MAPS_API_KEY } from "@env";
+import { useAuth } from '../context/AuthContext';
 
 const styles = StyleSheet.create({
     container: {
@@ -29,20 +31,21 @@ const styles = StyleSheet.create({
 
 const RidesConductor = ({ navigation }) => {
 
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [data, setData] = React.useState([]);
-    const [index, setIndex] = React.useState(null);
-    const [comen, onChangeText] = React.useState('');
-    const [score, setScore] = React.useState(null);
-    const [showOverlay, setShowOverlay] = React.useState(false);
-    const [modalDetails, setModalDetails] = React.useState(false);
-    const [modalALert, setModalAlert] = React.useState(false);
-    const [modalDialog, setModalDialog] = React.useState(false);
-    const [modalRating, setModalRating] = React.useState(false);
+    const { user } = useAuth();
+    const [isLoading, setIsLoading] = useState(true);
+    const [data, setData] = useState([]);
+    const [index, setIndex] = useState(null);
+    const [comen, onChangeText] = useState('');
+    const [score, setScore] = useState(null);
+    const [showOverlay, setShowOverlay] = useState(false);
+    const [modalDetails, setModalDetails] = useState(false);
+    const [modalALert, setModalAlert] = useState(false);
+    const [modalDialog, setModalDialog] = useState(false);
+    const [modalRating, setModalRating] = useState(false);
 
-    React.useEffect(() => {
-        const unsubscribeOfertas = firebase.firestore().collection('ofertas').onSnapshot(() => { getData('id123') });
-        const unsubscribeRides = firebase.firestore().collection('rides').onSnapshot(() => { getData('id123') });
+    useEffect(() => {
+        const unsubscribeOfertas = db.collection('ofertas').onSnapshot(() => { getData() });
+        const unsubscribeRides = db.collection('rides').onSnapshot(() => { getData() });
 
         return () => {
             if (unsubscribeOfertas && unsubscribeRides) {
@@ -52,9 +55,9 @@ const RidesConductor = ({ navigation }) => {
         };
     }, []);
 
-    async function getData(id) {
+    async function getData() {
         try {
-            const ofertasSnapshot = await firebase.firestore().collection('ofertas').where('idConductor', '==', id).get();
+            const ofertasSnapshot = await db.collection('ofertas').where('conductorID', '==', user.uid).get();
             const resultados = [];
 
             for (const ofertasDoc of ofertasSnapshot.docs) {

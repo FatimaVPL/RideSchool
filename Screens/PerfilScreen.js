@@ -1,23 +1,32 @@
 import React from 'react';
+import { useEffect, useState } from 'react'
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Avatar, Text, Divider, ActivityIndicator, MD2Colors, PaperProvider } from 'react-native-paper';
-import { firebase } from '../config-firebase';
+import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 
 
 const PerfilScreen = ({ navigation }) => {
 
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [userData, setUserData] = React.useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
 
-  React.useEffect(() => { getUser(user.uid) }, []);
+  useEffect(() => {
+    const unsubscribe = db.collection('users').onSnapshot(() => { getUser() });
 
-  async function getUser(id) {
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, []);
+
+  async function getUser() {
     try {
-      const userSnapshot = await firebase.firestore().collection('users').where('uid', '==', id).get();
+      const userSnapshot = await db.collection('users').where('uid', '==', user.uid).get();
       const userDoc = userSnapshot.docs;
       const userData = [];
       userDoc.forEach(doc => {
@@ -66,7 +75,7 @@ const PerfilScreen = ({ navigation }) => {
               {Array.from({ length: userData?.scoreDriver }).map((_, index) => (
                 <Ionicons key={index} name="star" size={24} color="#FFC107" />
               ))}
-              {Array.from({ length: 5-userData?.scoreDriver }).map((_, index) => (
+              {Array.from({ length: 5 - userData?.scoreDriver }).map((_, index) => (
                 <Ionicons key={index} name="star" size={24} color="#8C8A82" />
               ))}
             </View>
@@ -76,25 +85,25 @@ const PerfilScreen = ({ navigation }) => {
               <Text variant='headlineMedium'>Configuraciones</Text>
               <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
-                  <MaterialIcons name="notifications" size={24} color="#212121" style={{marginRight: 5}}/>
+                  <MaterialIcons name="notifications" size={24} color="#212121" style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Notificaciones</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={cambiarRol}>
                 <View style={styles.settingsItem}>
-                  <Ionicons name="ios-people" size={24} color="#212121" style={{marginRight: 5}}/>
+                  <Ionicons name="ios-people" size={24} color="#212121" style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Cambiar de rol</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={ajustesGenerales}>
                 <View style={styles.settingsItem}>
-                  <Ionicons name="settings" size={24} color="#212121" style={{marginRight: 5}}/>
+                  <Ionicons name="settings" size={24} color="#212121" style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Ajustes generales</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleLogout}>
                 <View style={styles.settingsItem}>
-                  <Ionicons name="log-out" size={24} color="#DC3803" style={{marginRight: 5}}/>
+                  <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
                   <Text variant='labelLarge' style={styles.logOutItem}>Cerrar sesión</Text>
                 </View>
               </TouchableOpacity>

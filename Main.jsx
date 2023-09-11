@@ -29,20 +29,24 @@ const Main = () => {
               <Stack.Screen
                 name="Welcome"
                 component={WelcomeScreen}
+                options={{ headerShown: false }}
               />
               <Stack.Screen
                 name="Onboarding"
                 component={OnboardingScreen}
+                options={{ headerShown: false }}
               />
             </>
           }
           <Stack.Screen
             name='LoginEmail'
             component={LoginEmailScreen}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name='Registro'
             component={Registro}
+            options={{ headerShown: false }}
           />
         </Stack.Navigator>
         :
@@ -58,6 +62,7 @@ const Main = () => {
           <Stack.Screen name="Ajustes Generales" component={AjustesGeneralesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Solicitar Ride" component={FrmSolicitarRide} options={{ presentation: "modal" }} />
           <Stack.Screen name="GestionarOfertas" component={GestionarOfertas} options={{ presentation: "modal" }} />
+
         </Stack.Navigator>
       }
     </>
