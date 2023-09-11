@@ -7,8 +7,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, Keyboard } from "react-native";
 import { useAuth } from '../context/AuthContext'
 import { Image } from "react-native";
-
-const carImage = require("../assets/car.png");
+import Geocoder from 'react-native-geocoding';
 
 const styles = StyleSheet.create({
     container: {
@@ -31,9 +30,8 @@ const ITSUR_PLACE = {
     }
 }
 
-const SolicitarRide = ({ navigation }) => {
-
-    const { user } = useAuth()
+const SolicitarRide = ({formikk}) => {
+    const { user } = useAuth();
 
     // Referencias a los componentes
     const mapRef = React.useRef(null);
@@ -44,12 +42,15 @@ const SolicitarRide = ({ navigation }) => {
     const [homePlace, setHomePlace] = React.useState(null);
 
     // Ruta que se va a solicitar
-    const [route, setRoute] = React.useState({ origin: null, destination: null })
+    const [route, setRoute] = React.useState({ origin: null, destination: null})
 
     // Indica si se esta seleccionando un lugar
     const [selecting, setSelecting] = React.useState(null)
 
-    React.useEffect(() => { getLocationPermission(); }, []);
+    React.useEffect(() => { 
+        Geocoder.init(GOOGLE_MAPS_API_KEY);
+        getLocationPermission(); 
+    }, []);
 
     async function getLocationPermission() {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -62,15 +63,6 @@ const SolicitarRide = ({ navigation }) => {
         //setRoute(p => ({ ...p, origin: { latitude: coords.latitude, longitude: coords.longitude } }));
         setHomePlace({ description: 'Ubicacion Actual', geometry: { location: { lat: coords.latitude, lng: coords.longitude } } })
     }
-
-    // Ocultando el tab bar cuando se esta seleccionando un lugar
-    React.useEffect(() => {
-        if (selecting !== null)
-            navigation.setOptions({ tabBarStyle: { display: 'none' } });
-        else
-            navigation.setOptions({ tabBarStyle: { display: 'flex' } });
-    }, [selecting])
-
 
     // Marcar el centro del mapa cuando se esta seleccionando un lugar
     const markCenter = async (selecting) => {
@@ -110,6 +102,31 @@ const SolicitarRide = ({ navigation }) => {
             date: new Date().toLocaleString(),
         })
     }
+
+    //Formik
+    React.useEffect(() => {
+        if (route.origin !== null && route.destination !== null) {
+            formikk.setFieldValue('origin', route.origin);
+            formikk.setFieldValue('destination', route.destination);
+        }
+    }, [route])
+    React.useEffect(() => {
+        if(formikk.values.origin !== null && formikk.values.destination !== null){
+            setRoute({
+                origin: formikk.values.origin,
+                destination: formikk.values.destination,
+            })
+            Geocoder.from(formikk.values.destination.latitude, formikk.values.destination.longitude).then(json => {
+                var addressComponent = json.results[0].formatted_address;
+                destinationRef.current?.setAddressText(addressComponent);
+            }).catch(error => console.warn(error));
+            Geocoder.from(formikk.values.origin.latitude, formikk.values.origin.longitude).then(json => {
+                var addressComponent = json.results[0].formatted_address;
+                originRef.current?.setAddressText(addressComponent);
+            }).catch(error => console.warn(error));
+        }
+    }, [])
+
 
     return (
         <View style={[styles.container, { position: 'relative' }]}>
@@ -188,7 +205,7 @@ const SolicitarRide = ({ navigation }) => {
                                 id="origin"
                                 coordinate={route.origin}
                                 draggable={true}
-                            //onDragEnd={(e) => setOrigin(e.nativeEvent.coordinate)}
+                                //onDragEnd={(e) => setOrigin(e.nativeEvent.coordinate)}
 
                             />
                         }
@@ -251,16 +268,7 @@ const SolicitarRide = ({ navigation }) => {
                         </TouchableOpacity>
                     </>
                 }
-                {route.origin !== null && route.destination !== null &&
-                    <TouchableOpacity
-                        onPress={handleSolicitar}
-                        style={{ position: 'absolute', bottom: 0, width: '100%', height: 50, backgroundColor: '#5e5' }}>
-                        <Text>Solicitar</Text>
-                    </TouchableOpacity>
-                }
             </View>
-
-
         </View>
     );
 };
