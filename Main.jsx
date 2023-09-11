@@ -11,6 +11,7 @@ import LoginEmailScreen from './Screens/LoginSession/LoginEmailScreen';
 import OnboardingScreen from './Screens/LoginSession/OnboardingScreen';
 import Registro from './Screens/LoginSession/RegistroScreen';
 import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
+import FrmSolicitarRide from './Screens/FrmSolicitarRide';
 import SolicitarRide from './Screens/SolicitarRide';
 import GestionarOfertas from './Screens/GestionarOfertas';
 
@@ -56,11 +57,12 @@ const Main = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="Perfil" component={PerfilScreen} />
-          <Stack.Screen name="SolicitarRide" component={SolicitarRide} options={{ presentation: "modal" }} />
           <Stack.Screen name="Cambiar Rol" component={CambiarRolScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Notificaciones" component={NotificacionesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Ajustes Generales" component={AjustesGeneralesScreen} options={{ presentation: "modal" }} />
-          <Stack.Screen name="GestionarOfertas" component={GestionarOfertas} options={{ presentation: undefined }} />
+          <Stack.Screen name="Solicitar Ride" component={FrmSolicitarRide} options={{ presentation: "modal" }} />
+          <Stack.Screen name="GestionarOfertas" component={GestionarOfertas} options={{ presentation: "modal" }} />
+
         </Stack.Navigator>
       }
     </>

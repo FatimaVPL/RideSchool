@@ -3,11 +3,11 @@ import { TouchableOpacity } from "react-native";
 import { View, StyleSheet } from "react-native"
 
 const RidesScreen = ({ navigation }) => {
-
+   
     return (
         <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#e66' }]}>
             <TouchableOpacity
-                onPress={() => navigation.navigate('SolicitarRide')}
+                onPress={() => navigation.navigate('Solicitar Ride')}
             >
                 <Text>Solicitar Ride</Text>
             </TouchableOpacity>
