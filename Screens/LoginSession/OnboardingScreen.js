@@ -1,24 +1,11 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import {
-   View,
-   Text,
-   TouchableOpacity,
-   StatusBar,
-   FlatList,
-   useWindowDimensions,
-   StyleSheet,
-   KeyboardAvoidingView,
-   Platform,
-   Animated,
-   Keyboard,
-} from "react-native"
+import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Keyboard } from "react-native"
 import { TextInput, RadioButton } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
 import { useTheme } from "../../hooks/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { object, string, ref } from 'yup';
 import { Formik, validateYupSchema } from 'formik';
-//import {firebase, db} from '../../config-firebase';
 import CorreosActivos from "./CorreosActivos";
 
 

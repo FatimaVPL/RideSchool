@@ -1,13 +1,15 @@
 import * as React from "react";
+import {useEffect, useState} from 'react'
 import * as Location from "expo-location";
 import { Text, Modal, Pressable, View, StyleSheet, TouchableOpacity } from "react-native";
 import { TextInput, PaperProvider, ActivityIndicator, MD2Colors } from 'react-native-paper';
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import { Avatar } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { firebase } from '../config-firebase';
+import { db } from '../config-firebase';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { useAuth } from '../context/AuthContext';
 
 const styles = StyleSheet.create({
     container: {
@@ -34,9 +36,19 @@ const styles = StyleSheet.create({
 
 const RidesSolicitados = ({ navigation }) => {
 
-    React.useEffect(() => {
+    const { user } = useAuth();
+    const [origin, setOrigin] = useState(null);
+    const [data, setData] = useState([]);
+    const [index, setIndex] = useState([]);
+    const [modalUser, setModalUser] = useState(false);
+    const [modalDetails, setModalDetails] = useState(false);
+    const [modalALert, setModalAlert] = useState(false);
+    const [showOverlay, setShowOverlay] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
         getLocationPermission();
-        const unsubscribe = firebase.firestore().collection('rides').onSnapshot(() => { getData() });
+        const unsubscribe = db.collection('rides').onSnapshot(() => { getData() });
 
         return () => {
             if (unsubscribe) {
@@ -44,15 +56,6 @@ const RidesSolicitados = ({ navigation }) => {
             }
         };
     }, []);
-
-    const [origin, setOrigin] = React.useState(null);
-    const [data, setData] = React.useState([]);
-    const [index, setIndex] = React.useState([]);
-    const [modalUser, setModalUser] = React.useState(false);
-    const [modalDetails, setModalDetails] = React.useState(false);
-    const [modalALert, setModalAlert] = React.useState(false);
-    const [showOverlay, setShowOverlay] = React.useState(false);
-    const [isLoading, setIsLoading] = React.useState(true);
 
     async function getLocationPermission() {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -66,7 +69,7 @@ const RidesSolicitados = ({ navigation }) => {
 
     async function getData() {
         try {
-            const ridesSnapshot = await firebase.firestore().collection('rides').get();
+            const ridesSnapshot = await db.collection('rides').get();
             const resultados = [];
 
             for (const ridesDoc of ridesSnapshot.docs) {
@@ -93,7 +96,7 @@ const RidesSolicitados = ({ navigation }) => {
         setModalDetails(false);
 
         try {
-            const docRef = firebase.firestore().collection('ofertas').doc();
+            const docRef = db.collection('ofertas').doc();
             return await docRef.set({
                 id: docRef,
                 fechaSolicitud: new Date(),
@@ -123,19 +126,19 @@ const RidesSolicitados = ({ navigation }) => {
             .max(50, 'Debe ser menor o igual a 50')
             .min(0, 'Si no deseas cobrar el ride, escribe un cero')
             .required('Este campo es obligatorio'),
-        comenConductor: Yup.string(),
+        comentario: Yup.string(),
     });
 
     return (
         <PaperProvider>
             <View style={styles.container}>
-                {!isLoading && origin !== null ? (
+                {!isLoading ? (
                     <><MapView
                         provider={PROVIDER_GOOGLE}
                         style={styles.map}
                         initialRegion={{
-                            latitude: origin.location.lat,
-                            longitude: origin.location.lng,
+                            latitude: origin.location?.lat,
+                            longitude: origin.location?.lng,
                             latitudeDelta: 0.003,
                             longitudeDelta: 0.003,
                         }}
@@ -251,13 +254,13 @@ const RidesSolicitados = ({ navigation }) => {
                                         <Text style={styles.modalText}>Detalles del Ride</Text>
 
                                         <Formik
-                                            //AGREGAR ID DEL CONDUCTOR
                                             initialValues={{
                                                 cooperacion: null,
-                                                comenConductor: '',
+                                                comentario: '',
                                                 estado: 'pendiente',
-                                                rideID: firebase.firestore().collection('rides').doc(data[index].ride?.id),
-                                                pasajeroID: data[index].ride?.pasajero
+                                                rideID: db.collection('rides').doc(data[index].ride?.id),
+                                                pasajeroID: data[index].ride?.pasajero,
+                                                conductorID: user.uid
                                             }}
                                             validateOnMount={true}
                                             validationSchema={validationSchema}
@@ -281,13 +284,13 @@ const RidesSolicitados = ({ navigation }) => {
                                                         style={{ margin: 7, height: 100 }}
                                                         mode="outlined"
                                                         label="Comentarios"
-                                                        value={values.comenConductor}
+                                                        value={values.comentario}
                                                         multiline={true}
-                                                        onChangeText={handleChange('comenConductor')}
-                                                        onBlur={handleBlur('comenConductor')}
+                                                        onChangeText={handleChange('comentario')}
+                                                        onBlur={handleBlur('comentario')}
                                                         theme={{ colors: { text: 'green', primary: 'green' } }}
                                                     />
-                                                    {touched.comenConductor && errors.comenConductor && <Text style={{ color: 'red' }}>{errors.comenConductor}</Text>}
+                                                    {touched.comentario && errors.comentario && <Text style={{ color: 'red' }}>{errors.comentario}</Text>}
 
                                                     <View style={{ flexDirection: 'row' }}>
                                                         <Pressable
@@ -334,7 +337,7 @@ const RidesSolicitados = ({ navigation }) => {
                                         <View style={{ flexDirection: 'row' }}>
                                             <Pressable
                                                 style={[styles.button, { backgroundColor: '#B0B0B0' }]}
-                                                onPress={() => { navigation.navigate('RidesConductor') }}>
+                                                onPress={() => { navigation.navigate('GestionarOfertas') }}>
                                                 <View style={{ flexDirection: 'row' }}>
                                                     <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Ver Ofertas</Text>
                                                 </View>
