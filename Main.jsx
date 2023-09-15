@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Navegacion from './Screens/ButtonTabScreen';
 import PerfilScreen from './Screens/PerfilScreen';
 import CambiarRolScreen from './Screens/CambiarRolScreen';
@@ -7,9 +7,7 @@ import NotificacionesScreen from './Screens/NotificacionesScreen';
 import AjustesGeneralesScreen from './Screens/AjustesGeneralesScreen';
 import { useAuth } from './context/AuthContext';
 import Loader from './components/Loader';
-import LoginEmailScreen from './Screens/LoginSession/LoginEmailScreen';
 import OnboardingScreen from './Screens/LoginSession/OnboardingScreen';
-import Registro from './Screens/LoginSession/RegistroScreen';
 import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
 import FrmSolicitarRide from './Screens/FrmSolicitarRide';
 import SolicitarRide from './Screens/SolicitarRide';
@@ -38,16 +36,6 @@ const Main = () => {
               />
             </>
           }
-          <Stack.Screen
-            name='LoginEmail'
-            component={LoginEmailScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name='Registro'
-            component={Registro}
-            options={{ headerShown: false }}
-          />
         </Stack.Navigator>
         :
         <Stack.Navigator>

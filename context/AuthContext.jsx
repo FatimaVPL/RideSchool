@@ -26,9 +26,7 @@ useEffect(() => {
             } else {
                 // El usuario no ha verificado su correo electrónico
                 setUser(null)
-                //setUser(user)
             }
-            console.log(user.emailVerified)
         } else {
             setUser(null);
         }
@@ -46,7 +44,6 @@ useEffect(() => {
       if (emailVerified) {
         setUser(refreshedUser);
       } else {
-       // alert("Verifica tu correo institucional y da clic al link de verifiación que se te mandó")
         setUser(null);
       }
     } else {
@@ -75,7 +72,7 @@ useEffect(() => {
       }
       
 
-    const registerUser = async ({ email, password, role, firstName = "", lastName = "", tipoVehiculo, licencia }) => {
+    const registerUser = async ({ email, password, role, firstName = "", lastName = "", tipoVehiculo, licencia, conductor }) => {
         try {
           // Crear uusario con contraseña
           const userCredential = await auth.createUserWithEmailAndPassword(email, password)
@@ -94,7 +91,8 @@ useEffect(() => {
             firstName,
             lastName,
             tipoVehiculo,
-            licencia
+            licencia, 
+            conductor
           });
         } catch (error) {
           // Manejar errores específicos

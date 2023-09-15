@@ -1,110 +1,193 @@
-import { View } from "react-native";
-import { useTheme } from "../../hooks/ThemeContext";
-import { useWindowDimensions } from "react-native";
-import { Text } from "react-native";
-import { TouchableOpacity } from "react-native";
-import { StyleSheet } from "react-native";
-import Lottie from 'lottie-react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
+import { TextInput } from 'react-native-paper';
+import { firebase } from '../../config-firebase';
+import { useAuth } from '../../context/AuthContext';
+import { object, string, ref } from 'yup';
+import { Formik } from 'formik';
+
 
 const WelcomeScreen = ({ navigation }) => {
+  const { user, refreshUser } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(true)
 
-    const { colors } = useTheme()
-    const { width } = useWindowDimensions()
+  //Esquema de validación
+   const validationSchema = object().shape({
+    email: string()
+       .required("Campo obligatorio")
+       .email('Dirección de correo electrónico no válida')
+       .max(31, "Deben ser 31 caracteres")
+       .test('domain', 'El dominio debe ser alumnos.itsur.edu.mx', value => {
+          if (!value) return false;
+          const domain = value.split('@')[1];
+          return domain === 'alumnos.itsur.edu.mx';
+       }),
+    password: string()
+       .required("Campo obligatorio")
+       .min(8, "Debe ser mayor o igual a 8")
+       .max(16, "Debe ser menor a 17")
+ })
 
-    return (
-        <View style={{ display: 'flex', flex: 1, flexDirection: 'column', justifyContent: 'space-between' }}>
-            <View style={{
-                flex: 1,
-                flexDirection: 'column',
-            }}>
+  useEffect(() => {
+    // Refresh the user state every 10 seconds
+    const intervalId = setInterval(() => {
+      refreshUser(); // Assuming your AuthContext provides a refreshUser function
+    }, 5000);
 
-                <View style={{
-                    display: 'flex',
-                    flex: 0.4,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: 20,
-                }}>
-                    <View style={[{ width:400 }, { display: 'flex', height: 300, marginTop:30 }]}>
-                        <Lottie source={require('../../assets/LottieFiles/RideSchool.json')} />
-                    </View>
-                </View>
-                <View
-                    style={{
-                        flex: 0.6,
-                        paddingHorizontal: 25,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'flex-start',
-                        alignItems: 'center',
-                        marginTop: 60,
-                    }}
-                >
-                    <Text
-                        style={{
-                            textAlign: 'center',
-                            fontSize: 27,
-                            fontWeight: '900',
-                            marginBottom: 15,
-                            color: colors.primary
-                        }}>
-                        Bienvenido a RideSchool !
-                    </Text>
+    // Cleanup the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
 
-                    <Text
-                        style={{
-                            textAlign: 'center',
-                            fontSize: 18,
-                            marginBottom: 15,
-                            color: colors.text2,
-                            fontWeight: "500",
-                        }}>
-                        Hacemos posibles los rides más rápidos y seguros para estudiantes.
-                    </Text>
-                </View>
-            </View>
-            <View style={styles.container}>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('Onboarding')}
-                    style={[styles.button]}>
-                    <Text style={styles.text}>Comenzar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('LoginEmail')}
-                    style={[styles.button]}>
-                    <Text style={styles.text}>Ya tengo Cuenta</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    )
+  const loginUser = async (email, password) => {
+    try {
+      // El usuario ha iniciado sesión con éxito
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      //console.log("User: ", )
+    } catch (error) {
+      // Manejo de errores específicos
+      switch (error.code) {
+        case "auth/user-not-found":
+          alert("Usuario no encontrado. Verifica el correo electrónico o regístrate si eres nuevo.");
+          break;
+        case "auth/invalid-email":
+          alert("Correo electrónico no válido. Verifica el formato de correo electrónico.");
+          break;
+        case "auth/wrong-password":
+          alert("Contraseña incorrecta. Vuelve a intentarlo.");
+          break;
+        default:
+          alert("Error al iniciar sesión: " + error.message);
+          break;
+      }
+    }
+
+  }
+
+  return (
+    <Formik
+      enableReinitialize={true}
+      initialValues={{ email: email, password: password }}
+      validationSchema={validationSchema}
+      validateOnMount={true}
+      onSubmit={(values) => {
+        loginUser(email, password)
+      }}
+    >
+      {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
+        <View style={styles.container} >
+          <Image style={styles.logo} source={require('../../assets/ride-school.png')} />
+          <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educuación</Text>
+
+          <TextInput
+             placeholder="Correo institucional"
+             style={styles.input}
+             onChangeText={handleChange('email')}
+             onBlur={handleBlur('email')}
+             value={values.email}
+             autoCapitalize="none"
+          />
+          {touched.email && errors.email && (
+            <Text style={styles.errorText}>{errors.email}</Text>
+          )}
+          <TextInput
+           placeholder="Contraseña"
+           style={styles.input}
+           onChangeText={handleChange('password')}
+           onBlur={handleBlur('password')}
+           value={values.password}
+           autoCapitalize="none"
+           secureTextEntry={passwordVisible}
+            right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
+          />
+          {touched.password && errors.password && (
+            <Text style={styles.errorText}>{errors.password}</Text>
+          )}
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Entrar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Onboarding')} >
+            <Text style={styles.linkText}>Registrate</Text>
+          </TouchableOpacity>
+          <StatusBar style="auto" />
+        </View >
+      )}
+    </Formik>
+  );
 }
-export default WelcomeScreen;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center'
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  bienvenida: {
+    textAlign: 'center',
+    fontSize: 27,
+    fontWeight: '900',
+    marginTop: 15,
+    marginBottom: 10,
+    color: "green"
+  },
+  input: {
+    color: 'black',
+    width: 350,
+    height: 50,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
     },
-    text: {
-        textAlign: 'center',
-        color: 'white',
-        fontSize: 20,
-        fontWeight: 'bold',
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    paddingHorizontal: 16,
+    marginTop: 10,
+  },
+  button: {
+    width: 300,
+    height: 50,
+    backgroundColor: 'green', //por definir en dark
+    padding: 10,
+    marginTop: 20,
+    borderRadius: 10,
+    shadowColor: "#000", //por definir en dark
+    shadowOffset: {
+      width: 0,
+      height: 3,
     },
-    button: {
-        width: '80%',
-        height: 70,
-        marginTop: 10,
-        backgroundColor: '#E1A43B', //por definir en dark
-        padding: 10,
-        borderRadius: 10,
-        shadowColor: "#000", //por definir en dark
-        shadowOffset: {
-            width: 0,
-            height: 3,
-        },
-        shadowOpacity: 0.27,
-        shadowRadius: 4.65,
-        elevation: 6,
-    }
-})
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    elevation: 6,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  bottomLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  linkText: {
+    textAlign: 'center',
+    fontSize: 20,
+    marginTop: 5,
+    color: "gray",
+    fontWeight: "500",
+  },
+  logo: {
+    width: 350,
+    height: 200,
+  },
+  errorText:{
+    color:'#F4574B',
+  }
+});
+export default WelcomeScreen;
