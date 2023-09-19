@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react'
 import { View, StyleSheet, TouchableOpacity, Modal, Pressable, FlatList } from "react-native";
 import { AirbnbRating } from 'react-native-elements';
 import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput } from 'react-native-paper';
@@ -42,6 +42,7 @@ const RidesConductor = ({ navigation }) => {
     const [modalALert, setModalAlert] = useState(false);
     const [modalDialog, setModalDialog] = useState(false);
     const [modalRating, setModalRating] = useState(false);
+    const [modalReview, setModalReview] = useState(false);
 
     useEffect(() => {
         const unsubscribeOfertas = db.collection('ofertas').onSnapshot(() => { getData() });
@@ -90,10 +91,9 @@ const RidesConductor = ({ navigation }) => {
         }
     }
 
-    //CHECAR COMO SE GUARDA EL ID EN LA BD (por el momento se esta guardando como referencia)
     async function deleteDoc(id) {
-        //var reference = firebase.firestore().collection("ofertas").doc(id);
-        await id.delete()
+        var reference = firebase.firestore().collection("ofertas").doc(id);
+        await reference.delete()
             .then(() => {
                 console.log("Documento eliminado exitosamente");
             })
@@ -167,8 +167,21 @@ const RidesConductor = ({ navigation }) => {
                                         onPress={() => { setIndex(index); setShowOverlay(true); setModalDetails(true); }}>Ver Detalles</Button>
                                     <Button buttonColor={getInfoByStatus(item.oferta.estado).color} textColor="white" style={{ width: 130 }}
                                         onPress={() => {
-                                            setShowOverlay(true); setIndex(index);
-                                            { item.oferta.estado == "pendiente" ? setModalAlert(true) : setModalRating(true); setScore(data[index].ride.calificacionC_P?.puntaje); onChangeText(data[index].ride.calificacionC_P?.comentario); }
+                                            setIndex(index);
+                                            //{ item.oferta.estado == "pendiente" ? setModalAlert(true) : setModalRating(true); setScore(data[index].ride.calificacionC_P?.puntaje); onChangeText(data[index].ride.calificacionC_P?.comentario); }
+                                            {
+                                                switch (item.oferta.estado) {
+                                                    case "aceptada":
+                                                        navigation.navigate('ChatScreen');
+                                                        break;
+                                                    case "finalizada":
+                                                        setShowOverlay(true); setModalRating(true); setScore(data[index].ride.calificacionC_P?.puntaje); onChangeText(data[index].ride.calificacionC_P?.comentario);
+                                                        break;
+                                                    default:
+                                                        setShowOverlay(true); setModalAlert(true);
+                                                        break;
+                                                }
+                                            }
                                         }}>{data[index].ride?.calificacionC_P === undefined ?
                                             getInfoByStatus(item.oferta.estado).text : `${data[index].ride.calificacionC_P?.puntaje} `}
                                         {data[index].ride?.calificacionC_P !== undefined && <Ionicons name="star" style={{ fontSize: 15 }} />}</Button>
@@ -390,6 +403,92 @@ const RidesConductor = ({ navigation }) => {
                                     </View>
                                 </View>
                             </Modal>)}
+
+                        {/* {modalReview && (
+                            <Modal
+                                animationType="slide"
+                                transparent={true}
+                                visible={modalReview}
+                                onRequestClose={() => {
+                                    setModalRating(!modalReview); setShowOverlay(!showOverlay);
+                                }}>
+
+                                <View style={styles.centeredView}>
+                                    <View style={[styles.modalView, { padding: 20 }]}>
+                                        <Text style={[styles.modalText, { textAlign: 'center' }]}>Califica los siguientes aspectos del pasajero</Text>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={styles.text}>Puntual</Text>
+                                            <AirbnbRating
+                                                count={5}
+                                                reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}
+                                                defaultRating={score}
+                                                size={30}
+                                                //onFinishRating={setScore}
+                                            />
+                                        </View>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={styles.text}>Confiable</Text>
+                                            <AirbnbRating
+                                                count={5}
+                                                reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}
+                                                defaultRating={score}
+                                                size={30}
+                                                //onFinishRating={setScore}
+                                            />
+                                        </View>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={styles.text}>Cooperación</Text>
+                                            <AirbnbRating
+                                                count={5}
+                                                reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}
+                                                defaultRating={score}
+                                                size={30}
+                                                //onFinishRating={setScore}
+                                            />
+                                        </View>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={styles.text}>Chismesito</Text>
+                                            <AirbnbRating
+                                                count={5}
+                                                reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}
+                                                defaultRating={score}
+                                                size={30}
+                                                //onFinishRating={setScore}
+                                            />
+                                        </View>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={styles.text}>Nice</Text>
+                                            <AirbnbRating
+                                                count={5}
+                                                reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}
+                                                defaultRating={score}
+                                                size={30}
+                                                //onFinishRating={setScore}
+                                            />
+                                        </View>
+                                        <View style={{ flexDirection: 'row', marginTop: 20 }}>
+                                            <Pressable
+                                                style={[styles.button, { backgroundColor: '#BEE27B' }]}
+                                                onPress={() => {
+                                                    updateData({ puntaje: score, comentario: comen }, data[index].oferta?.rideID);
+                                                    setModalRating(!modalRating); setShowOverlay(!showOverlay);
+                                                }}
+                                            >
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Enviar</Text>
+                                                </View>
+                                            </Pressable>
+                                            <Pressable
+                                                style={[styles.button, { backgroundColor: '#B0B0B0' }]}
+                                                onPress={() => { setModalRating(false); setShowOverlay(false); }}>
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Cancelar</Text>
+                                                </View>
+                                            </Pressable>
+                                        </View>
+                                    </View>
+                                </View>
+                            </Modal>)} */}
                     </>
                 ) : (
                     <View style={styles.centeredView}>
