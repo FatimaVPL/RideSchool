@@ -12,6 +12,7 @@ import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
 import FrmSolicitarRide from './Screens/FrmSolicitarRide';
 import SolicitarRide from './Screens/SolicitarRide';
 import GestionarOfertas from './Screens/GestionarOfertas';
+import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
 
 const Main = () => {
 
@@ -32,6 +33,11 @@ const Main = () => {
               <Stack.Screen
                 name="Onboarding"
                 component={OnboardingScreen}
+                options={{ headerShown: false }}
+              />
+               <Stack.Screen
+                name="ReestablecerPassword"
+                component={ReestablecerPassword}
                 options={{ headerShown: false }}
               />
             </>

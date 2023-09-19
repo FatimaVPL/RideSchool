@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { firebase, auth, db } from '../config-firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from "firebase/auth";
@@ -70,6 +69,19 @@ useEffect(() => {
           }
         }
       }
+
+      const reestablecerPassword = async (email) => {
+        try {
+          await firebase.auth().sendPasswordResetEmail(email)
+        } catch (error) {
+          // Manejo de errores específicos
+          switch (error.code) {
+            case "auth/network-request-failed":
+              alert("Se produjo un error de red al cerrar sesión. Verifica tu conexión a Internet.");
+              break;
+          }
+        }
+      }
       
 
     const registerUser = async ({ email, password, role, firstName = "", lastName = "", tipoVehiculo, licencia, conductor }) => {
@@ -80,7 +92,7 @@ useEffect(() => {
           if (userCredential.user) {
             // Enviar verificación por correo electrónico
             await userCredential.user.sendEmailVerification();
-            alert("Verifica tu correo institucional y da clic en el enlace que se te ha mandado. Después de verificar tu correo, después espera un momento para volver a iniciar sesión.");
+            alert("Verifica tu correo institucional y da clic en el enlace que se te ha mandado. Después de verificar tu correo espera un momento para volver a iniciar sesión.");
           }
           const user = userCredential.user
           // Crear un nuevo documento de usuario en Firestore
@@ -144,35 +156,11 @@ useEffect(() => {
             firstTime,
             setUsage,
             registerUser, 
-            refreshUser
+            refreshUser,
+            reestablecerPassword
         }}>
             {children}
         </AuthContext.Provider>
     )
 }
 
-const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-        backgroundColor: 'white',
-        borderRadius: 10,
-        padding: 20,
-        width: '80%',
-        alignItems: 'center',
-    },
-    loginButton: {
-        backgroundColor: '#007bff',
-        padding: 10,
-        borderRadius: 5,
-        marginTop: 10,
-    },
-    loginButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
-    },
-});

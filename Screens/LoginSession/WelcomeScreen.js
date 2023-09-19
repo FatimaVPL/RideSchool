@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'reac
 import { TextInput } from 'react-native-paper';
 import { firebase } from '../../config-firebase';
 import { useAuth } from '../../context/AuthContext';
-import { object, string, ref } from 'yup';
+import { object, string } from 'yup';
 import { Formik } from 'formik';
 
 
@@ -14,37 +14,40 @@ const WelcomeScreen = ({ navigation }) => {
   const [passwordVisible, setPasswordVisible] = useState(true)
 
   //Esquema de validación
-   const validationSchema = object().shape({
+  const validationSchema = object().shape({
     email: string()
-       .required("Campo obligatorio")
-       .email('Dirección de correo electrónico no válida')
-       .max(31, "Deben ser 31 caracteres")
-       .test('domain', 'El dominio debe ser alumnos.itsur.edu.mx', value => {
-          if (!value) return false;
-          const domain = value.split('@')[1];
-          return domain === 'alumnos.itsur.edu.mx';
-       }),
+      .required("Campo obligatorio")
+      .email('Dirección de correo electrónico no válida')
+      .max(31, "Deben ser 31 caracteres")
+      .test('domain', 'El dominio debe ser alumnos.itsur.edu.mx', value => {
+        if (!value) return false;
+        const domain = value.split('@')[1];
+        return domain === 'alumnos.itsur.edu.mx';
+      }),
     password: string()
-       .required("Campo obligatorio")
-       .min(8, "Debe ser mayor o igual a 8")
-       .max(16, "Debe ser menor a 17")
- })
+      .required("Campo obligatorio")
+      .min(8, "Debe ser mayor o igual a 8")
+      .max(16, "Debe ser menor a 17")
+  })
 
   useEffect(() => {
-    // Refresh the user state every 10 seconds
+    // Refresca el estado del usuario cada 5 segundos
     const intervalId = setInterval(() => {
-      refreshUser(); // Assuming your AuthContext provides a refreshUser function
+      refreshUser();
     }, 5000);
-
-    // Cleanup the interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
 
   const loginUser = async (email, password) => {
     try {
       // El usuario ha iniciado sesión con éxito
-      await firebase.auth().signInWithEmailAndPassword(email, password);
-      //console.log("User: ", )
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+      // Verificar si el correo electrónico ha sido verificado
+      if (!user.emailVerified) {
+        // El correo electrónico no ha sido verificado
+        alert("Correo electrónico no verificado. Por favor, verifica tu correo electrónico antes de iniciar sesión.");
+      }
     } catch (error) {
       // Manejo de errores específicos
       switch (error.code) {
@@ -66,39 +69,40 @@ const WelcomeScreen = ({ navigation }) => {
   }
 
   return (
+    // El formularío 
     <Formik
       enableReinitialize={true}
       initialValues={{ email: email, password: password }}
       validationSchema={validationSchema}
       validateOnMount={true}
       onSubmit={(values) => {
-        loginUser(email, password)
+        loginUser(values.email, values.password);
       }}
     >
       {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
         <View style={styles.container} >
           <Image style={styles.logo} source={require('../../assets/ride-school.png')} />
-          <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educuación</Text>
+          <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educación</Text>
 
           <TextInput
-             placeholder="Correo institucional"
-             style={styles.input}
-             onChangeText={handleChange('email')}
-             onBlur={handleBlur('email')}
-             value={values.email}
-             autoCapitalize="none"
+            placeholder="Correo institucional"
+            style={styles.input}
+            onChangeText={handleChange('email')}
+            onBlur={handleBlur('email')}
+            value={values.email}
+            autoCapitalize="none"
           />
           {touched.email && errors.email && (
             <Text style={styles.errorText}>{errors.email}</Text>
           )}
           <TextInput
-           placeholder="Contraseña"
-           style={styles.input}
-           onChangeText={handleChange('password')}
-           onBlur={handleBlur('password')}
-           value={values.password}
-           autoCapitalize="none"
-           secureTextEntry={passwordVisible}
+            placeholder="Contraseña"
+            style={styles.input}
+            onChangeText={handleChange('password')}
+            onBlur={handleBlur('password')}
+            value={values.password}
+            autoCapitalize="none"
+            secureTextEntry={passwordVisible}
             right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
           />
           {touched.password && errors.password && (
@@ -106,6 +110,9 @@ const WelcomeScreen = ({ navigation }) => {
           )}
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Entrar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('ReestablecerPassword')} >
+            <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Onboarding')} >
             <Text style={styles.linkText}>Registrate</Text>
@@ -186,8 +193,8 @@ const styles = StyleSheet.create({
     width: 350,
     height: 200,
   },
-  errorText:{
-    color:'#F4574B',
+  errorText: {
+    color: '#F4574B'
   }
 });
 export default WelcomeScreen;

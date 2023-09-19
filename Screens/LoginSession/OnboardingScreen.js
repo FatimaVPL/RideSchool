@@ -1,14 +1,13 @@
-import React, { useState, useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Keyboard, Image } from "react-native"
-import { TextInput, RadioButton, ActivityIndicator, MD2Colors } from 'react-native-paper'
-
-
+import React, { useState, useRef} from "react";
+import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Image } from "react-native"
+import { TextInput, RadioButton, ActivityIndicator, MD2Colors, Checkbox } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
 import { useTheme } from "../../hooks/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { object, string, ref } from 'yup';
 import { Formik } from 'formik';
 import CorreosActivos from "./CorreosActivos";
+import areIntervalsOverlappingWithOptions from "date-fns/esm/fp/areIntervalsOverlappingWithOptions/index";
 
 
 const OnboardingScreen = ({ navigation }) => {
@@ -34,7 +33,6 @@ const OnboardingScreen = ({ navigation }) => {
    const scrollX = useRef(new Animated.Value(0)).current
    const slidesRef = useRef(null)
 
-   const [keyboardVisible, setKeyboardVisible] = useState(false)
 
    const [passwordVisible, setPasswordVisible] = useState(true)
 
@@ -47,20 +45,7 @@ const OnboardingScreen = ({ navigation }) => {
    let isNameInvalid = true;
    let isPasswordInvalid = true;
 
-   // Visibilidad del teclado 
-   useEffect(() => {
-      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-         setKeyboardVisible(true);
-      });
-      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-         setKeyboardVisible(false);
-      });
-
-      return () => {
-         keyboardDidShowListener.remove();
-         keyboardDidHideListener.remove();
-      };
-   }, []);
+  
 
    //Esquema de validación
    const validationSchema = object().shape({
@@ -276,7 +261,7 @@ const OnboardingScreen = ({ navigation }) => {
          setUsage()
          navigation.navigate('Welcome')
       } catch (error) {
-         console.error("Error al registrar el usuario", error)
+       areIntervalsOverlappingWithOptions("Error al registrar el usuario", error)
       }
    }
 
@@ -312,7 +297,7 @@ const OnboardingScreen = ({ navigation }) => {
                         flexDirection: 'column',
                         color: colors.text,
                         position: 'relative',
-                        paddingBottom: keyboardVisible ? 300 : 0,
+                        paddingBottom: 180,
                      }}>
 
                         <View style={{
@@ -368,23 +353,23 @@ const OnboardingScreen = ({ navigation }) => {
                                  )}
                               </View>
                            }
-                           {
+                              {
                               options &&
                               <View style={{ display: 'flex' }}>
-                                 {options.map((option, indx) => (
-                                    <TouchableOpacity
-                                       key={`${option.value}-${indx}`}
-                                       style={formData?.role === option.value ? styles.selectedOption : styles.option}
-                                       onPress={() => {
-                                          handleSelectRole(option.value)
-                                       }}
-                                    >
-                                       <Text style={{ color: 'white', fontWeight: 'bold' }}>
-                                          {option.label}
-                                       </Text>
-                                    </TouchableOpacity>
-                                 ))}
-                              </View>
+                              {options.map((option, indx) => (
+                                <Checkbox.Item
+                                  key={`${option.value}-${indx}`}
+                                  label={option.label}
+                                  status={formData?.role === option.value ? 'checked' : 'unchecked'}
+                                  onPress={() => {
+                                    handleSelectRole(option.value)
+                                  }}
+                                  labelStyle={{ color: '#606060', fontWeight: 'bold', fontSize:20 }}
+                                  uncheckedColor="#E1A43B" 
+                                  color="#E1A43B" 
+                                />
+                              ))}
+                            </View>
                            }
                            {
                               inputPassword &&
@@ -453,7 +438,7 @@ const OnboardingScreen = ({ navigation }) => {
                                           key={`${field.atr}-${indx}`}
                                           // value={formData[field.atr]}
                                           // onChangeText={(text) => handleChangeText(field.atr, text)}
-                                          value={values[field.atr]}
+                                          defaultValue={values[field.atr]}
                                           onChangeText={(text) => {
                                              handleChangeText(field.atr, text);
                                              handleChange(field.atr);
@@ -623,14 +608,13 @@ const OnboardingScreen = ({ navigation }) => {
                <Image
                   source={require('../../assets/rideSchoolS.png')}
                   style={{
-                     width: '100%',
-                     height: '100%',
+                     width: '90%',
+                     height: '90%',
                   }}
                />
             </View>
             {/*  Slides  */}
-            <KeyboardAvoidingView style={{ width: '100%', height: '85%' }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-
+            <KeyboardAvoidingView style={{ flex:1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                <View style={{ flex: 1 }}>
                   <FlatList
                      ref={slidesRef}
