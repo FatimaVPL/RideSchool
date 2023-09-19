@@ -49,16 +49,15 @@ const RidesSolicitados = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        //getLocationPermission();
-        /*const unsubscribe = db.collection('rides').onSnapshot(() => { getData() });
+        const unsubscribe = db.collection('rides').onSnapshot(() => { getRides() });
 
         return () => {
             if (unsubscribe) {
                 unsubscribe();
             }
-        };  */
+        };  
 
-        getRides();
+        //getRides();
     }, []);
 
     async function getLocationPermission() {
@@ -68,14 +67,16 @@ const RidesSolicitados = ({ navigation }) => {
             return;
         }
         const { coords } = await Location.getCurrentPositionAsync({});
-        setOrigin({ lat: coords.latitude, lng: coords.longitude });
+        //setOrigin({ lat: coords.latitude, lng: coords.longitude });
         return coords;
     }
 
     async function getRides() {
+        const coords = await getLocationPermission();
+        setOrigin({ lat: coords.latitude, lng: coords.longitude });
+
         const geoFirestore = new GeoFirestore(db);
         const locationsCollection = geoFirestore.collection('rides');
-        const coords = await getLocationPermission();
         const center = new firebase.firestore.GeoPoint(coords.latitude, coords.longitude);
         const radiusInKm = 4;
         const query = locationsCollection.near({ center, radius: radiusInKm });
