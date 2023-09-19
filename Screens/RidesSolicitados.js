@@ -1,15 +1,17 @@
 import * as React from "react";
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react'
 import * as Location from "expo-location";
 import { Text, Modal, Pressable, View, StyleSheet, TouchableOpacity } from "react-native";
 import { TextInput, PaperProvider, ActivityIndicator, MD2Colors } from 'react-native-paper';
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import { Avatar } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { db } from '../config-firebase';
+import { db, firebase } from '../config-firebase';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
+import { GeoFirestore } from 'geofirestore';
+
 
 const styles = StyleSheet.create({
     container: {
@@ -47,14 +49,16 @@ const RidesSolicitados = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        getLocationPermission();
-        const unsubscribe = db.collection('rides').onSnapshot(() => { getData() });
+        //getLocationPermission();
+        /*const unsubscribe = db.collection('rides').onSnapshot(() => { getData() });
 
         return () => {
             if (unsubscribe) {
                 unsubscribe();
             }
-        };
+        };  */
+
+        getRides();
     }, []);
 
     async function getLocationPermission() {
@@ -64,29 +68,47 @@ const RidesSolicitados = ({ navigation }) => {
             return;
         }
         const { coords } = await Location.getCurrentPositionAsync({});
-        setOrigin({ location: { lat: coords.latitude, lng: coords.longitude } });
+        setOrigin({ lat: coords.latitude, lng: coords.longitude });
+        return coords;
     }
 
-    async function getData() {
+    async function getRides() {
+        const geoFirestore = new GeoFirestore(db);
+        const locationsCollection = geoFirestore.collection('rides');
+        const coords = await getLocationPermission();
+        const center = new firebase.firestore.GeoPoint(coords.latitude, coords.longitude);
+        const radiusInKm = 4;
+        const query = locationsCollection.near({ center, radius: radiusInKm });
+
         try {
-            const ridesSnapshot = await db.collection('rides').get();
-            const resultados = [];
+            query.get().then(async (snapshot) => {
+                const resultados = [];
+                for (const doc of snapshot.docs) {
+                    const data = doc.data();
+                    if (data.estado === "pendiente") {
+                        const passengerRef = data.pasajero;
+                        try {
+                            const passengerSnapshot = await passengerRef.get();
+                            if (passengerSnapshot.exists) {
+                                const passengerData = passengerSnapshot.data();
 
-            for (const ridesDoc of ridesSnapshot.docs) {
-                const rideData = ridesDoc.data();
-                const passengerSnapshot = await rideData.pasajero.get();
-                const passengerData = passengerSnapshot.data();
-
-                const resultado = {
-                    ride: rideData,
-                    pasajero: passengerData
-                };
-
-                resultados.push(resultado);
-            }
-
-            setData(resultados);
-            setIsLoading(false);
+                                const resultado = {
+                                    ride: data,
+                                    pasajero: passengerData
+                                };
+                                resultados.push(resultado);
+                            } else {
+                                console.log('El documento del pasajero no existe.');
+                            }
+                        } catch (error) {
+                            console.error('Error al obtener el documento del pasajero:', error);
+                        }
+                    }
+                }
+                //console.log(resultados);
+                setData(resultados);
+                setIsLoading(false);
+            });
         } catch (error) {
             console.error('Error al obtener los documentos:', error);
         }
@@ -98,8 +120,12 @@ const RidesSolicitados = ({ navigation }) => {
         try {
             const docRef = db.collection('ofertas').doc();
             return await docRef.set({
-                id: docRef,
+                id: docRef.id,
                 fechaSolicitud: new Date(),
+                estado: 'pendiente',
+                rideID: db.collection('rides').doc(data[index].ride?.id),
+                pasajeroID: data[index].ride?.pasajero,
+                conductorID: user.uid,
                 ...values
             })
         } catch (error) {
@@ -137,8 +163,8 @@ const RidesSolicitados = ({ navigation }) => {
                         provider={PROVIDER_GOOGLE}
                         style={styles.map}
                         initialRegion={{
-                            latitude: origin.location?.lat,
-                            longitude: origin.location?.lng,
+                            latitude: origin?.lat,
+                            longitude: origin?.lng,
                             latitudeDelta: 0.003,
                             longitudeDelta: 0.003,
                         }}
@@ -178,10 +204,10 @@ const RidesSolicitados = ({ navigation }) => {
                                                 <Text style={styles.text}>{`${data[index].pasajero?.firstName} ${data[index].pasajero?.lastName}`}</Text>
                                                 <View style={styles.iconRow}>
                                                     {Array.from({ length: data[index].pasajero?.scorePassenger }).map((_, index) => (
-                                                        <Ionicons key={index} name="star" style={{marginRight: 4, fontSize: 20, color:"#FFC107"}} />
+                                                        <Ionicons key={index} name="star" style={{ marginRight: 4, fontSize: 20, color: "#FFC107" }} />
                                                     ))}
                                                     {Array.from({ length: 5 - data[index].pasajero?.scorePassenger }).map((_, index) => (
-                                                        <Ionicons key={index} name="star" style={{marginRight: 4, fontSize: 20, color:"#8C8A82"}} />
+                                                        <Ionicons key={index} name="star" style={{ marginRight: 4, fontSize: 20, color: "#8C8A82" }} />
                                                     ))}
                                                 </View>
                                             </View>
@@ -198,7 +224,7 @@ const RidesSolicitados = ({ navigation }) => {
                                             </View>
                                         </View>
 
-                                        {data[index].ride.comentarios !== undefined && (
+                                        {data[index].ride.comentarios !== null && (
                                             <View style={{ flexDirection: 'row' }}>
                                                 <Ionicons name="chatbubbles" style={styles.icon} />
                                                 <Text style={styles.text}>{data[index].ride?.comentarios}</Text>
@@ -257,10 +283,6 @@ const RidesSolicitados = ({ navigation }) => {
                                             initialValues={{
                                                 cooperacion: null,
                                                 comentario: '',
-                                                estado: 'pendiente',
-                                                rideID: db.collection('rides').doc(data[index].ride?.id),
-                                                pasajeroID: data[index].ride?.pasajero,
-                                                conductorID: user.uid
                                             }}
                                             validateOnMount={true}
                                             validationSchema={validationSchema}
