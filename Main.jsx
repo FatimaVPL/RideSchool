@@ -7,13 +7,13 @@ import NotificacionesScreen from './Screens/NotificacionesScreen';
 import AjustesGeneralesScreen from './Screens/AjustesGeneralesScreen';
 import { useAuth } from './context/AuthContext';
 import Loader from './components/Loader';
-import LoginEmailScreen from './Screens/LoginSession/LoginEmailScreen';
 import OnboardingScreen from './Screens/LoginSession/OnboardingScreen';
-import Registro from './Screens/LoginSession/RegistroScreen';
 import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
 import FrmSolicitarRide from './Screens/FrmSolicitarRide';
 import GestionarOfertas from './Screens/GestionarOfertas';
+import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
 import ChatScreen from './Screens/ChatScreen';
+
 
 const Main = () => {
 
@@ -36,18 +36,13 @@ const Main = () => {
                 component={OnboardingScreen}
                 options={{ headerShown: false }}
               />
+               <Stack.Screen
+                name="ReestablecerPassword"
+                component={ReestablecerPassword}
+                options={{ headerShown: false }}
+              />
             </>
           }
-          <Stack.Screen
-            name='LoginEmail'
-            component={LoginEmailScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name='Registro'
-            component={Registro}
-            options={{ headerShown: false }}
-          />
         </Stack.Navigator>
         :
         <Stack.Navigator>
