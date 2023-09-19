@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 const InicioScreen = () => {
 
   const {logoutUser, clearUsage, user} = useAuth()
- // console.log("Usuario inicio: ", user)
+  //console.log("Usuario inicio: ", user)
   return (
     <View style={styles.container}>
       <Text>Inicio</Text>

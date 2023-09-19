@@ -5,12 +5,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import InicioScreen from './InicioScreen';
 import PerfilScreen from './PerfilScreen';
-import SolicitarRide from './SolicitarRide';
 import ChatScreen from './ChatScreen';
-import RidesScreen from './RidesScreen';
 import RidesSolicitados from './RidesSolicitados';
 import GestionarOfertas from './GestionarOfertas';
 import GestionarRides from './GestionarRides';
+import FrmSolicitarRide from './FrmSolicitarRide';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../config-firebase';
 
@@ -34,18 +33,18 @@ function ButtonTabScreen() {
   }, [])
 
   async function getUser() {
+    var reference = db.collection('users').doc(user?.email);
     try {
-      const userSnapshot = await db.collection('users').where('uid', '==', user.uid).get();
-      const userDoc = userSnapshot.docs;
-      const userData = [];
-      userDoc.forEach(doc => {
-        userData.push(doc.data());
-      })
-
-      setUserData(userData[0]);
-      //setIsLoading(false);
+      const doc = await reference.get();
+      if (doc.exists) {
+        setUserData(doc.data());
+      } else {
+        console.log('El documento no existe');
+        return null;
+      }
     } catch (error) {
       console.error('Error al obtener los documentos:', error);
+      throw error;
     }
   }
 
@@ -60,7 +59,7 @@ function ButtonTabScreen() {
             ),
           }} /><Tab.Screen
             name="Rides"
-            component={userData?.role == "Conductor" ? RidesSolicitados : SolicitarRide}
+            component={userData?.role == "Conductor" ? RidesSolicitados : FrmSolicitarRide}
             options={{
               tabBarIcon: ({ color, size }) => (
                 <MaterialIcons name="directions-car" size={size} color={color} />
