@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Alert } from 'react-native';
 import { firebase, auth, db } from '../config-firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from "firebase/auth";
-
 
 const AuthContext = createContext();
 let subscriber = null;
@@ -51,7 +49,7 @@ export function AuthProvider({ children }) {
         setUser(null);
       }
     } catch (error) {
-      Alert.alert("Existen errores de verificación de email", error.message);
+      alert("Existen errores de verificación de email", error.message);
     }
   }
 
@@ -64,10 +62,10 @@ export function AuthProvider({ children }) {
       // Manejo de errores específicos
       switch (error.code) {
         case "auth/network-request-failed":
-          Alert.alert("Error de conexión", "Verifica tu conexión a Internet");
+          alert("Se produjo un error de red al cerrar sesión. Verifica tu conexión a Internet.");
           break;
         default:
-          Alert.alert("Error al cerrar sesión" + error.message);
+          alert("Error al cerrar sesión: " + error.message);
           break;
       }
     }
@@ -80,16 +78,8 @@ export function AuthProvider({ children }) {
       // Manejo de errores específicos
       switch (error.code) {
         case "auth/network-request-failed":
-          Alert.alert("Error de conexión", "Verifica tu conexión a Internet");
+          alert("Se produjo un error de red al cerrar sesión. Verifica tu conexión a Internet.");
           break;
-        case "auth/invalid-email":
-          Alert.alert("Correo no válido", "Revisa el formato del correo electrónico");
-          break;
-        case "auth/user-not-found":
-          Alert.alert("Usario no encontrado", "Revisa tu información o registrate si no lo has hecho");
-          break;
-        default:
-          Alert.alert("Error", "Se produjo un error inesperado");
       }
     }
   }
@@ -103,7 +93,7 @@ export function AuthProvider({ children }) {
       if (userCredential.user) {
         // Enviar verificación por correo electrónico
         await userCredential.user.sendEmailVerification();
-        Alert.alert("Verifica tu correo institucional y da clic en el enlace que se te ha mandado. Después de verificar tu correo espera un momento para volver a iniciar sesión.");
+        alert("Verifica tu correo institucional y da clic en el enlace que se te ha mandado. Después de verificar tu correo espera un momento para volver a iniciar sesión.");
       }
       const user = userCredential.user
       // Crear un nuevo documento de usuario en Firestore
@@ -115,22 +105,27 @@ export function AuthProvider({ children }) {
         lastName,
         tipoVehiculo,
         licencia,
-        conductor
+        conductor,
+        numRidesConductor: 0,
+        numRidesPasajero: 0,
+        califConductor: 0,
+        califPasajero: 0,
+        tarjetaCirculacion: false
       });
     } catch (error) {
       // Manejar errores específicos
       switch (error.code) {
         case "auth/email-already-in-use":
-          Alert.alert("Correo en uso","El correo electrónico ya está en uso");
+          alert("El correo electrónico ya está en uso");
           break;
         case "auth/invalid-email":
-          Alert.alert("Correo no válido","Revisa el formato del correo electrónico");
+          alert("Correo electrónico no válido");
           break;
         case "auth/weak-password":
-          Alert.alert("Contraseña débil", "Debe contener al menos 6 caracteres");
+          alert("Contraseña débil, debe contener al menos 6 caracteres");
           break;
         default:
-          Alert.alert("Error de crear usuario", error.message);
+          alert("Se produjo un error al crear el usuario", error.message);
           break;
       }
     }
@@ -174,4 +169,3 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   )
 }
-
