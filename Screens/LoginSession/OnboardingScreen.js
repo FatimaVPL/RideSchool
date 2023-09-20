@@ -1,5 +1,5 @@
-import React, { useState, useRef} from "react";
-import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Image } from "react-native"
+import React, { useState, useRef, useEffect} from "react";
+import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, Keyboard, KeyboardAvoidingView, Platform, Animated, Image, Alert } from "react-native"
 import { TextInput, RadioButton, ActivityIndicator, MD2Colors, Checkbox } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
 import { useTheme } from "../../hooks/ThemeContext";
@@ -8,7 +8,6 @@ import { object, string, ref } from 'yup';
 import { Formik } from 'formik';
 import CorreosActivos from "./CorreosActivos";
 import areIntervalsOverlappingWithOptions from "date-fns/esm/fp/areIntervalsOverlappingWithOptions/index";
-
 
 const OnboardingScreen = ({ navigation }) => {
    const { setUsage, registerUser, firstTime } = useAuth()
@@ -38,14 +37,29 @@ const OnboardingScreen = ({ navigation }) => {
 
    const [showLastSlide, setShowLastSlide] = useState(false)
 
-   const [spiner, setSpiner] = useState(false);
+   const [spiner, setSpiner] = useState(false)
+
+   const [keyboardVisible, setKeyboardVisible] = useState(false)
 
    //Variables de control de estado de error
    let isEmailInvalid = true;
    let isNameInvalid = true;
    let isPasswordInvalid = true;
 
-  
+   // Visibilidad del teclado 
+   useEffect(() => {
+      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+         setKeyboardVisible(true);
+      });
+      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+         setKeyboardVisible(false);
+      });
+
+      return () => {
+         keyboardDidShowListener.remove();
+         keyboardDidHideListener.remove();
+      };
+   }, []);
 
    //Esquema de validación
    const validationSchema = object().shape({
@@ -205,12 +219,13 @@ const OnboardingScreen = ({ navigation }) => {
                                  // Hacer algo si el correo existe en la base de datos
                                  crearUsuario()
                               } else {
-                                 alert("Tu correo actualmente no está vigente")
+                                 Alert.alert("Correo no vigente","Tu correo no está en nuestros registros")
                               }
                            }).catch((error) => {
-                              alert("Ocurrio un error al verificar tu email")
+                              Alert.alert("Error de verificación","Ocurrio un error al verificar tu email")
                            })
                      }
+                     setSpiner(false);
                      break;
                }
             } else {
@@ -223,16 +238,16 @@ const OnboardingScreen = ({ navigation }) => {
                            // Hacer algo si el correo existe en la base de datos
                            crearUsuario()
                         } else {
-                           alert("Tu correo actualmente no está vigente")
+                           Alert.alert("Correo no vigente","Tu correo actualmente no está vigente",formData.email)
                         }
                      }).catch((error) => {
-                        alert("Ocurrio un error al verificar tu email")
+                        Alert.alert("Error de verificación","Ocurrio un error al verificar tu email")
                      })
                }
             }
          }
       } catch (err) {
-         alert(err)
+         Alert.alert("Error",err)
       } finally {
          setLoading(false)
       }
@@ -297,7 +312,7 @@ const OnboardingScreen = ({ navigation }) => {
                         flexDirection: 'column',
                         color: colors.text,
                         position: 'relative',
-                        paddingBottom: 180,
+                        paddingBottom: keyboardVisible ? 200 : 0,
                      }}>
 
                         <View style={{
@@ -550,15 +565,15 @@ const OnboardingScreen = ({ navigation }) => {
                                           key={`${field.atr}-${indx}`}
                                           value={values[field.atr]}
                                           onChangeText={(text) => {
-                                             handleChangeText(field.atr, text); // Llama a handleChangeText
-                                             handleChange(field.atr); // Llama a handleChange
+                                            handleChangeText(field.atr, text); 
+                                            handleChange(field.atr); // Llama a handleChange
                                           }}
                                           placeholder="Ingresa tu correo"
                                           placeholderTextColor="#888"
                                           autoCapitalize="none"
                                           onBlur={handleBlur(field.atr)}
+               
                                        />
-
                                        {
                                           touched[field.atr] && errors[field.atr] && <Text style={{ color: "#F4574B" }}>{errors[field.atr]}</Text>}
                                        {
