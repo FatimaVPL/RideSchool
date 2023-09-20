@@ -6,7 +6,9 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format } from 'date-fns';
 import { useFormik, FormikProvider } from 'formik';
 import SolicitarRide from './SolicitarRide';
-import { firebase } from '../config-firebase';
+import { firebase, db } from '../config-firebase';
+import { useAuth } from '../context/AuthContext';
+import { GeoFirestore } from 'geofirestore';
 
 const FrmSolicitarRide = () => {
     const validate = values => {
@@ -24,27 +26,40 @@ const FrmSolicitarRide = () => {
 
         return errors;
     };
-    const db = firebase.firestore();
+
+    //const db = firebase.firestore();
+    const { user } = useAuth();
 
     async function saveRideToFirestore(rideData) {
-        const { origin, destination, date,...rest } = rideData;
+        const { origin, destination, date, ...rest } = rideData;
+        const geoFirestore = new GeoFirestore(db);
+
+        // Crear una nueva referencia con un ID único
+        const docRef = db.collection('rides').doc();
 
         // Convertir las coordenadas a GeoPoint
         const originGeoPoint = new firebase.firestore.GeoPoint(origin.latitude, origin.longitude);
         const destinationGeoPoint = new firebase.firestore.GeoPoint(destination.latitude, destination.longitude);
 
-        // Crear una nueva referencia con un ID único
-        const docRef = db.collection('rides').doc();
-
-        return docRef.set({
-            id: docRef.id, // Aquí guardamos el ID del documento dentro del objeto
-            origin: originGeoPoint,
-            destination: destinationGeoPoint,
-            date: date===null?new Date(): date,
+        // Datos para el nuevo documento
+        const newData = {
+            id: docRef.id,
+            coordinates: originGeoPoint,
+            pasajero: db.collection('users').doc(user.email), // Aquí guardamos el ID del documento dentro del objeto
+            origin: { coordinates: originGeoPoint, direction: "" },
+            destination: { coordinates: destinationGeoPoint, direction: "" },
+            date: date === null ? new Date() : date,
+            estado: "pendiente",
             ...rest
-        })
+        };
+
+        // Crea un nuevo documento en la colección de GeoFirestore
+        geoFirestore.collection('rides').doc(docRef.id).set(newData)
             .then(() => {
-                return docRef.id; // Devolvemos el ID del documento
+                console.log(`Nuevo documento creado en GeoFirestore con ID: ${docRef.id}`);
+            })
+            .catch((error) => {
+                console.error('Error al crear un nuevo documento en GeoFirestore:', error);
             });
     }
 
@@ -61,14 +76,14 @@ const FrmSolicitarRide = () => {
         },
         onSubmit: values => {
             saveRideToFirestore(values)
-              .then(documentId => {
-                console.log(`Document written with ID: ${documentId}`);
-              })
-              .catch(error => {
-                console.error(`Error adding document: ${error}`);
-              });
-          }
-          
+                .then(documentId => {
+                    //console.log(`Document written with ID: ${documentId}`);
+                })
+                .catch(error => {
+                    console.error(`Error adding document: ${error}`);
+                });
+        }
+
     });
 
     /* Modal puntos */

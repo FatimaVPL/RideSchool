@@ -10,9 +10,10 @@ import Loader from './components/Loader';
 import OnboardingScreen from './Screens/LoginSession/OnboardingScreen';
 import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
 import FrmSolicitarRide from './Screens/FrmSolicitarRide';
-import SolicitarRide from './Screens/SolicitarRide';
 import GestionarOfertas from './Screens/GestionarOfertas';
 import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
+import ChatScreen from './Screens/ChatScreen';
+
 
 const Main = () => {
 
@@ -56,6 +57,7 @@ const Main = () => {
           <Stack.Screen name="Ajustes Generales" component={AjustesGeneralesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Solicitar Ride" component={FrmSolicitarRide} options={{ presentation: "modal" }} />
           <Stack.Screen name="GestionarOfertas" component={GestionarOfertas} options={{ presentation: "modal" }} />
+          <Stack.Screen name="ChatScreen" component={ChatScreen} />
 
         </Stack.Navigator>
       }
