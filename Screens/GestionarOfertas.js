@@ -230,7 +230,7 @@ const RidesConductor = ({ navigation }) => {
                                                 style={{ margin: 6, height: 45, width: 260 }}
                                                 mode="outlined"
                                                 label="Num Pasajeros"
-                                                value={`${data[index].ride?.numPasajeros}`}
+                                                value={`${data[index].ride?.personas}`}
                                                 editable={false}
                                                 left={<TextInput.Icon icon="account-multiple" style={{ marginTop: 15 }} />}
                                             />

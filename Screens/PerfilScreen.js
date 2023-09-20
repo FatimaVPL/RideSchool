@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { View, StyleSheet, TouchableOpacity, Modal, Pressable } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Avatar, Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button } from 'react-native-paper';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
@@ -72,19 +73,31 @@ const PerfilScreen = ({ navigation }) => {
       console.error('Error al cerrar sesión:', error.message);
       // Maneja cualquier error que ocurra durante el cierre de sesión.
     }
-  };
+  }
 
   const cambiarRol = () => {
     navigation.navigate('Cambiar Rol');
-  };
+  }
 
   const notificaciones = () => {
     navigation.navigate('Notificaciones');
-  };
+  }
 
   const ajustesGenerales = () => {
     navigation.navigate('Ajustes Generales');
-  };
+  }
+
+  const getInfoMedal = (num) => {
+    if (num >= 100) {
+      return { color: "#E6BB3F", text: "Oro" };
+    } else if (num >= 50) {
+      return { color: "#AAA499", text: "Plata" };
+    } else if (num >= 30) {
+      return { color: "#BA9248", text: "Bronce" };
+    } else {
+      return false;
+    }
+  }
 
   return (
     <PaperProvider>
@@ -92,11 +105,11 @@ const PerfilScreen = ({ navigation }) => {
         {!isLoading ? (
           <>
             <View style={styles.profileContainer}>
-              <Avatar.Image size={150} source={require('../assets/PerfilImage.jpg')} />
+              <Avatar.Image size={130} source={require('../assets/PerfilImage.jpg')} />
               <Text variant='headlineSmall'>{`${userData?.firstName} ${userData?.lastName}`}</Text>
               <Text variant='titleMedium'>{userData?.email}</Text>
+              {/* CALIFICACION GENERAL */}
               <View style={styles.badgesContainer}>
-                {/* Insignias */}
                 {Array.from({ length: userData?.scoreDriver }).map((_, index) => (
                   <Ionicons key={index} name="star" size={24} color="#FFC107" />
                 ))}
@@ -105,9 +118,45 @@ const PerfilScreen = ({ navigation }) => {
                 ))}
               </View>
               <Text variant='titleMedium'>{userData?.role}</Text>
-              <Button onPress={() => { setModalAlert(true); setShowOverlay(true); }}
-              >Usar en modo {userData?.role == "Conductor" ? "Pasajero" : "Conductor"}</Button>
+              <Button onPress={() => { setModalAlert(true); setShowOverlay(true); }}>
+                Usar en modo {userData?.role == "Conductor" ? "Pasajero" : "Conductor"}</Button>
             </View>
+            {/* INSIGNIAS */}
+            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15 }}>
+              <Text variant='titleLarge' style={{ textAlign: 'center', marginBottom: 10 }}>Insignias</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                {userData.role === "Conductor" && (
+                  <>
+                    {userData.licencia !== "ninguna" && (
+                      <View style={{ flex: 1, alignItems: 'center' }}>
+                        <MaterialCommunityIcons name="card-account-details-star" style={{ fontSize: 38 }} />
+                        <Text style={{ textAlign: 'center' }}>Licencia</Text>
+                      </View>
+                    )}
+                    {userData.tarjetaCirculacion && (
+                      <View style={{ flex: 1, alignItems: 'center' }}>
+                        <MaterialCommunityIcons name="credit-card-check" style={{ fontSize: 38 }} />
+                        <Text style={{ textAlign: 'center' }}>{"Tarjeta \n Circulación"}</Text>
+                      </View>
+                    )}
+                    {getInfoMedal(userData.numRidesConductor) !== false && (
+                      <View style={{ flex: 1, alignItems: 'center' }}>
+                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRides).color} />
+                        <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal(userData.numRides).text}`}</Text>
+                      </View>
+                    )}
+                  </>
+                )}
+                {getInfoMedal(userData.numRidesPasajero) !== false && (
+                  <View style={{ flex: 1, alignItems: 'center' }}>
+                    <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRides).color} />
+                    <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal(userData.numRides).text}`}</Text>
+                  </View>
+                )}
+              </View>
+
+            </View>
+
             <View style={styles.settingsContainer}>
               <Text variant='headlineMedium'>Configuraciones</Text>
               <TouchableOpacity onPress={notificaciones}>
@@ -230,7 +279,7 @@ const PerfilScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  profileContainer: { alignItems: 'center', marginBottom: 30 },
+  profileContainer: { alignItems: 'center', marginBottom: 18 },
   profileImage: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
   badgesContainer: { flexDirection: 'row', marginBottom: 10 },
   settingsContainer: { borderTopWidth: 1, borderTopColor: '#E0E0E0', paddingTop: 20 },

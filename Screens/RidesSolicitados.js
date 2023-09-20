@@ -11,7 +11,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
-
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const styles = StyleSheet.create({
     container: {
@@ -49,15 +49,15 @@ const RidesSolicitados = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = db.collection('rides').onSnapshot(() => { getRides() });
+        const unsubscribeOfertas = db.collection('users').onSnapshot(() => { getRides() });
+        const unsubscribeRides = db.collection('rides').onSnapshot(() => { getRides() });
 
         return () => {
-            if (unsubscribe) {
-                unsubscribe();
+            if (unsubscribeOfertas && unsubscribeRides) {
+                unsubscribeOfertas();
+                unsubscribeRides();
             }
-        };  
-
-        //getRides();
+        };
     }, []);
 
     async function getLocationPermission() {
@@ -156,6 +156,16 @@ const RidesSolicitados = ({ navigation }) => {
         comentario: Yup.string(),
     });
 
+    const getInfoMedal = (num) => {
+        if (num >= 100) {
+            return "#E6BB3F";
+        } else if (num >= 50) {
+            return "#AAA499";
+        } else if (num >= 30) {
+            return "#BA9248";
+        }
+    }
+
     return (
         <PaperProvider>
             <View style={styles.container}>
@@ -198,16 +208,21 @@ const RidesSolicitados = ({ navigation }) => {
                                     <View style={styles.modalView}>
                                         <Text style={styles.modalText}>Información del Ride</Text>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 18 }}>
-                                            <View>
-                                                <Avatar.Image size={80} source={require('../assets/PerfilImage.jpg')} />
-                                            </View>
+                                            <View><Avatar.Image size={80} source={require('../assets/PerfilImage.jpg')} /></View>
                                             <View style={{ marginStart: 10 }}>
-                                                <Text style={styles.text}>{`${data[index].pasajero?.firstName} ${data[index].pasajero?.lastName}`}</Text>
+                                                <View style={{ flexDirection: 'row'}}>
+                                                    {/* INSIGNIA */}
+                                                    {data[index].pasajero?.numRidesPasajero >= 30 && (
+                                                        <MaterialCommunityIcons name="medal" style={{ fontSize: 30 }} color={getInfoMedal(data[index].pasajero?.numRidesPasajero)} />
+                                                    )}
+                                                    <Text style={styles.text}>{`${data[index].pasajero?.firstName} ${data[index].pasajero?.lastName}`}</Text>
+                                                </View>
+                                                {/* CALIFICACION GENERAL */}
                                                 <View style={styles.iconRow}>
-                                                    {Array.from({ length: data[index].pasajero?.scorePassenger }).map((_, index) => (
+                                                    {Array.from({ length: data[index].pasajero?.califPasajero }).map((_, index) => (
                                                         <Ionicons key={index} name="star" style={{ marginRight: 4, fontSize: 20, color: "#FFC107" }} />
                                                     ))}
-                                                    {Array.from({ length: 5 - data[index].pasajero?.scorePassenger }).map((_, index) => (
+                                                    {Array.from({ length: 5 - data[index].pasajero?.califPasajero }).map((_, index) => (
                                                         <Ionicons key={index} name="star" style={{ marginRight: 4, fontSize: 20, color: "#8C8A82" }} />
                                                     ))}
                                                 </View>
