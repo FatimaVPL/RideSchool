@@ -104,6 +104,7 @@ const WelcomeScreen = ({ navigation }) => {
             onBlur={handleBlur('email')}
             value={values.email}
             autoCapitalize="none"
+            autoComplete='email'
           />
           {touched.email && errors.email && (
             <Text style={styles.errorText}>{errors.email}</Text>
