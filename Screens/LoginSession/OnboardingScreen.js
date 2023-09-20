@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect} from "react";
-import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, Keyboard, KeyboardAvoidingView, Platform, Animated, Image, Alert } from "react-native"
+import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Image, Alert } from "react-native"
 import { TextInput, RadioButton, ActivityIndicator, MD2Colors, Checkbox } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
 import { useTheme } from "../../hooks/ThemeContext";
@@ -39,27 +39,11 @@ const OnboardingScreen = ({ navigation }) => {
 
    const [spiner, setSpiner] = useState(false)
 
-   const [keyboardVisible, setKeyboardVisible] = useState(false)
 
    //Variables de control de estado de error
    let isEmailInvalid = true;
    let isNameInvalid = true;
    let isPasswordInvalid = true;
-
-   // Visibilidad del teclado 
-   useEffect(() => {
-      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-         setKeyboardVisible(true);
-      });
-      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-         setKeyboardVisible(false);
-      });
-
-      return () => {
-         keyboardDidShowListener.remove();
-         keyboardDidHideListener.remove();
-      };
-   }, []);
 
    //Esquema de validación
    const validationSchema = object().shape({
@@ -312,7 +296,7 @@ const OnboardingScreen = ({ navigation }) => {
                         flexDirection: 'column',
                         color: colors.text,
                         position: 'relative',
-                        paddingBottom: keyboardVisible ? 200 : 0,
+                        paddingBottom: 100
                      }}>
 
                         <View style={{
@@ -566,13 +550,13 @@ const OnboardingScreen = ({ navigation }) => {
                                           value={values[field.atr]}
                                           onChangeText={(text) => {
                                             handleChangeText(field.atr, text); 
-                                            handleChange(field.atr); // Llama a handleChange
+                                            handleChange(field.atr); 
                                           }}
                                           placeholder="Ingresa tu correo"
                                           placeholderTextColor="#888"
                                           autoCapitalize="none"
                                           onBlur={handleBlur(field.atr)}
-               
+                                          autoComplete='email'
                                        />
                                        {
                                           touched[field.atr] && errors[field.atr] && <Text style={{ color: "#F4574B" }}>{errors[field.atr]}</Text>}
