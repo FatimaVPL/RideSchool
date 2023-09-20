@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
-import { TextInput } from 'react-native-paper';
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Alert } from 'react-native';
+import { TextInput, ActivityIndicator, MD2Colors  } from 'react-native-paper';
 import { firebase } from '../../config-firebase';
 import { useAuth } from '../../context/AuthContext';
 import { object, string } from 'yup';
@@ -12,6 +12,7 @@ const WelcomeScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(true)
+  const [spiner, setSpiner] = useState(false);
 
   //Esquema de validación
   const validationSchema = object().shape({
@@ -46,22 +47,26 @@ const WelcomeScreen = ({ navigation }) => {
       // Verificar si el correo electrónico ha sido verificado
       if (!user.emailVerified) {
         // El correo electrónico no ha sido verificado
-        alert("Correo electrónico no verificado. Por favor, verifica tu correo electrónico antes de iniciar sesión.");
+        Alert.alert("Verificar Correo","Por favor, verifica tu correo electrónico antes de iniciar sesión.");
       }
     } catch (error) {
       // Manejo de errores específicos
       switch (error.code) {
         case "auth/user-not-found":
-          alert("Usuario no encontrado. Verifica el correo electrónico o regístrate si eres nuevo.");
+          Alert.alert("Usuario no encontrado.","Verifica el correo electrónico o regístrate si eres nuevo");
+          setSpiner(false)
           break;
         case "auth/invalid-email":
-          alert("Correo electrónico no válido. Verifica el formato de correo electrónico.");
+          Alert.alert("Correo electrónico no válido","Verifica el formato de correo electrónico");
+          setSpiner(false)
           break;
         case "auth/wrong-password":
-          alert("Contraseña incorrecta. Vuelve a intentarlo.");
+          Alert.alert("Contraseña incorrecta","Vuelve a intentarlo o reestablece tu contraseña");
+          setSpiner(false)
           break;
         default:
-          alert("Error al iniciar sesión: " + error.message);
+          Alert.alert("Error al iniciar sesión" + error.message);
+          setSpiner(false)
           break;
       }
     }
@@ -70,12 +75,20 @@ const WelcomeScreen = ({ navigation }) => {
 
   return (
     // El formularío 
-    <Formik
+    <>
+     {spiner ? (
+        <View style={styles.spiner}>
+          <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
+          <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+        </View>
+      ) : (
+     <Formik
       enableReinitialize={true}
       initialValues={{ email: email, password: password }}
       validationSchema={validationSchema}
       validateOnMount={true}
       onSubmit={(values) => {
+        setSpiner(true);
         loginUser(values.email, values.password);
       }}
     >
@@ -121,10 +134,20 @@ const WelcomeScreen = ({ navigation }) => {
         </View >
       )}
     </Formik>
+       )
+      }
+    </>
+   
   );
 }
 
 const styles = StyleSheet.create({
+  spiner: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -137,7 +160,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     marginTop: 15,
     marginBottom: 10,
-    color: "green"
+    color: "#D6A50C"
   },
   input: {
     color: 'black',

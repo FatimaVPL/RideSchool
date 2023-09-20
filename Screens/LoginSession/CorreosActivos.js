@@ -1,5 +1,6 @@
 import React from "react";
 import {firebase, db} from '../../config-firebase';
+import { Alert } from 'react-native';
 import 'firebase/firestore';
 
 // Referencia a la colección 
@@ -21,8 +22,8 @@ const CorreosActivos = ({ correo }) => {
       }
     })
     .catch((error) => {
-     alert("Error al verificar correo: ", error)
-      throw error; // Lanzar el error para que pueda ser manejado por el código que llama a esta función
+     Alert.alert("Error al verificar correo: ", error)
+      throw error; 
     })
 }
 

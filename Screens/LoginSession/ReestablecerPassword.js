@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert, Image } from 'react-native';
 import { TextInput, ActivityIndicator, MD2Colors } from 'react-native-paper'
 import { useAuth } from '../../context/AuthContext';
 import { object, string } from 'yup';
 import { Formik } from 'formik';
-
-
 
 const ReestablecerPassword = ({ navigation }) => {
   const { reestablecerPassword } = useAuth()
@@ -25,12 +23,10 @@ const ReestablecerPassword = ({ navigation }) => {
   })
 
   const reestablecer = async (email) => {
-    console.log("correo 1 ", email)
     try {
       // Registro de usuario
       await reestablecerPassword(email)
-      console.log("correo 2 ", email)
-      Alert.alert("Confirmación", "Se le ha enviado un email con las intrucciones para reestablecer su contraseña");
+      Alert.alert("Confirmación", "Se te ha enviado un correo con las intrucciones para reestablecer tu contraseña");
       navigation.navigate('Welcome')
     }
     catch (error) {
@@ -41,13 +37,18 @@ const ReestablecerPassword = ({ navigation }) => {
   return (
     <>
       {spiner ? (
-        <View style={{
-          flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22
-        }}>
+        <View style={styles.spiner}>
           <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
           <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
         </View>
       ) : (
+        <View style={styles.containerPrincipal}>
+           <View style={styles.imageLogo}>
+                <Image
+                  source={require('../../assets/rideSchoolS.png')}
+                  style={styles.image}
+                />
+              </View>
         <Formik
           initialValues={{ email: email }}
           validationSchema={validationSchema}
@@ -58,8 +59,10 @@ const ReestablecerPassword = ({ navigation }) => {
           }}
         >
           {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
+           
             <View style={styles.container} >
-              <Text style={styles.bienvenida} variant='headlineLarge'>Ingresa tu correo </Text>
+             
+              <Text style={styles.bienvenida} variant='headlineLarge'>Ingresa tu correo institucional</Text>
               <TextInput
                 placeholder="Correo institucional"
                 style={styles.input}
@@ -76,14 +79,40 @@ const ReestablecerPassword = ({ navigation }) => {
               </TouchableOpacity>
               <StatusBar style="auto" />
             </View>
+           
           )}
-        </Formik>)
+        </Formik>
+        </View>
+        )
       }
     </>
   )
 }
 
 const styles = StyleSheet.create({
+  image: {
+    width: '90%',
+    height: '90%',
+  },
+  spiner: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  imageLogo: {
+    width: 70,
+    height: 65,
+    marginTop: 15,
+    position: 'absolute',
+  },
+  containerPrincipal: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    paddingTop: 50,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -94,9 +123,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 27,
     fontWeight: '900',
-    marginTop: 15,
     marginBottom: 10,
-    color: "green"
+    color: '#D6A50C'
   },
   input: {
     color: 'black',
