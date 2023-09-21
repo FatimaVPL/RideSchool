@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar, Alert } from 'react-native';
-import { TextInput, ActivityIndicator, MD2Colors  } from 'react-native-paper';
+import { TextInput } from 'react-native-paper';
 import { firebase } from '../../config-firebase';
 import { useAuth } from '../../context/AuthContext';
 import { object, string } from 'yup';
 import { Formik } from 'formik';
-
+import Animation from '../../components/Loader'
 
 const WelcomeScreen = ({ navigation }) => {
   const { user, refreshUser } = useAuth();
@@ -78,8 +78,7 @@ const WelcomeScreen = ({ navigation }) => {
     <>
      {spiner ? (
         <View style={styles.spiner}>
-          <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-          <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+          <Animation></Animation>
         </View>
       ) : (
      <Formik
