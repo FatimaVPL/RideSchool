@@ -204,12 +204,13 @@ const OnboardingScreen = ({ navigation }) => {
                                  crearUsuario()
                               } else {
                                  Alert.alert("Correo no vigente","Tu correo no está en nuestros registros")
+                                 navigation.navigate('Welcome')
                               }
                            }).catch((error) => {
                               Alert.alert("Error de verificación","Ocurrio un error al verificar tu email")
+                              navigation.navigate('Welcome')
                            })
                      }
-                     setSpiner(false);
                      break;
                }
             } else {
@@ -223,9 +224,11 @@ const OnboardingScreen = ({ navigation }) => {
                            crearUsuario()
                         } else {
                            Alert.alert("Correo no vigente","Tu correo actualmente no está vigente",formData.email)
+                           navigation.navigate('Welcome')
                         }
                      }).catch((error) => {
                         Alert.alert("Error de verificación","Ocurrio un error al verificar tu email")
+                        navigation.navigate('Welcome')
                      })
                }
             }
