@@ -9,6 +9,8 @@ import SolicitarRide from './SolicitarRide';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
+import { de } from 'date-fns/locale';
+import { createIconSetFromFontello } from 'react-native-vector-icons';
 
 const FrmSolicitarRide = () => {
     const validate = values => {
@@ -31,7 +33,7 @@ const FrmSolicitarRide = () => {
     const { user } = useAuth();
 
     async function saveRideToFirestore(rideData) {
-        const { origin, destination, date, ...rest } = rideData;
+        const { origin, destination, date, directionOrigin, directionDestination, ...rest } = rideData;
         const geoFirestore = new GeoFirestore(db);
 
         // Crear una nueva referencia con un ID único
@@ -46,8 +48,8 @@ const FrmSolicitarRide = () => {
             id: docRef.id,
             coordinates: originGeoPoint,
             pasajero: db.collection('users').doc(user.email), // Aquí guardamos el ID del documento dentro del objeto
-            origin: { coordinates: originGeoPoint, direction: "" },
-            destination: { coordinates: destinationGeoPoint, direction: "" },
+            origin: { coordinates: originGeoPoint, direction: directionOrigin },
+            destination: { coordinates: destinationGeoPoint, direction: directionDestination },
             date: date === null ? new Date() : date,
             estado: "pendiente",
             ...rest
@@ -57,6 +59,7 @@ const FrmSolicitarRide = () => {
         geoFirestore.collection('rides').doc(docRef.id).set(newData)
             .then(() => {
                 console.log(`Nuevo documento creado en GeoFirestore con ID: ${docRef.id}`);
+                setSuccessModalVisible(true); // Mostrar modal de éxito
             })
             .catch((error) => {
                 console.error('Error al crear un nuevo documento en GeoFirestore:', error);
@@ -73,6 +76,9 @@ const FrmSolicitarRide = () => {
             origin: null,
             destination: null,
             comentarios: null,
+            directionOrigin: null,
+            directionDestination: null,
+            informationRoute: null
         },
         onSubmit: values => {
             saveRideToFirestore(values)
@@ -82,9 +88,13 @@ const FrmSolicitarRide = () => {
                 .catch(error => {
                     console.error(`Error adding document: ${error}`);
                 });
+
         }
 
     });
+
+    /* Modal aceptar */
+    const [successModalVisible, setSuccessModalVisible] = React.useState(false);
 
     /* Modal puntos */
     const [visible, setVisible] = React.useState(false);
@@ -212,6 +222,14 @@ const FrmSolicitarRide = () => {
 
                 </View>
             </FormikProvider>
+            <Portal>
+                <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ padding: 20, backgroundColor: 'white' }}>
+                    <Text style={{ fontSize: 20 }}>¡Solicitud enviada con éxito!</Text>
+                    <Text style={{ marginTop: 10 }}>Espera las ofertas de ride y acepta la que sea más de tu agrado.</Text>
+                    <Button style={{ marginTop: 20 }} mode="contained" onPress={() => {setSuccessModalVisible(false) }}>Entendido</Button>
+                </Modal>
+            </Portal>
+
         </PaperProvider>
     );
 };
