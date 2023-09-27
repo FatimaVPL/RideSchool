@@ -87,7 +87,7 @@ const RidesSolicitados = ({ navigation }) => {
                 for (const doc of snapshot.docs) {
                     const data = doc.data();
                     if (data.estado === "pendiente") {
-                        const passengerRef = data.pasajero;
+                        const passengerRef = data.pasajeroID.reference;
                         try {
                             const passengerSnapshot = await passengerRef.get();
                             if (passengerSnapshot.exists) {
@@ -124,9 +124,9 @@ const RidesSolicitados = ({ navigation }) => {
                 id: docRef.id,
                 fechaSolicitud: new Date(),
                 estado: 'pendiente',
-                rideID: db.collection('rides').doc(data[index].ride?.id),
-                pasajeroID: data[index].ride?.pasajero,
-                conductorID: user.uid,
+                rideID: { reference: db.collection('rides').doc(data[index].ride?.id), id: data[index].ride?.id },
+                pasajeroID: data[index].ride?.pasajeroID,
+                conductorID: { reference: db.collection('users').doc(user.email), uid: user.uid },
                 ...values
             })
         } catch (error) {

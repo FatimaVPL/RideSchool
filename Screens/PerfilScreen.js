@@ -75,10 +75,6 @@ const PerfilScreen = ({ navigation }) => {
     }
   }
 
-  const cambiarRol = () => {
-    navigation.navigate('Cambiar Rol');
-  }
-
   const notificaciones = () => {
     navigation.navigate('Notificaciones');
   }
@@ -141,16 +137,16 @@ const PerfilScreen = ({ navigation }) => {
                     )}
                     {getInfoMedal(userData.numRidesConductor) !== false && (
                       <View style={{ flex: 1, alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRides).color} />
-                        <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal(userData.numRides).text}`}</Text>
+                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRidesConductor).color} />
+                        <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal(userData.numRidesConductor).text}`}</Text>
                       </View>
                     )}
                   </>
                 )}
                 {getInfoMedal(userData.numRidesPasajero) !== false && (
                   <View style={{ flex: 1, alignItems: 'center' }}>
-                    <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRides).color} />
-                    <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal(userData.numRides).text}`}</Text>
+                    <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRidesPasajero).color} />
+                    <Text style={{ textAlign: 'center' }}>{`Pasajero \n ${getInfoMedal(userData.numRidesPasajero).text}`}</Text>
                   </View>
                 )}
               </View>
@@ -163,12 +159,6 @@ const PerfilScreen = ({ navigation }) => {
                 <View style={styles.settingsItem}>
                   <MaterialIcons name="notifications" size={24} color="#212121" style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Notificaciones</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={cambiarRol}>
-                <View style={styles.settingsItem}>
-                  <Ionicons name="ios-people" size={24} color="#212121" style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge'>Cambiar de rol</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={ajustesGenerales}>

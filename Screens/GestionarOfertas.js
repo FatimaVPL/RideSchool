@@ -58,14 +58,14 @@ const RidesConductor = ({ navigation }) => {
 
     async function getData() {
         try {
-            const ofertasSnapshot = await db.collection('ofertas').where('conductorID', '==', user.uid).get();
+            const ofertasSnapshot = await db.collection('ofertas').where('conductorID.uid', '==', user.uid).get();
             const resultados = [];
 
             for (const ofertasDoc of ofertasSnapshot.docs) {
                 const ofertasData = ofertasDoc.data();
-                const rideSnapshot = await ofertasData.rideID.get();
+                const rideSnapshot = await ofertasData.rideID.reference.get();
                 const rideData = rideSnapshot.data();
-                const passengerSnapshot = await ofertasData.pasajeroID.get();
+                const passengerSnapshot = await ofertasData.pasajeroID.reference.get();
                 const passengerData = passengerSnapshot.data();
 
                 const resultado = {
@@ -168,7 +168,6 @@ const RidesConductor = ({ navigation }) => {
                                     <Button buttonColor={getInfoByStatus(item.oferta.estado).color} textColor="white" style={{ width: 130 }}
                                         onPress={() => {
                                             setIndex(index);
-                                            //{ item.oferta.estado == "pendiente" ? setModalAlert(true) : setModalRating(true); setScore(data[index].ride.calificacionC_P?.puntaje); onChangeText(data[index].ride.calificacionC_P?.comentario); }
                                             {
                                                 switch (item.oferta.estado) {
                                                     case "aceptada":
@@ -252,7 +251,7 @@ const RidesConductor = ({ navigation }) => {
                                             />
                                         </View>
                                         <View style={{ flexDirection: 'row' }}>
-                                            <Ionicons name="map-outline" style={styles.icon} />
+                                            <Ionicons name="map" style={styles.icon} />
                                             <Text style={styles.text}>Ruta</Text>
                                         </View>
                                         <View style={{ width: '100%', height: 200 }}>
