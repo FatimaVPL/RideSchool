@@ -31,11 +31,17 @@
         "googleMaps": {
           "apiKey": "AIzaSyAbCSaSarqD9__N9pXiV32flrOPgSURSRg"
         }
-      }
+      },
+      "package": "com.fatiwi.AwesomeProject"
     },
     "web": {
       "userInterfaceStyle": "automatic",
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8cd231b6-a169-4145-8a05-44f8ddf5b7ab"
+      }
     }
   }
 }

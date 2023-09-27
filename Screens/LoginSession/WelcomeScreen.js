@@ -6,13 +6,16 @@ import { useAuth } from '../../context/AuthContext';
 import { object, string } from 'yup';
 import { Formik } from 'formik';
 import Animation from '../../components/Loader'
+import { useTheme } from "../../hooks/ThemeContext";
 
 const WelcomeScreen = ({ navigation }) => {
+  const { colors, image } = useTheme()
   const { user, refreshUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(true)
   const [spiner, setSpiner] = useState(false);
+  const logoImagePath = `../../assets/${image.logo}`;
 
   //Esquema de validación
   const validationSchema = object().shape({
@@ -42,12 +45,13 @@ const WelcomeScreen = ({ navigation }) => {
   const loginUser = async (email, password) => {
     try {
       // El usuario ha iniciado sesión con éxito
-      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email.toLowerCase(), password);
       const user = userCredential.user;
       // Verificar si el correo electrónico ha sido verificado
       if (!user.emailVerified) {
         // El correo electrónico no ha sido verificado
         Alert.alert("Verificar Correo","Por favor, verifica tu correo electrónico antes de iniciar sesión.");
+        setSpiner(false)
       }
     } catch (error) {
       // Manejo de errores específicos
@@ -92,10 +96,9 @@ const WelcomeScreen = ({ navigation }) => {
       }}
     >
       {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
-        <View style={styles.container} >
-          <Image style={styles.logo} source={require('../../assets/ride-school.png')} />
+       <View style={[styles.container, { backgroundColor: colors.background }]}>
+          <Image style={styles.logo} source={require('../../assets/ride-school.png')}/>
           <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educación</Text>
-
           <TextInput
             placeholder="Correo institucional"
             style={styles.input}
@@ -166,7 +169,6 @@ const styles = StyleSheet.create({
     color: 'black',
     width: 350,
     height: 50,
-    backgroundColor: 'white',
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {

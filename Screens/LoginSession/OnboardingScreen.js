@@ -60,12 +60,12 @@ const OnboardingScreen = ({ navigation }) => {
          .required("Campo obligatorio")
          .min(4, "Debe ser un nombre válido")
          .max(20, "Debe ser menor a 20")
-         .matches(/^[A-Za-z-áéíóúÁÉÍÓÚ]*$/, "Debe contener solo letras"),
+         .matches(/^[A-Za-záéíóúÁÉÍÓÚñÑ]+(?:\s[A-Za-záéíóúÁÉÍÓÚñÑ]+)?$/, "Debe contener solo letras"),
       lastName: string()
          .required("Campo obligatorio")
          .min(4, "Debe ser un apellido válido")
          .max(20, "Debe ser menor a 20")
-         .matches(/^[A-Za-z-áéíóúÁÉÍÓÚ ]*$/, "Debe contener solo letras"),
+         .matches(/^[A-Za-záéíóúÁÉÍÓÚñÑ]+(?:\s[A-Za-záéíóúÁÉÍÓÚñÑ]+)?$/, "Debe contener solo letras"),
       password: string()
          .required("Campo obligatorio")
          .min(8, "Debe ser mayor o igual a 8")
@@ -200,7 +200,6 @@ const OnboardingScreen = ({ navigation }) => {
                         CorreosActivos({ correo: formData.email })
                            .then((result) => {
                               if (result) {
-                                 // Hacer algo si el correo existe en la base de datos
                                  crearUsuario()
                               } else {
                                  Alert.alert("Correo no vigente","Tu correo no está en nuestros registros")
@@ -210,12 +209,13 @@ const OnboardingScreen = ({ navigation }) => {
                               Alert.alert("Error de verificación","Ocurrio un error al verificar tu email")
                               navigation.navigate('Welcome')
                            })
-                     }
+                     } 
+                     setSpiner(false)
                      break;
                }
             } else {
                // Crear registro
-               setSpiner(true);
+               setSpiner(true)
                if (formData.role !== "") {
                   CorreosActivos({ correo: formData.email })
                      .then((result) => {
@@ -223,7 +223,7 @@ const OnboardingScreen = ({ navigation }) => {
                            // Hacer algo si el correo existe en la base de datos
                            crearUsuario()
                         } else {
-                           Alert.alert("Correo no vigente","Tu correo actualmente no está vigente",formData.email)
+                           Alert.alert("Correo no vigente","Tu correo no está en nuestros registros")
                            navigation.navigate('Welcome')
                         }
                      }).catch((error) => {
@@ -231,6 +231,7 @@ const OnboardingScreen = ({ navigation }) => {
                         navigation.navigate('Welcome')
                      })
                }
+               setSpiner(false)
             }
          }
       } catch (err) {
@@ -366,7 +367,7 @@ const OnboardingScreen = ({ navigation }) => {
                                   onPress={() => {
                                     handleSelectRole(option.value)
                                   }}
-                                  labelStyle={{ color: '#606060', fontWeight: 'bold', fontSize:20 }}
+                                  labelStyle={{ color: colors.text, fontWeight: 'bold', fontSize:20 }}
                                   uncheckedColor="#E1A43B" 
                                   color="#E1A43B" 
                                 />
@@ -382,7 +383,6 @@ const OnboardingScreen = ({ navigation }) => {
                                           style={{
                                              width: 300,
                                              height: 50,
-                                             backgroundColor: 'white',
                                              borderRadius: 8,
                                              shadowColor: '#000',
                                              shadowOffset: {
@@ -424,7 +424,6 @@ const OnboardingScreen = ({ navigation }) => {
                                           style={{
                                              width: 300,
                                              height: 50,
-                                             backgroundColor: 'white',
                                              borderRadius: 8,
                                              shadowColor: '#000',
                                              shadowOffset: {
@@ -536,7 +535,6 @@ const OnboardingScreen = ({ navigation }) => {
                                              color: 'black',
                                              width: 350,
                                              height: 50,
-                                             backgroundColor: 'white',
                                              borderRadius: 8,
                                              shadowColor: '#000',
                                              shadowOffset: {
@@ -599,6 +597,7 @@ const OnboardingScreen = ({ navigation }) => {
             color: colors.text,
             position: 'relative',
             paddingTop: 50,
+            backgroundColor: colors.background
          }}>
             <View style={{
                width: 70,

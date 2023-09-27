@@ -25,7 +25,7 @@ const ReestablecerPassword = ({ navigation }) => {
   const reestablecer = async (email) => {
     try {
       // Registro de usuario
-      await reestablecerPassword(email)
+      await reestablecerPassword(email.ToLowerCase())
       Alert.alert("Confirmación", "Se te ha enviado un correo con las intrucciones para reestablecer tu contraseña");
       navigation.navigate('Welcome')
     }
