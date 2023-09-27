@@ -47,9 +47,10 @@ const FrmSolicitarRide = () => {
         const newData = {
             id: docRef.id,
             coordinates: originGeoPoint,
-            pasajero: db.collection('users').doc(user.email), // Aquí guardamos el ID del documento dentro del objeto
-            origin: { coordinates: originGeoPoint, direction: directionOrigin },
-            destination: { coordinates: destinationGeoPoint, direction: directionDestination },
+
+            pasajeroID: { reference: db.collection('users').doc(user.email), uid: user.uid }, // Aquí guardamos el ID del documento dentro del objeto
+            origin: { coordinates: originGeoPoint, direction: "" },
+            destination: { coordinates: destinationGeoPoint, direction: "" },
             date: date === null ? new Date() : date,
             estado: "pendiente",
             ...rest

@@ -76,7 +76,7 @@ function ButtonTabScreen() {
           ),
         }} />
       <Tab.Screen
-        name="Ofertas"
+        name={userData?.role == "Conductor" ? "Mis Ofertas" : "Mis Rides"}
         component={userData?.role == "Conductor" ? GestionarOfertas : GestionarRides}
         options={{
           tabBarIcon: ({ color, size }) => (
