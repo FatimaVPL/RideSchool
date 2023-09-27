@@ -30,7 +30,7 @@ const ITSUR_PLACE = {
     }
 }
 
-const SolicitarRide = ({formikk}) => {
+const SolicitarRide = ({ formikk }) => {
     const { user } = useAuth();
 
     // Referencias a los componentes
@@ -42,14 +42,14 @@ const SolicitarRide = ({formikk}) => {
     const [homePlace, setHomePlace] = React.useState(null);
 
     // Ruta que se va a solicitar
-    const [route, setRoute] = React.useState({ origin: null, destination: null})
+    const [route, setRoute] = React.useState({ origin: null, destination: null })
 
     // Indica si se esta seleccionando un lugar
     const [selecting, setSelecting] = React.useState(null)
 
-    React.useEffect(() => { 
+    React.useEffect(() => {
         Geocoder.init(GOOGLE_MAPS_API_KEY);
-        getLocationPermission(); 
+        getLocationPermission();
     }, []);
 
     async function getLocationPermission() {
@@ -109,7 +109,7 @@ const SolicitarRide = ({formikk}) => {
         }
     }, [route])
     React.useEffect(() => {
-        if(formikk.values.origin !== null && formikk.values.destination !== null){
+        if (formikk.values.origin !== null && formikk.values.destination !== null) {
             setRoute({
                 origin: formikk.values.origin,
                 destination: formikk.values.destination,
@@ -136,7 +136,7 @@ const SolicitarRide = ({formikk}) => {
                     backgroundColor: "#e55",
                 }}>
                 {/* Inputs Origin & Destino */}
-                <View style={{ zIndex: 1, width: '100%', position: 'absolute' }}>
+                <View style={{ zIndex: 20, width: '100%', position: 'absolute' }}>
                     <GooglePlacesAutocomplete
                         ref={originRef}
                         fetchDetails={true}
@@ -151,10 +151,14 @@ const SolicitarRide = ({formikk}) => {
                                 }
                             }));
                             setSelecting(null)
+                            formikk.setFieldValue('directionOrigin', data.description);
                         }}
                         query={{
                             key: GOOGLE_MAPS_API_KEY,
                             language: 'es',
+                            location: '20.141825,-101.178825', // Coordenadas del centro
+                            radius: '15000', // Radio en metros
+                            strictbounds: true,
                         }}
                         onFail={(error) => console.error(error)}
                         predefinedPlaces={[homePlace]}
@@ -174,10 +178,15 @@ const SolicitarRide = ({formikk}) => {
                                 }
                             }));
                             setSelecting(null)
+                            formikk.setFieldValue('directionDestination', data.description);
+
                         }}
                         query={{
                             key: GOOGLE_MAPS_API_KEY,
                             language: 'es',
+                            location: '20.141825,-101.178825', // Coordenadas del centro
+                            radius: '15000', // Radio en metros
+                            strictbounds: true,
                         }}
                         onFail={(error) => console.error(error)}
                         predefinedPlaces={[ITSUR_PLACE]}
@@ -203,7 +212,7 @@ const SolicitarRide = ({formikk}) => {
                                 id="origin"
                                 coordinate={route.origin}
                                 draggable={true}
-                                //onDragEnd={(e) => setOrigin(e.nativeEvent.coordinate)}
+                            //onDragEnd={(e) => setOrigin(e.nativeEvent.coordinate)}
 
                             />
                         }
@@ -225,6 +234,9 @@ const SolicitarRide = ({formikk}) => {
                                 mode="DRIVING"
                                 strokeWidth={3}
                                 strokeColor="green"
+                                onReady={(result) => {
+                                    formikk.setFieldValue('informationRoute', { distance: Math.ceil(result.distance), duration: Math.ceil(result.duration) });
+                                }}
                             />
                         }
                     </MapView>
