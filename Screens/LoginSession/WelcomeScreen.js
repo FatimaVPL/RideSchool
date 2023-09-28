@@ -15,7 +15,7 @@ const WelcomeScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(true)
   const [spiner, setSpiner] = useState(false);
-  const logoImagePath = `../../assets/${image.logo}`;
+  
 
   //Esquema de validación
   const validationSchema = object().shape({
@@ -97,11 +97,11 @@ const WelcomeScreen = ({ navigation }) => {
     >
       {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
        <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <Image style={styles.logo} source={require('../../assets/ride-school.png')}/>
+          <Image style={styles.logo} source={require('../../assets/ride-school-dark.png')}/>
           <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educación</Text>
           <TextInput
             placeholder="Correo institucional"
-            style={styles.input}
+            style={[styles.input, {backgroundColor: colors.input, color:colors.text}]}
             onChangeText={handleChange('email')}
             onBlur={handleBlur('email')}
             value={values.email}
@@ -113,7 +113,7 @@ const WelcomeScreen = ({ navigation }) => {
           )}
           <TextInput
             placeholder="Contraseña"
-            style={styles.input}
+            style={[styles.input, {backgroundColor: colors.input, color:colors.text}]}
             onChangeText={handleChange('password')}
             onBlur={handleBlur('password')}
             value={values.password}
@@ -125,7 +125,7 @@ const WelcomeScreen = ({ navigation }) => {
             <Text style={styles.errorText}>{errors.password}</Text>
           )}
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Entrar</Text>
+            <Text style={[styles.buttonText,{color: colors.textButton}]}>Entrar</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('ReestablecerPassword')} >
             <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
@@ -166,7 +166,6 @@ const styles = StyleSheet.create({
     color: "#D6A50C"
   },
   input: {
-    color: 'black',
     width: 350,
     height: 50,
     borderRadius: 8,
@@ -198,7 +197,6 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   buttonText: {
-    color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
