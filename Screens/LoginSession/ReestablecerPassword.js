@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert, Image } from 'react-native';
 import { TextInput, ActivityIndicator, MD2Colors } from 'react-native-paper'
 import { useAuth } from '../../context/AuthContext';
 import { object, string } from 'yup';
 import { Formik } from 'formik';
+import { useTheme } from "../../hooks/ThemeContext";
 
 const ReestablecerPassword = ({ navigation }) => {
   const { reestablecerPassword } = useAuth()
   const [spiner, setSpiner] = useState(false);
   const [email, setEmail] = useState('');
+  const { colors } = useTheme();
 
   const validationSchema = object().shape({
     email: string()
@@ -37,18 +39,12 @@ const ReestablecerPassword = ({ navigation }) => {
   return (
     <>
       {spiner ? (
-        <View style={styles.spiner}>
+        <View style={[styles.spiner, {backgroundColor: colors.background}]}>
           <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
           <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
         </View>
       ) : (
-        <View style={styles.containerPrincipal}>
-           <View style={styles.imageLogo}>
-                <Image
-                  source={require('../../assets/rideSchoolS.png')}
-                  style={styles.image}
-                />
-              </View>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Formik
           initialValues={{ email: email }}
           validationSchema={validationSchema}
@@ -65,11 +61,12 @@ const ReestablecerPassword = ({ navigation }) => {
               <Text style={styles.bienvenida} variant='headlineLarge'>Ingresa tu correo institucional</Text>
               <TextInput
                 placeholder="Correo institucional"
-                style={styles.input}
+                style={[styles.input, {backgroundColor: colors.input, color:colors.text}]}
                 autoCapitalize="none"
                 value={values.email}
                 onChangeText={handleChange('email')}
                 onBlur={handleBlur('email')}
+                theme={{ colors: { text: 'green', primary: 'green' } }}
               />
               {touched.email && errors.email && (
                 <Text style={styles.errorText}>{errors.email}</Text>
@@ -146,11 +143,11 @@ const styles = StyleSheet.create({
   button: {
     width: 300,
     height: 50,
-    backgroundColor: 'green', //por definir en dark
+    backgroundColor: 'green',
     padding: 10,
     marginTop: 30,
     borderRadius: 10,
-    shadowColor: "#000", //por definir en dark
+    shadowColor: "#000", 
     shadowOffset: {
       width: 0,
       height: 3,

@@ -8,8 +8,6 @@ export function useTheme(){return React.useContext(ThemeContext) }
 export function ThemeProvider({children}){
     const [themeState, setThemeState] = useState( Appearance.getColorScheme());
 
-  //  console.log( Appearance.getColorScheme() )
-
     useEffect(() => {
         const subscription = Appearance.addChangeListener(({ colorScheme }) => {
             setThemeState(colorScheme);
@@ -24,13 +22,13 @@ export function ThemeProvider({children}){
     const theme = {
         isDark,
         colors: {
-            background: isDark ? '#1E1E1E' : '#fff',
+            background: isDark ? '#17202A' : '#F2F2F2',
             background2: isDark ? '#313131' : '#e9e9e9',
             text: isDark ? '#F0F0F0' : '#171717',
             text2: isDark ? '#A8A8A8' : '#424242',
             primary: isDark ? '#0D9F45' : '#0D9F45',
-            shadow: isDark ? '#D4D4D4' : '#D4D4D4',
-            input: isDark? '#3C3C3C' : '#D9D7DC',
+            shadow: isDark ? 'green' : '#D4D4D4',
+            input: isDark? '#283747' : '#ECF0F1',
             textButton: isDark? '#F3F3F3' : 'white'
         },
         image:{

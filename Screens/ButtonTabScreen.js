@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { StyleSheet, Image, View } from 'react-native';
+import {View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -13,11 +13,12 @@ import FrmSolicitarRide from './FrmSolicitarRide';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../config-firebase';
 import Animation from '../components/Loader'
+import { useTheme } from "../hooks/ThemeContext";
 
 const Tab = createBottomTabNavigator();
 
 function ButtonTabScreen() {
-
+  const { colors} = useTheme()
   const { user, setUsage } = useAuth();
   const [userData, setUserData] = useState(null);
 
@@ -51,7 +52,7 @@ function ButtonTabScreen() {
 
   if (userData === null) {
     return (
-      <View style={styles.centeredView}>
+      <View>
         <Animation></Animation>
       </View>
     );
@@ -64,7 +65,7 @@ function ButtonTabScreen() {
         component={InicioScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <Ionicons name="home" size={size}  color={colors.text}  />
           ),
         }} />
       <Tab.Screen
@@ -72,7 +73,7 @@ function ButtonTabScreen() {
         component={userData?.role == "Conductor" ? RidesSolicitados : FrmSolicitarRide}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="directions-car" size={size} color={color} />
+            <MaterialIcons name="directions-car" size={size}  color={colors.text}/>
           ),
         }} />
       <Tab.Screen
@@ -80,7 +81,7 @@ function ButtonTabScreen() {
         component={userData?.role == "Conductor" ? GestionarOfertas : GestionarRides}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="pin-drop" size={size} color={color} />
+            <MaterialIcons name="pin-drop" size={size} color={colors.text} />
           ),
         }} />
       <Tab.Screen
@@ -88,7 +89,7 @@ function ButtonTabScreen() {
         component={ChatScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-ellipses" size={size} color={color} />
+            <Ionicons name="chatbubble-ellipses" size={size} color={colors.text}/>
           ),
           tabBarBadge: 5
         }} />
@@ -97,20 +98,11 @@ function ButtonTabScreen() {
         component={PerfilScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <Ionicons name="person" size={size}  color={colors.text} />
           )
         }} />
     </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 },
-});
 
 export default ButtonTabScreen;

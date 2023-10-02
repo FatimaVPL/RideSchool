@@ -7,10 +7,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { Avatar, Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button } from 'react-native-paper';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from "../hooks/ThemeContext";
 
 
 const PerfilScreen = ({ navigation }) => {
-
+  const { colors } = useTheme()
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState(null);
@@ -71,7 +72,6 @@ const PerfilScreen = ({ navigation }) => {
 
     } catch (error) {
       console.error('Error al cerrar sesión:', error.message);
-      // Maneja cualquier error que ocurra durante el cierre de sesión.
     }
   }
 
@@ -97,10 +97,10 @@ const PerfilScreen = ({ navigation }) => {
 
   return (
     <PaperProvider>
-      <View style={styles.container}>
+      <View style={[styles.container, {backgroundColor: colors.background}]}>
         {!isLoading ? (
           <>
-            <View style={styles.profileContainer}>
+            <View style={[styles.profileContainer, {backgroundColor: colors.background}]}>
               <Avatar.Image size={130} source={require('../assets/PerfilImage.jpg')} />
               <Text variant='headlineSmall'>{`${userData?.firstName} ${userData?.lastName}`}</Text>
               <Text variant='titleMedium'>{userData?.email}</Text>

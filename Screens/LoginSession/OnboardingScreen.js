@@ -384,6 +384,8 @@ const OnboardingScreen = ({ navigation }) => {
                                              width: 300,
                                              height: 50,
                                              borderRadius: 8,
+                                             backgroundColor: colors.input,
+                                             color:colors.text,
                                              shadowColor: '#000',
                                              shadowOffset: {
                                                 width: 0,
@@ -406,6 +408,7 @@ const OnboardingScreen = ({ navigation }) => {
                                           secureTextEntry={passwordVisible}
                                           right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
                                           onBlur={handleBlur(field.atr)}
+                                          theme={{ colors: { text: 'green', primary: 'green' } }}
                                        />
                                        {touched[field.atr] && errors[field.atr] && <Text style={{ color: "#F4574B" }}>{errors[field.atr]}</Text>}
                                        {
@@ -425,6 +428,8 @@ const OnboardingScreen = ({ navigation }) => {
                                              width: 300,
                                              height: 50,
                                              borderRadius: 8,
+                                             backgroundColor: colors.input,
+                                             color:colors.text,
                                              shadowColor: '#000',
                                              shadowOffset: {
                                                 width: 0,
@@ -447,6 +452,7 @@ const OnboardingScreen = ({ navigation }) => {
                                           placeholder={`${indx}` == 0 ? "Ingresa tus nombre(s)" : "Ingresa tu apellido"}
                                           placeholderTextColor="#888"
                                           onBlur={handleBlur(field.atr)}
+                                          theme={{ colors: { text: 'green', primary: 'green' } }}
                                        />
                                        {touched[field.atr] && errors[field.atr] && <Text style={{ color: "#F4574B" }}>{errors[field.atr]}</Text>}
                                        {
@@ -467,14 +473,14 @@ const OnboardingScreen = ({ navigation }) => {
                                              <View key={`${option.value}-${index}`} style={{ flexDirection: 'row', marginBottom: 10 }}>
                                                 <RadioButton.Item
                                                    color="green"
-                                                   labelStyle={{ color: '#606060' }}
+                                                   labelStyle={{ color: colors.text }}
                                                    label={optionsConductor[index].label}
                                                    value={optionsConductor[index].value}
                                                 />
                                                 {index + 1 < optionsConductor.length && (
                                                    <RadioButton.Item
                                                       color="green"
-                                                      labelStyle={{ color: '#606060' }}
+                                                      labelStyle={{ color: colors.text }}
                                                       label={optionsConductor[index + 1].label}
                                                       value={optionsConductor[index + 1].value}
                                                    />
@@ -506,14 +512,14 @@ const OnboardingScreen = ({ navigation }) => {
                                              <View key={`${index.value}-${index}`} style={{ flexDirection: 'row', marginBottom: 10 }}>
                                                 <RadioButton.Item
                                                    color="green"
-                                                   labelStyle={{ color: '#606060' }}
+                                                   labelStyle={{ color: colors.text}}
                                                    label={optionsLicencia[index].label}
                                                    value={optionsLicencia[index].value}
                                                 />
                                                 {index + 1 < optionsLicencia.length && (
                                                    <RadioButton.Item
                                                       color="green"
-                                                      labelStyle={{ color: '#606060' }}
+                                                      labelStyle={{ color: colors.text }}
                                                       label={optionsLicencia[index + 1].label}
                                                       value={optionsLicencia[index + 1].value}
                                                    />
@@ -536,6 +542,8 @@ const OnboardingScreen = ({ navigation }) => {
                                              width: 350,
                                              height: 50,
                                              borderRadius: 8,
+                                             backgroundColor: colors.input,
+                                             color:colors.text,
                                              shadowColor: '#000',
                                              shadowOffset: {
                                                 width: 0,
@@ -558,6 +566,7 @@ const OnboardingScreen = ({ navigation }) => {
                                           autoCapitalize="none"
                                           onBlur={handleBlur(field.atr)}
                                           autoComplete='email'
+                                          theme={{ colors: { text: 'green', primary: 'green' } }}
                                        />
                                        {
                                           touched[field.atr] && errors[field.atr] && <Text style={{ color: "#F4574B" }}>{errors[field.atr]}</Text>}
@@ -740,6 +749,7 @@ const OnboardingScreen = ({ navigation }) => {
                         fontSize: 20,
                         fontWeight: 'bold',
                         textAlign: 'center',
+                        shadowColor: colors.shadow
                      }}>
                         Continuar
                      </Text>

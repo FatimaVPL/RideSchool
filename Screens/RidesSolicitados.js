@@ -12,6 +12,7 @@ import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from "../hooks/ThemeContext";
 
 const styles = StyleSheet.create({
     container: {
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
 });
 
 const RidesSolicitados = ({ navigation }) => {
-
+    const { colors } = useTheme()
     const { user } = useAuth();
     const [origin, setOrigin] = useState(null);
     const [data, setData] = useState([]);
@@ -168,7 +169,7 @@ const RidesSolicitados = ({ navigation }) => {
 
     return (
         <PaperProvider>
-            <View style={styles.container}>
+            <View style={[styles.container, {backgroundColor: colors.background}]}>
                 {!isLoading ? (
                     <><MapView
                         provider={PROVIDER_GOOGLE}

@@ -10,13 +10,12 @@ import { useTheme } from "../../hooks/ThemeContext";
 
 const WelcomeScreen = ({ navigation }) => {
   const { colors, image } = useTheme()
-  const { user, refreshUser } = useAuth();
+  const { refreshUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(true)
   const [spiner, setSpiner] = useState(false);
   
-
   //Esquema de validación
   const validationSchema = object().shape({
     email: string()
@@ -81,7 +80,7 @@ const WelcomeScreen = ({ navigation }) => {
     // El formularío 
     <>
      {spiner ? (
-        <View style={styles.spiner}>
+        <View style={[styles.spiner, {backgroundColor: colors.background}]}>
           <Animation></Animation>
         </View>
       ) : (
@@ -107,6 +106,7 @@ const WelcomeScreen = ({ navigation }) => {
             value={values.email}
             autoCapitalize="none"
             autoComplete='email'
+            theme={{ colors: { text: 'green', primary: 'green' } }}
           />
           {touched.email && errors.email && (
             <Text style={styles.errorText}>{errors.email}</Text>
@@ -120,11 +120,12 @@ const WelcomeScreen = ({ navigation }) => {
             autoCapitalize="none"
             secureTextEntry={passwordVisible}
             right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
-          />
+            theme={{ colors: { text: 'green', primary: 'green' } }}
+         />
           {touched.password && errors.password && (
             <Text style={styles.errorText}>{errors.password}</Text>
           )}
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <TouchableOpacity style={[styles.button]} onPress={handleSubmit}>
             <Text style={[styles.buttonText,{color: colors.textButton}]}>Entrar</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('ReestablecerPassword')} >
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
     width: 350,
     height: 50,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -183,11 +184,11 @@ const styles = StyleSheet.create({
   button: {
     width: 300,
     height: 50,
-    backgroundColor: 'green', //por definir en dark
+    backgroundColor: 'green', 
     padding: 10,
     marginTop: 20,
     borderRadius: 10,
-    shadowColor: "#000", //por definir en dark
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 3,
