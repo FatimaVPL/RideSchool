@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useEffect, useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, Modal, Pressable, FlatList } from "react-native";
+import { View, StyleSheet, Pressable, FlatList } from "react-native";
 import { AirbnbRating } from 'react-native-elements';
-import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput } from 'react-native-paper';
+import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput, Modal, Portal } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { db } from '../config-firebase';
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
@@ -20,9 +20,8 @@ const styles = StyleSheet.create({
         zIndex: 0,
     },
     centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 },
-    textBorder: { borderBottomWidth: 2, paddingBottom: 5, fontWeight: 'bold', fontSize: 16, color: 'black' },
-    text: { marginBottom: 10, paddingTop: 6, fontSize: 15, color: 'black' },
-    overlay: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+    textBorder: { borderBottomWidth: 2, paddingBottom: 2, fontWeight: 'bold', fontSize: 16, color: 'black' },
+    text: { marginBottom: 10, paddingTop: 6, fontSize: 16, color: 'black' },
     modalView: { margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, width: 320 },
     modalText: { marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black' },
     icon: { marginRight: 10, fontSize: 24 },
@@ -37,7 +36,6 @@ const RidesConductor = ({ navigation }) => {
     const [index, setIndex] = useState(null);
     const [comen, onChangeText] = useState('');
     const [score, setScore] = useState(null);
-    const [showOverlay, setShowOverlay] = useState(false);
     const [modalDetails, setModalDetails] = useState(false);
     const [modalALert, setModalAlert] = useState(false);
     const [modalDialog, setModalDialog] = useState(false);
@@ -92,7 +90,7 @@ const RidesConductor = ({ navigation }) => {
     }
 
     async function deleteDoc(id) {
-        var reference = firebase.firestore().collection("ofertas").doc(id);
+        var reference = db.collection("ofertas").doc(id);
         await reference.delete()
             .then(() => {
                 console.log("Documento eliminado exitosamente");
@@ -118,7 +116,7 @@ const RidesConductor = ({ navigation }) => {
     const getInfoByStatus = (status) => {
         switch (status) {
             case "aceptada":
-                return { color: "#BEE27B", text: "Ir al chat" };
+                return { color: "#B2D474", text: "Ir al chat" };
             case "finalizada":
                 return { color: "#EEBF55", text: "Calificar" };
             default:
@@ -155,7 +153,7 @@ const RidesConductor = ({ navigation }) => {
 
                                     <View style={{ flexDirection: 'row' }}>
                                         <Ionicons name="person" style={{ fontSize: 22, paddingTop: 6, marginRight: 6 }} />
-                                        <Text style={styles.text} >{`${data[index].pasajero?.firstName} ${data[index].pasajero?.lastName}`}</Text>
+                                        <Text style={styles.text} >{`${data[index].pasajero.firstName} ${data[index].pasajero.lastName}`}</Text>
                                     </View>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Ionicons name="calendar" style={{ fontSize: 22, paddingTop: 6, marginRight: 6 }} />
@@ -163,9 +161,9 @@ const RidesConductor = ({ navigation }) => {
                                     </View>
                                 </Card.Content>
                                 <Card.Actions>
-                                    <Button textColor="black" style={{ width: 130 }}
-                                        onPress={() => { setIndex(index); setShowOverlay(true); setModalDetails(true); }}>Ver Detalles</Button>
-                                    <Button buttonColor={getInfoByStatus(item.oferta.estado).color} textColor="white" style={{ width: 130 }}
+                                    <Button textColor="black" style={{ width: 130 }} labelStyle={{ fontWeight: 'bold', fontSize: 14 }}
+                                        onPress={() => { setIndex(index); setModalDetails(true); }}>Ver Detalles</Button>
+                                    <Button buttonColor={getInfoByStatus(item.oferta.estado).color} textColor="white" style={{ width: 130 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
                                         onPress={() => {
                                             setIndex(index);
                                             {
@@ -174,126 +172,107 @@ const RidesConductor = ({ navigation }) => {
                                                         navigation.navigate('ChatScreen');
                                                         break;
                                                     case "finalizada":
-                                                        setShowOverlay(true); setModalRating(true); setScore(data[index].ride.calificacionC_P?.puntaje); onChangeText(data[index].ride.calificacionC_P?.comentario);
+                                                        setModalRating(true); setScore(data[index].ride.calificacionC_P?.puntaje); onChangeText(data[index].ride.calificacionC_P?.comentario);
                                                         break;
                                                     default:
-                                                        setShowOverlay(true); setModalAlert(true);
+                                                        setModalAlert(true);
                                                         break;
                                                 }
                                             }
-                                        }}>{data[index].ride?.calificacionC_P === undefined ?
-                                            getInfoByStatus(item.oferta.estado).text : `${data[index].ride.calificacionC_P?.puntaje} `}
-                                        {data[index].ride?.calificacionC_P !== undefined && <Ionicons name="star" style={{ fontSize: 15 }} />}</Button>
+                                        }}> {data[index].ride.calificacionC_P === undefined ? getInfoByStatus(item.oferta.estado).text : `${data[index].ride.calificacionC_P?.puntaje} `}
+                                        {data[index].ride.calificacionC_P !== undefined && <Ionicons name="star" style={{ fontSize: 15 }} />}</Button>
                                 </Card.Actions>
                             </Card>
                         )}
                     />
 
-                        {showOverlay && (
-                            <TouchableOpacity
-                                style={styles.overlay}
-                                activeOpacity={1}
-                            />
-                        )}
-
                         {modalDetails && (
-                            <Modal
-                                animationType="slide"
-                                transparent={true}
-                                visible={modalDetails}
-                                onRequestClose={() => {
-                                    setShowOverlay(!showOverlay); setModalDetails(!modalDetails);
-                                }}>
+                            <Portal>
+                                <Modal visible={modalDetails} onDismiss={() => setModalDetails(false)} contentContainerStyle={{ flex: 1 }}>
+                                    <View style={styles.centeredView}>
+                                        <View style={styles.modalView}>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <View><Text style={[styles.modalText, { marginRight: 20 }]}>Información del Ride</Text></View>
+                                                <View>
+                                                    <Pressable onPress={() => setModalDetails(false)}>
+                                                        <Ionicons name="close-circle-outline" style={{ color: '#D83F20', fontSize: 40, marginTop: -5, marginLeft: 30 }} />
+                                                    </Pressable>
+                                                </View>
+                                            </View>
 
-                                <View style={styles.centeredView}>
-                                    <View style={styles.modalView}>
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <View><Text style={[styles.modalText, { marginRight: 20 }]}>Información del Ride</Text></View>
                                             <View>
-                                                <Pressable onPress={() => { setShowOverlay(!showOverlay); setModalDetails(!modalDetails); }}>
-                                                    <Ionicons name="close-circle-outline" style={{ color: '#D83F20', fontSize: 40, marginTop: -5, marginLeft: 30 }} />
-                                                </Pressable>
+                                                <TextInput
+                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    mode="outlined"
+                                                    label="Pasajero"
+                                                    value={`${data[index].pasajero.firstName} ${data[index].pasajero.lastName}`}
+                                                    editable={false}
+                                                    left={<TextInput.Icon icon="account" style={{ marginTop: 15 }} />}
+                                                />
+                                                <TextInput
+                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    mode="outlined"
+                                                    label="Num Pasajeros"
+                                                    value={`${data[index].ride.personas}`}
+                                                    editable={false}
+                                                    left={<TextInput.Icon icon="account-multiple" style={{ marginTop: 15 }} />}
+                                                />
+                                                <TextInput
+                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    mode="outlined"
+                                                    label="Cooperación Voluntaria"
+                                                    value={data[index].oferta.cooperacion}
+                                                    editable={false}
+                                                    left={<TextInput.Icon icon="cash-multiple" style={{ marginTop: 10 }} />}
+                                                />
+                                                <TextInput
+                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    mode="outlined"
+                                                    label="Fecha/Hora"
+                                                    value={formatDate(data[index].oferta.fechaSolicitud, 'numeric')}
+                                                    editable={false}
+                                                    left={<TextInput.Icon icon="calendar-clock" style={{ marginTop: 15 }} />}
+                                                />
+                                            </View>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <Ionicons name="map" style={styles.icon} />
+                                                <Text style={styles.text}>Ruta</Text>
+                                            </View>
+                                            <View style={{ width: '100%', height: 200 }}>
+                                                <MapView
+                                                    provider={PROVIDER_GOOGLE}
+                                                    style={styles.map}
+                                                    initialRegion={{
+                                                        latitude: data[index].ride.origin.coordinates.latitude,
+                                                        longitude: data[index].ride.origin.coordinates.longitude,
+                                                        latitudeDelta: 0.04,
+                                                        longitudeDelta: 0.04,
+                                                    }}
+                                                >
+                                                    <Marker
+                                                        title="Punto Encuentro"
+                                                        coordinate={{ latitude: data[index].ride.origin.coordinates.latitude, longitude: data[index].ride.origin.coordinates.longitude }} />
+                                                    <Marker
+                                                        title="Punto Destino"
+                                                        coordinate={{ latitude: data[index].ride.destination.coordinates.latitude, longitude: data[index].ride.destination.coordinates.longitude }} />
+                                                    <MapViewDirections
+                                                        origin={{ latitude: data[index].ride.origin.coordinates.latitude, longitude: data[index].ride.origin.coordinates.longitude }}
+                                                        destination={{ latitude: data[index].ride.destination.coordinates.latitude, longitude: data[index].ride.destination.coordinates.longitude }}
+                                                        apikey={GOOGLE_MAPS_API_KEY}
+                                                        mode="DRIVING"
+                                                        strokeWidth={3}
+                                                        strokeColor="green"
+                                                    />
+                                                </MapView>
                                             </View>
                                         </View>
-
-                                        <View>
-                                            <TextInput
-                                                style={{ margin: 6, height: 45, width: 260 }}
-                                                mode="outlined"
-                                                label="Pasajero"
-                                                value={`${data[index].pasajero?.firstName} ${data[index].pasajero?.lastName}`}
-                                                editable={false}
-                                                left={<TextInput.Icon icon="account" style={{ marginTop: 15 }} />}
-                                            />
-                                            <TextInput
-                                                style={{ margin: 6, height: 45, width: 260 }}
-                                                mode="outlined"
-                                                label="Num Pasajeros"
-                                                value={`${data[index].ride?.personas}`}
-                                                editable={false}
-                                                left={<TextInput.Icon icon="account-multiple" style={{ marginTop: 15 }} />}
-                                            />
-                                            <TextInput
-                                                style={{ margin: 6, height: 45, width: 260 }}
-                                                mode="outlined"
-                                                label="Cooperación Voluntaria"
-                                                value={data[index].oferta?.cooperacion}
-                                                editable={false}
-                                                left={<TextInput.Icon icon="cash-multiple" style={{ marginTop: 10 }} />}
-                                            />
-                                            <TextInput
-                                                style={{ margin: 6, height: 45, width: 260 }}
-                                                mode="outlined"
-                                                label="Fecha/Hora"
-                                                value={formatDate(data[index].oferta?.fechaSolicitud, 'numeric')}
-                                                editable={false}
-                                                left={<TextInput.Icon icon="calendar-clock" style={{ marginTop: 15 }} />}
-                                            />
-                                        </View>
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Ionicons name="map" style={styles.icon} />
-                                            <Text style={styles.text}>Ruta</Text>
-                                        </View>
-                                        <View style={{ width: '100%', height: 200 }}>
-                                            <MapView
-                                                provider={PROVIDER_GOOGLE}
-                                                style={styles.map}
-                                                initialRegion={{
-                                                    latitude: data[index].ride.origin.coordinates?.latitude,
-                                                    longitude: data[index].ride.origin.coordinates?.longitude,
-                                                    latitudeDelta: 0.04,
-                                                    longitudeDelta: 0.04,
-                                                }}
-                                            >
-                                                <Marker
-                                                    title="Punto Encuentro"
-                                                    coordinate={{ latitude: data[index].ride.origin.coordinates?.latitude, longitude: data[index].ride.origin.coordinates?.longitude }} />
-                                                <Marker
-                                                    title="Punto Destino"
-                                                    coordinate={{ latitude: data[index].ride.destination.coordinates?.latitude, longitude: data[index].ride.destination.coordinates?.longitude }} />
-                                                <MapViewDirections
-                                                    origin={{ latitude: data[index].ride.origin.coordinates?.latitude, longitude: data[index].ride.origin.coordinates?.longitude }}
-                                                    destination={{ latitude: data[index].ride.destination.coordinates?.latitude, longitude: data[index].ride.destination.coordinates?.longitude }}
-                                                    apikey={GOOGLE_MAPS_API_KEY}
-                                                    mode="DRIVING"
-                                                    strokeWidth={3}
-                                                    strokeColor="green"
-                                                />
-                                            </MapView>
-                                        </View>
                                     </View>
-                                </View>
-                            </Modal>)}
+                                </Modal>
+                            </Portal>
+                        )}
 
-                        {modalALert && (
-                            <Modal
-                                animationType="slide"
-                                transparent={true}
-                                visible={modalALert}
-                                onRequestClose={() => {
-                                    setModalAlert(!modalALert); setShowOverlay(!showOverlay);
-                                }}>
-
+                        <Portal>
+                            <Modal visible={modalALert} onDismiss={() => setModalAlert(false)} contentContainerStyle={{ flex: 1 }}>
                                 <View style={styles.centeredView}>
                                     <View style={[styles.modalView, { padding: 15 }]}>
                                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -302,36 +281,19 @@ const RidesConductor = ({ navigation }) => {
                                             <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>¿Estas seguro de que deseas eliminar tu oferta?</Text>
                                         </View>
 
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Pressable
-                                                style={[styles.button, { backgroundColor: '#EE6464' }]}
-                                                onPress={() => { deleteDoc(data[index].oferta?.id); setModalAlert(false); setModalDialog(true); }}
-                                            >
-                                                <View style={{ flexDirection: 'row' }}>
-                                                    <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>SI</Text>
-                                                </View>
-                                            </Pressable>
-                                            <Pressable
-                                                style={[styles.button, { backgroundColor: '#B0B0B0' }]}
-                                                onPress={() => { setModalAlert(false); setShowOverlay(false); }}>
-                                                <View style={{ flexDirection: 'row' }}>
-                                                    <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>NO</Text>
-                                                </View>
-                                            </Pressable>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                            <Button mode="contained" buttonColor='#EE6464' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                onPress={() => { deleteDoc(data[index].oferta.id); setModalAlert(false); setModalDialog(true); }}> SI </Button>
+                                            <Button mode="contained" buttonColor='#B0B0B0' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                onPress={() => setModalAlert(false)}> NO </Button>
                                         </View>
                                     </View>
                                 </View>
-                            </Modal>)}
+                            </Modal>
+                        </Portal>
 
-                        {modalDialog && (
-                            <Modal
-                                animationType="slide"
-                                transparent={true}
-                                visible={modalDialog}
-                                onRequestClose={() => {
-                                    setModalDialog(!modalDialog); setShowOverlay(!showOverlay);
-                                }}>
-
+                        <Portal>
+                            <Modal visible={modalDialog} onDismiss={() => setModalDialog(false)} contentContainerStyle={{ flex: 1 }}>
                                 <View style={styles.centeredView}>
                                     <View style={[styles.modalView, { padding: 15 }]}>
                                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -339,69 +301,49 @@ const RidesConductor = ({ navigation }) => {
                                             <Text style={[styles.modalText, { fontSize: 18 }]}>OFERTA CANCELADA</Text>
                                         </View>
 
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Pressable style={[styles.button, { backgroundColor: '#B0B0B0', width: "100%" }]}
-                                                onPress={() => { setModalDialog(false); setShowOverlay(false); }}>
-                                                <View style={{ flexDirection: 'row' }}>
-                                                    <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>OK</Text>
-                                                </View>
-                                            </Pressable>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                            <Button mode="contained" buttonColor='#B0B0B0' style={{ width: '90%' }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                onPress={() => setModalDialog(false)}> OK </Button>
                                         </View>
                                     </View>
                                 </View>
-                            </Modal>)}
+                            </Modal>
+                        </Portal>
+
 
                         {modalRating && (
-                            <Modal
-                                animationType="slide"
-                                transparent={true}
-                                visible={modalRating}
-                                onRequestClose={() => {
-                                    setModalRating(!modalRating); setShowOverlay(!showOverlay);
-                                }}>
-
-                                <View style={styles.centeredView}>
-                                    <View style={[styles.modalView, { padding: 20 }]}>
-                                        <Text style={[styles.modalText, { textAlign: 'center' }]}>Califica tu experiencia</Text>
-                                        <AirbnbRating
-                                            count={5}
-                                            reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}
-                                            defaultRating={score}
-                                            size={30}
-                                            onFinishRating={setScore}
-                                        />
-                                        <TextInput
-                                            style={{ margin: 7, height: 100, marginTop: 15 }}
-                                            mode="outlined"
-                                            label="Comentarios"
-                                            multiline={true}
-                                            value={comen}
-                                            onChangeText={onChangeText}
-                                            theme={{ colors: { text: 'green', primary: 'green' } }}
-                                        />
-                                        <View style={{ flexDirection: 'row', marginTop: 20 }}>
-                                            <Pressable
-                                                style={[styles.button, { backgroundColor: '#BEE27B' }]}
-                                                onPress={() => {
-                                                    updateData({ puntaje: score, comentario: comen }, data[index].oferta?.rideID);
-                                                    setModalRating(!modalRating); setShowOverlay(!showOverlay);
-                                                }}
-                                            >
-                                                <View style={{ flexDirection: 'row' }}>
-                                                    <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Guardar</Text>
-                                                </View>
-                                            </Pressable>
-                                            <Pressable
-                                                style={[styles.button, { backgroundColor: '#B0B0B0' }]}
-                                                onPress={() => { setModalRating(false); setShowOverlay(false); }}>
-                                                <View style={{ flexDirection: 'row' }}>
-                                                    <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Cancelar</Text>
-                                                </View>
-                                            </Pressable>
+                            <Portal>
+                                <Modal visible={modalRating} onDismiss={() => setModalRating(false)} contentContainerStyle={{ flex: 1 }}>
+                                    <View style={styles.centeredView}>
+                                        <View style={[styles.modalView, { padding: 20 }]}>
+                                            <Text style={[styles.modalText, { textAlign: 'center' }]}>Califica tu experiencia</Text>
+                                            <AirbnbRating
+                                                count={5}
+                                                reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}
+                                                defaultRating={score}
+                                                size={30}
+                                                onFinishRating={setScore}
+                                            />
+                                            <TextInput
+                                                style={{ margin: 7, height: 100, marginTop: 15 }}
+                                                mode="outlined"
+                                                label="Comentarios"
+                                                multiline={true}
+                                                value={comen}
+                                                onChangeText={onChangeText}
+                                                theme={{ colors: { text: 'green', primary: 'green' } }}
+                                            />
+                                            <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
+                                                <Button mode="contained" buttonColor='#B2D474' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                    onPress={() => { updateData({ puntaje: score, comentario: comen }, data[index].oferta.rideID.reference); setModalRating(false); }}> Guardar </Button>
+                                                <Button mode="contained" buttonColor='#B0B0B0' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                    onPress={() => setModalRating(false)} > Cancelar </Button>
+                                            </View>
                                         </View>
                                     </View>
-                                </View>
-                            </Modal>)}
+                                </Modal>
+                            </Portal>
+                        )}
 
                         {/* {modalReview && (
                             <Modal
@@ -467,7 +409,7 @@ const RidesConductor = ({ navigation }) => {
                                         </View>
                                         <View style={{ flexDirection: 'row', marginTop: 20 }}>
                                             <Pressable
-                                                style={[styles.button, { backgroundColor: '#BEE27B' }]}
+                                                style={[styles.button, { backgroundColor: '#B2D474' }]}
                                                 onPress={() => {
                                                     updateData({ puntaje: score, comentario: comen }, data[index].oferta?.rideID);
                                                     setModalRating(!modalRating); setShowOverlay(!showOverlay);

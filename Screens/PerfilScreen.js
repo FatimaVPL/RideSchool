@@ -1,10 +1,10 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, Modal, Pressable } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Avatar, Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button } from 'react-native-paper';
+import { Avatar, Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button, Modal, Portal } from 'react-native-paper';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from "../hooks/ThemeContext";
@@ -30,7 +30,7 @@ const PerfilScreen = ({ navigation }) => {
   }, []);
 
   async function getUser() {
-    var reference = db.collection('users').doc(user?.email);
+    var reference = db.collection('users').doc(user.email);
     try {
       const doc = await reference.get();
       if (doc.exists) {
@@ -50,8 +50,8 @@ const PerfilScreen = ({ navigation }) => {
     setModalAlert(false);
     setShowOverlay(false);
 
-    var user = db.collection('users').doc(userData?.email);
-    const roleConstant = userData?.role === "Conductor" ? "Pasajero" : "Conductor";
+    var user = db.collection('users').doc(userData.email);
+    const roleConstant = userData.role === "Conductor" ? "Pasajero" : "Conductor";
 
     try {
       const docSnapshot = await user.get();
@@ -102,20 +102,20 @@ const PerfilScreen = ({ navigation }) => {
           <>
             <View style={[styles.profileContainer, {backgroundColor: colors.background}]}>
               <Avatar.Image size={130} source={require('../assets/PerfilImage.jpg')} />
-              <Text variant='headlineSmall'>{`${userData?.firstName} ${userData?.lastName}`}</Text>
-              <Text variant='titleMedium'>{userData?.email}</Text>
+              <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
+              <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
               <View style={styles.badgesContainer}>
-                {Array.from({ length: userData?.scoreDriver }).map((_, index) => (
+                {Array.from({ length: userData.role === "Pasajero" ? userData.califPasajero : userData.califConductor }).map((_, index) => (
                   <Ionicons key={index} name="star" size={24} color="#FFC107" />
                 ))}
-                {Array.from({ length: 5 - userData?.scoreDriver }).map((_, index) => (
+                {Array.from({ length: 5 - (userData.role === "Pasajero" ? userData.califPasajero : userData.califConductor) }).map((_, index) => (
                   <Ionicons key={index} name="star" size={24} color="#8C8A82" />
                 ))}
               </View>
-              <Text variant='titleMedium'>{userData?.role}</Text>
+              <Text variant='titleMedium'>{userData.role}</Text>
               <Button onPress={() => { setModalAlert(true); setShowOverlay(true); }}>
-                Usar en modo {userData?.role == "Conductor" ? "Pasajero" : "Conductor"}</Button>
+                Usar en modo {userData.role === "Conductor" ? "Pasajero" : "Conductor"}</Button>
             </View>
             {/* INSIGNIAS */}
             <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15 }}>
@@ -143,11 +143,15 @@ const PerfilScreen = ({ navigation }) => {
                     )}
                   </>
                 )}
-                {getInfoMedal(userData.numRidesPasajero) !== false && (
-                  <View style={{ flex: 1, alignItems: 'center' }}>
-                    <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRidesPasajero).color} />
-                    <Text style={{ textAlign: 'center' }}>{`Pasajero \n ${getInfoMedal(userData.numRidesPasajero).text}`}</Text>
-                  </View>
+                {userData.role === "Pasajero" && (
+                  <>
+                    {getInfoMedal(userData.numRidesPasajero) !== false && (
+                      <View style={{ flex: 1, alignItems: 'center' }}>
+                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRidesPasajero).color} />
+                        <Text style={{ textAlign: 'center' }}>{`Pasajero \n ${getInfoMedal(userData.numRidesPasajero).text}`}</Text>
+                      </View>
+                    )}
+                  </>
                 )}
               </View>
 
@@ -176,59 +180,31 @@ const PerfilScreen = ({ navigation }) => {
               <Divider />
             </View>
 
-            {showOverlay && (
-              <TouchableOpacity
-                style={styles.overlay}
-                activeOpacity={1}
-              />
-            )}
-
             {modalALert && (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalALert}
-                onRequestClose={() => {
-                  setModalAlert(!modalALert); setShowOverlay(!showOverlay);
-                }}>
+              <Portal>
+                <Modal visible={modalALert} onDismiss={() => setModalAlert(false)} contentContainerStyle={{ flex: 1 }}>
+                  <View style={styles.centeredView}>
+                    <View style={[styles.modalView, { padding: 15 }]}>
+                      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <Ionicons name="help-circle-outline" style={{ marginRight: 6, fontSize: 70, color: "#FFC300" }}></Ionicons>
+                        <Text style={[styles.modalText, { fontSize: 18 }]}>Cambiar la app a modo:</Text>
+                        <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>{userData.role == "Conductor" ? "PASAJERO" : "CONDUCTOR"}</Text>
+                      </View>
 
-                <View style={styles.centeredView}>
-                  <View style={[styles.modalView, { padding: 15 }]}>
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name="help-circle-outline" style={{ marginRight: 6, fontSize: 70, color: "#FFC300" }}></Ionicons>
-                      <Text style={[styles.modalText, { fontSize: 18 }]}>Cambiar la app a modo:</Text>
-                      <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>{userData?.role == "Conductor" ? "PASAJERO" : "CONDUCTOR"}</Text>
-                    </View>
-
-                    <View style={{ flexDirection: 'row' }}>
-                      <Pressable
-                        style={[styles.button, { backgroundColor: '#BEE27B' }]}
-                        onPress={() => { userData.role === "Pasajero" && !userData.conductor ? (() => { setModalAlert(false); setModalDialog(true); })() : updateRole() }}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>SI</Text>
-                        </View>
-                      </Pressable>
-                      <Pressable
-                        style={[styles.button, { backgroundColor: '#EE6464' }]}
-                        onPress={() => { setModalAlert(false); setShowOverlay(false); }}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>NO</Text>
-                        </View>
-                      </Pressable>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Button mode="contained" buttonColor='#B2D474' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                          onPress={() => { userData.role === "Pasajero" && !userData.conductor ? (() => { setModalAlert(false); setModalDialog(true); }) : updateRole() }}> SI </Button>
+                        <Button mode="contained" buttonColor='#EE6464' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                          onPress={() => setModalAlert(false)}> NO </Button>
+                      </View>
                     </View>
                   </View>
-                </View>
-              </Modal>)}
+                </Modal>
+              </Portal>
+            )}
 
-            {modalDialog && (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalDialog}
-                onRequestClose={() => {
-                  setModalAlert(!modalDialog); setShowOverlay(!showOverlay);
-                }}>
-
+            <Portal>
+              <Modal visible={modalDialog} onDismiss={() => setModalDialog(false)} contentContainerStyle={{ flex: 1 }}>
                 <View style={styles.centeredView}>
                   <View style={[styles.modalView, { padding: 15 }]}>
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -236,25 +212,17 @@ const PerfilScreen = ({ navigation }) => {
                       <Text style={[styles.modalText, { fontSize: 16, margin: 4, textAlign: 'center' }]}>Primero necesitas completar tu registro para usar la app en modo conductor</Text>
                     </View>
 
-                    <View style={{ flexDirection: 'row' }}>
-                      <Pressable
-                        style={[styles.button, { backgroundColor: '#BEE27B' }]}
-                        onPress={() => console.log('Pantallas para completar el registro')}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Completar</Text>
-                        </View>
-                      </Pressable>
-                      <Pressable
-                        style={[styles.button, { backgroundColor: '#EE6464' }]}
-                        onPress={() => { setModalDialog(false); setShowOverlay(false); }}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Cancelar</Text>
-                        </View>
-                      </Pressable>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Button mode="contained" buttonColor='#B2D474' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                        onPress={() => console.log('Pantallas para completar el registro')}> Completar </Button>
+                      <Button mode="contained" buttonColor='#EE6464' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                        onPress={() => setModalDialog(false)}> Cancelar </Button>
                     </View>
                   </View>
                 </View>
-              </Modal>)}
+              </Modal>
+            </Portal>
+
           </>
         ) : (
           <View style={styles.centeredView}>
