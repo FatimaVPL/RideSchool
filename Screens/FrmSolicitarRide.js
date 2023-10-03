@@ -46,10 +46,9 @@ const FrmSolicitarRide = () => {
         const newData = {
             id: docRef.id,
             coordinates: originGeoPoint,
-
             pasajeroID: { reference: db.collection('users').doc(user.email), uid: user.uid }, // Aquí guardamos el ID del documento dentro del objeto
-            origin: { coordinates: originGeoPoint, direction: "" },
-            destination: { coordinates: destinationGeoPoint, direction: "" },
+            origin: { coordinates: originGeoPoint, direction: directionOrigin },
+            destination: { coordinates: destinationGeoPoint, direction: directionDestination },
             date: date === null ? new Date() : date,
             estado: "pendiente",
             ...rest
@@ -65,7 +64,6 @@ const FrmSolicitarRide = () => {
                 console.error('Error al crear un nuevo documento en GeoFirestore:', error);
             });
     }
-
 
     /* Formik */
     const formik = useFormik({
@@ -214,6 +212,7 @@ const FrmSolicitarRide = () => {
                     </View>
                 </View>
             </FormikProvider>
+
             <Portal>
                 <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ padding: 20, backgroundColor: 'white' }}>
                     <Text style={{ fontSize: 20 }}>¡Solicitud enviada con éxito!</Text>
