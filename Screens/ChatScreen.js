@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from "../hooks/ThemeContext";
+
 
 const ChatScreen = () => {
+  const { colors} = useTheme()
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
       <Text>Chat</Text>
     </View>
   );

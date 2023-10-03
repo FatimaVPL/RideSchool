@@ -596,7 +596,7 @@ const OnboardingScreen = ({ navigation }) => {
          flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22
       }}>
        <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-       <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+       <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
    </View>
       ) : (
          <View style={{

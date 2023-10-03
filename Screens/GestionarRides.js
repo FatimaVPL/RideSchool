@@ -9,6 +9,7 @@ import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_MAPS_API_KEY } from "@env";
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from "../hooks/ThemeContext";
 
 const styles = StyleSheet.create({
     container: {
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
 });
 
 const GestionarRides = ({ navigation }) => {
-
+    const { colors} = useTheme();
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState([]);
@@ -161,7 +162,7 @@ const GestionarRides = ({ navigation }) => {
 
     return (
         <PaperProvider>
-            <View style={[styles.container, { alignItems: 'center' }]}>
+            <View style={[styles.container, { alignItems: 'center' }, {backgroundColor: colors.background}]}>
                 {!isLoading ? (
                     <><FlatList
                         data={data}
@@ -545,7 +546,7 @@ const GestionarRides = ({ navigation }) => {
                 ) : (
                     <View style={styles.centeredView}>
                         <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-                        <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+                        <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
                     </View>
                 )}
             </View>

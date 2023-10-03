@@ -8,6 +8,7 @@ import { StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, Key
 import { useAuth } from '../context/AuthContext'
 import { Image } from "react-native";
 import Geocoder from 'react-native-geocoding';
+import { useTheme } from "../hooks/ThemeContext";
 
 const styles = StyleSheet.create({
     container: {
@@ -32,7 +33,7 @@ const ITSUR_PLACE = {
 
 const SolicitarRide = ({ formikk }) => {
     const { user } = useAuth();
-
+    const { colors } = useTheme()
     // Referencias a los componentes
     const mapRef = React.useRef(null);
     const originRef = React.useRef(null);
@@ -133,14 +134,44 @@ const SolicitarRide = ({ formikk }) => {
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
-                    backgroundColor: "#e55",
                 }}>
                 {/* Inputs Origin & Destino */}
-                <View style={{ zIndex: 20, width: '100%', position: 'absolute' }}>
+                <View style={{ zIndex: 20, width: '100%', position: 'absolute', backgroundColor: colors.background }}>
                     <GooglePlacesAutocomplete
+                        styles={
+                            {
+                                textInput: {
+                                    backgroundColor: '#85929E', height: 38,
+                                    color: colors.text,
+                                    fontSize: 16,
+                                    height: 50,
+                                    fontWeight:'bold',
+                                    shadowColor: "#000",
+                                    shadowOffset: {
+                                      width: 0,
+                                      height: 2,
+                                    },
+                                    shadowOpacity: 0.25,
+                                    shadowRadius: 3.84,
+                                    elevation: 5,
+                                    paddingHorizontal: 16,
+                                    marginTop: 10,
+                                },
+                                predefinedPlacesDescription: {
+                                    color: colors.text,
+                                },
+                                listView: {},
+                                row: {
+                                    backgroundColor: colors.input,
+                                    padding: 13,
+                                    height: 44,
+                                    flexDirection: 'row',
+                                },
+                            }
+                        }
                         ref={originRef}
                         fetchDetails={true}
-                        placeholder='Donde estas?'
+                        placeholder='¿Dónde estás?'
                         textInputProps={{ onFocus: () => setSelecting('origin'), }}
                         onPress={(data, details = null) => {
                             setRoute(p => ({
@@ -164,8 +195,39 @@ const SolicitarRide = ({ formikk }) => {
                         predefinedPlaces={[homePlace]}
                     />
                     <GooglePlacesAutocomplete
+                        styles={
+                            {
+                                textInput: {
+                                    backgroundColor: '#85929E', height: 38,
+                                    color: colors.text,
+                                    fontSize: 16,
+                                    height: 50,
+                                    fontWeight:'bold',
+                                    shadowColor: "#000",
+                                    shadowOffset: {
+                                      width: 0,
+                                      height: 2,
+                                    },
+                                    shadowOpacity: 0.25,
+                                    shadowRadius: 3.84,
+                                    elevation: 5,
+                                    paddingHorizontal: 16,
+                                    marginTop: 10,
+                                },
+                                predefinedPlacesDescription: {
+                                    color: colors.text,
+                                },
+                                listView: {},
+                                row: {
+                                    backgroundColor: colors.input,
+                                    padding: 13,
+                                    height: 44,
+                                    flexDirection: 'row',
+                                },
+                            }
+                        }
                         ref={destinationRef}
-                        placeholder='A donde te diriges?'
+                        placeholder='¿A dónde te diriges?'
                         autoFocus={false}
                         textInputProps={{ onFocus: () => setSelecting('destination') }}
                         fetchDetails={true}
@@ -271,11 +333,31 @@ const SolicitarRide = ({ formikk }) => {
                         </View>
 
                         {/* Boton seleccionar ubicacion */}
-                        <TouchableOpacity
-                            onPress={() => markCenter(selecting)}
-                            style={{ position: 'absolute', bottom: 0, width: '100%', height: 50, backgroundColor: '#5e5' }}>
-                            <Text>Seleccionar</Text>
-                        </TouchableOpacity>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 15 }}>
+                            <TouchableOpacity
+                                onPress={() => markCenter(selecting)}
+                                style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    width: '90%',
+                                    height: 50,
+                                    backgroundColor: 'green',
+                                    borderRadius: 10,
+                                    shadowColor: "#000",
+                                    shadowOffset: {
+                                        width: 0,
+                                        height: 3,
+                                    },
+                                    shadowOpacity: 0.27,
+                                    shadowRadius: 4.65,
+                                    elevation: 6,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'white' }}>Seleccionar</Text>
+                            </TouchableOpacity>
+                        </View>
                     </>
                 }
             </View>

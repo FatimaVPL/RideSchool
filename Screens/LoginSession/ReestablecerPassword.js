@@ -41,7 +41,7 @@ const ReestablecerPassword = ({ navigation }) => {
       {spiner ? (
         <View style={[styles.spiner, {backgroundColor: colors.background}]}>
           <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-          <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+          <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
         </View>
       ) : (
         <View style={[styles.container, { backgroundColor: colors.background }]}>

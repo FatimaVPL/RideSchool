@@ -118,7 +118,7 @@ const PerfilScreen = ({ navigation }) => {
                 Usar en modo {userData?.role == "Conductor" ? "Pasajero" : "Conductor"}</Button>
             </View>
             {/* INSIGNIAS */}
-            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15 }}>
+            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15, marginBottom:10}}>
               <Text variant='titleLarge' style={{ textAlign: 'center', marginBottom: 10 }}>Insignias</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 {userData.role === "Conductor" && (
@@ -157,13 +157,13 @@ const PerfilScreen = ({ navigation }) => {
               <Text variant='headlineMedium'>Configuraciones</Text>
               <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
-                  <MaterialIcons name="notifications" size={24} color="#212121" style={{ marginRight: 5 }} />
+                  <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Notificaciones</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={ajustesGenerales}>
                 <View style={styles.settingsItem}>
-                  <Ionicons name="settings" size={24} color="#212121" style={{ marginRight: 5 }} />
+                  <Ionicons name="settings" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Ajustes generales</Text>
                 </View>
               </TouchableOpacity>
@@ -259,7 +259,7 @@ const PerfilScreen = ({ navigation }) => {
         ) : (
           <View style={styles.centeredView}>
             <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-            <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+            <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
           </View>
         )}
       </View>

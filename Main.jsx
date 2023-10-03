@@ -1,7 +1,6 @@
 import React from 'react';
 import Navegacion from './Screens/ButtonTabScreen';
 import PerfilScreen from './Screens/PerfilScreen';
-import CambiarRolScreen from './Screens/CambiarRolScreen';
 import { createStackNavigator } from '@react-navigation/stack';
 import NotificacionesScreen from './Screens/NotificacionesScreen';
 import AjustesGeneralesScreen from './Screens/AjustesGeneralesScreen';
@@ -52,13 +51,11 @@ const Main = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="Perfil" component={PerfilScreen} />
-          <Stack.Screen name="Cambiar Rol" component={CambiarRolScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Notificaciones" component={NotificacionesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Ajustes Generales" component={AjustesGeneralesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Solicitar Ride" component={FrmSolicitarRide} options={{ presentation: "modal" }} />
           <Stack.Screen name="GestionarOfertas" component={GestionarOfertas} options={{ presentation: "modal" }} />
           <Stack.Screen name="ChatScreen" component={ChatScreen} />
-
         </Stack.Navigator>
       }
     </>
