@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Button, PaperProvider, TextInput, Modal, Portal, Text, HelperText } from 'react-native-paper';
-import { View, SafeAreaView } from "react-native";
-import GoogleMapOD from './GoogleMapOD';
+import { View, SafeAreaView, StyleSheet } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format } from 'date-fns';
 import { useFormik, FormikProvider } from 'formik';
@@ -9,10 +8,15 @@ import SolicitarRide from './SolicitarRide';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
-import { de } from 'date-fns/locale';
-import { createIconSetFromFontello } from 'react-native-vector-icons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const FrmSolicitarRide = () => {
+const styles = StyleSheet.create({
+    centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 },
+    modalView: { margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, width: 320 },
+    modalText: { marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black' }
+});
+
+const FrmSolicitarRide = ({ navigation }) => {
     const validate = values => {
         const errors = {};
         if (!values.personas) {
@@ -47,10 +51,9 @@ const FrmSolicitarRide = () => {
         const newData = {
             id: docRef.id,
             coordinates: originGeoPoint,
-
             pasajeroID: { reference: db.collection('users').doc(user.email), uid: user.uid }, // Aquí guardamos el ID del documento dentro del objeto
-            origin: { coordinates: originGeoPoint, direction: "" },
-            destination: { coordinates: destinationGeoPoint, direction: "" },
+            origin: { coordinates: originGeoPoint, direction: directionOrigin },
+            destination: { coordinates: destinationGeoPoint, direction: directionDestination },
             date: date === null ? new Date() : date,
             estado: "pendiente",
             ...rest
@@ -66,7 +69,6 @@ const FrmSolicitarRide = () => {
                 console.error('Error al crear un nuevo documento en GeoFirestore:', error);
             });
     }
-
 
     /* Formik */
     const formik = useFormik({
@@ -136,8 +138,8 @@ const FrmSolicitarRide = () => {
                 }}>
                     <View style={{ flexDirection: 'column', width: "100%", marginTop: 10 }}>
                         <View style={{ flexDirection: 'row' }}>
-                            <Button style={{ flex: 1, margin: 5 }}
-                                icon="clock" mode="contained" buttonColor="gray" onPress={() => showDatePicker()}>
+                            <Button style={{ flex: 1, margin: 5, height: 45, justifyContent: 'center' }}
+                                icon="clock" mode="contained" buttonColor="gray" contentStyle={{ alignSelf: 'center' }} labelStyle={{ fontSize: 18 }} onPress={() => showDatePicker()}>
                                 Fecha y hora del ride
                             </Button>
                             <DateTimePickerModal
@@ -151,8 +153,8 @@ const FrmSolicitarRide = () => {
                             <Text style={{ color: 'green', fontSize: 20 }}>{rightNow ? format(formik.values?.date, 'Pp') : "Justo ahora"}</Text>
                         </View>
                         <View style={{ flexDirection: 'column' }}>
-                            <Button style={{ margin: 5 }}
-                                icon="map" mode="contained" buttonColor="gray" onPress={showModal}>
+                            <Button style={{ margin: 5, height: 45, justifyContent: 'center' }}
+                                icon="map" mode="contained" buttonColor="gray" contentStyle={{ alignSelf: 'center' }} labelStyle={{ fontSize: 18 }} onPress={showModal}>
                                 ¿A dónde te diriges?
                             </Button>
                             {formik.errors.origin || formik.errors.destination ? (<HelperText type="error" visible={true}>{formik.errors.origin}</HelperText>) : null}
@@ -163,7 +165,6 @@ const FrmSolicitarRide = () => {
 
                         <Portal>
                             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={{ flex: 1, flexDirection: 'column' }}>
-
                                 <SafeAreaView style={{ flex: 1 }}>
                                     <SolicitarRide formikk={formik} />
                                 </SafeAreaView>
@@ -181,10 +182,10 @@ const FrmSolicitarRide = () => {
                                             </Button>
                                         </View>
                                     }
-
                                 </View>
                             </Modal>
                         </Portal>
+
                         <View style={{ flexDirection: 'column' }}>
                             <TextInput
                                 style={{ margin: 7, height: 50 }}
@@ -197,6 +198,7 @@ const FrmSolicitarRide = () => {
                             />
                             {formik.errors.personas ? (<HelperText type="error" visible={true}>{formik.errors.personas}</HelperText>) : null}
                         </View>
+
                         <View style={{ flexDirection: 'column' }}>
                             <TextInput
                                 style={{ margin: 7, height: 100 }}
@@ -212,10 +214,11 @@ const FrmSolicitarRide = () => {
                         </View>
                     </View>
 
-                    <View style={{ flexDirection: 'column', width: "50%" }}>
+                    <View style={{ width: "75%" }}>
                         <View style={{ flexDirection: 'row' }}>
-                            <Button style={{ flex: 1, margin: 5 }}
-                                icon="car" mode="contained" buttonColor="green" onPress={formik.handleSubmit}>
+                            <Button style={{ flex: 1, margin: 5, height: 45, justifyContent: 'center' }}
+                                icon="car" mode="contained" buttonColor="#479B3B" 
+                                contentStyle={{ alignSelf: 'center' }} labelStyle={{ fontSize: 18 }} onPress={formik.handleSubmit}>
                                 Solicitar Ride
                             </Button>
                         </View>
@@ -223,11 +226,25 @@ const FrmSolicitarRide = () => {
 
                 </View>
             </FormikProvider>
+
             <Portal>
-                <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ padding: 20, backgroundColor: 'white' }}>
-                    <Text style={{ fontSize: 20 }}>¡Solicitud enviada con éxito!</Text>
-                    <Text style={{ marginTop: 10 }}>Espera las ofertas de ride y acepta la que sea más de tu agrado.</Text>
-                    <Button style={{ marginTop: 20 }} mode="contained" onPress={() => {setSuccessModalVisible(false) }}>Entendido</Button>
+                <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ flex: 1 }}>
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <Ionicons name="checkmark-circle-outline" style={{ marginRight: 6, fontSize: 70, color: "#81BC12" }}></Ionicons>
+                                <Text style={[styles.modalText, { fontSize: 18 }]}>SOLICITUD ENVIADA</Text>
+                                <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>Espera las ofertas de ride y acepta la que sea más de tu agrado</Text>
+                            </View>
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <Button mode="contained" buttonColor='#B0B0B0' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                    onPress={() => navigation.navigate('GestionarRides')}> Ver Rides </Button>
+                                <Button mode="contained" buttonColor='#B2D474' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                    onPress={() => { setSuccessModalVisible(false) }} > Ok </Button>
+                            </View>
+                        </View>
+                    </View>
                 </Modal>
             </Portal>
 
