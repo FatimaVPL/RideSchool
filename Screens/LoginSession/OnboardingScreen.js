@@ -341,7 +341,7 @@ const OnboardingScreen = ({ navigation }) => {
                                  textAlign: 'center',
                                  fontSize: 18,
                                  marginBottom: 15,
-                                 color: colors.text2,
+                                 color: colors.text,
                                  fontWeight: "500",
                               }}>
                               {info}

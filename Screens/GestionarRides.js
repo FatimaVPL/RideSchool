@@ -2,7 +2,7 @@ import * as React from "react";
 import { useEffect, useState } from 'react'
 import { View, StyleSheet, Pressable, FlatList } from "react-native";
 import { AirbnbRating } from 'react-native-elements';
-import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput, Modal, Portal, Avatar } from 'react-native-paper';
+import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput, Modal, Portal, Avatar, AntDesign } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { db } from '../config-firebase';
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
@@ -279,8 +279,8 @@ const GestionarRides = ({ navigation }) => {
                                                 <Ionicons name="location-sharp" style={{ fontSize: 22, paddingTop: 6, marginRight: 6 }} />
                                                 <Text style={styles.text}>
                                                     Ruta {'\n'}
-                                                    <Text style={{ fontWeight: 'bold' }}>Inicio:</Text> {cutDirection(item.ride.origin.direction)} {'\n'}
-                                                    <Text style={{ fontWeight: 'bold' }}>Destino:</Text> {cutDirection(item.ride.destination.direction)}
+                                                    <Text style={{ fontWeight: 'bold', color: '#171717' }}>Inicio:</Text> {cutDirection(item.ride.origin.direction)} {'\n'}
+                                                    <Text style={{ fontWeight: 'bold', color: '#171717' }}>Destino:</Text> {cutDirection(item.ride.destination.direction)}
                                                 </Text>
                                             </View>
                                             <View style={{ flexDirection: 'row' }}>

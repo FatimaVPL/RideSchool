@@ -35,9 +35,6 @@ export function ThemeProvider({children}){
             cardAceptada: isDark? '#528045' : '#BEE27B',
             cardFinalizada: isDark? '#D65656'  : '#EE6464',
         },
-        image:{
-            logo: isDark ? 'ride-school-dark.png' : 'ride-school.png',
-        },
         setDark: (isDark) => setThemeState(isDark ? 'dark' : 'light'),
     };
 

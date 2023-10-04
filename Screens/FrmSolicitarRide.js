@@ -163,7 +163,22 @@ const FrmSolicitarRide = () => {
                                 <SolicitarRide formikk={formik} />
                             </SafeAreaView>
                             <View style={{ padding: 10, justifyContent: 'space-between', backgroundColor: 'white' }}>
-                                <View style={{}}>
+                                <View style={{ position: 'absolute',
+                                    bottom: 0,
+                                    width: '90%',
+                                    height: 50,
+                                    backgroundColor: 'green',
+                                    borderRadius: 10,
+                                    shadowColor: "#000",
+                                    shadowOffset: {
+                                        width: 0,
+                                        height: 3,
+                                    },
+                                    shadowOpacity: 0.27,
+                                    shadowRadius: 4.65,
+                                    elevation: 6,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',}}>
                                     <Button icon="cancel" mode="contained" onPress={() => { hideModal(); formik.setFieldValue('origin', null); formik.setFieldValue('destination', null); }} buttonColor='red'>
                                         Cancelar
                                     </Button>
@@ -212,15 +227,16 @@ const FrmSolicitarRide = () => {
                     </View>
                 </View>
             </FormikProvider>
-
+           
             <Portal>
-                <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ padding: 20, backgroundColor: 'white' }}>
-                    <Text style={{ fontSize: 20 }}>¡Solicitud enviada con éxito!</Text>
-                    <Text style={{ marginTop: 10 }}>Espera las ofertas de ride y acepta la que sea más de tu agrado.</Text>
-                    <Button style={{ marginTop: 20 }} mode="contained" onPress={() => { setSuccessModalVisible(false) }}>Entendido</Button>
+                <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ padding: 20, backgroundColor: colors.background3, width:'100%' }}>
+                    <Text style={{ fontSize: 20, color: '#171717' }}>¡Solicitud enviada con éxito!</Text>
+                    <Text style={{ marginTop: 10, color: '#171717' }}>Espera las ofertas de ride y acepta la que sea más de tu agrado.</Text>
+                    <Button style={styles.button} textColor='white' mode="contained" onPress={() => { setSuccessModalVisible(false) }}>Entendido</Button>
                 </Modal>
             </Portal>
-
+        
+           
         </PaperProvider>
     );
 };

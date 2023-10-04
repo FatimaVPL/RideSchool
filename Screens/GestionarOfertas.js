@@ -191,7 +191,7 @@ const RidesConductor = ({ navigation }) => {
                             <Portal>
                                 <Modal visible={modalDetails} onDismiss={() => setModalDetails(false)} contentContainerStyle={{ flex: 1 }}>
                                     <View style={styles.centeredView}>
-                                        <View style={styles.modalView}>
+                                        <View style={[styles.modalView,{backgroundColor: colors.background3}]}>
                                             <View style={{ flexDirection: 'row' }}>
                                                 <View><Text style={[styles.modalText, { marginRight: 20 }]}>Información del Ride</Text></View>
                                                 <View>
@@ -203,7 +203,7 @@ const RidesConductor = ({ navigation }) => {
 
                                             <View>
                                                 <TextInput
-                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    style={{ margin: 6, height: 45, width: 260, backgroundColor:colors.input }}
                                                     mode="outlined"
                                                     label="Pasajero"
                                                     value={`${data[index].pasajero.firstName} ${data[index].pasajero.lastName}`}
@@ -211,7 +211,7 @@ const RidesConductor = ({ navigation }) => {
                                                     left={<TextInput.Icon icon="account" style={{ marginTop: 15 }} />}
                                                 />
                                                 <TextInput
-                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                   style={{ margin: 6, height: 45, width: 260, backgroundColor:colors.input }}
                                                     mode="outlined"
                                                     label="Num Pasajeros"
                                                     value={`${data[index].ride.personas}`}
@@ -219,7 +219,7 @@ const RidesConductor = ({ navigation }) => {
                                                     left={<TextInput.Icon icon="account-multiple" style={{ marginTop: 15 }} />}
                                                 />
                                                 <TextInput
-                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    style={{ margin: 6, height: 45, width: 260, backgroundColor:colors.input }}
                                                     mode="outlined"
                                                     label="Cooperación Voluntaria"
                                                     value={data[index].oferta.cooperacion}
@@ -227,7 +227,7 @@ const RidesConductor = ({ navigation }) => {
                                                     left={<TextInput.Icon icon="cash-multiple" style={{ marginTop: 10 }} />}
                                                 />
                                                 <TextInput
-                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    style={{ margin: 6, height: 45, width: 260, backgroundColor:colors.input }}
                                                     mode="outlined"
                                                     label="Fecha/Hora"
                                                     value={formatDate(data[index].oferta.fechaSolicitud, 'numeric')}
