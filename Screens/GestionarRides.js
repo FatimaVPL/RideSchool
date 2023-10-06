@@ -2,7 +2,7 @@ import * as React from "react";
 import { useEffect, useState } from 'react'
 import { View, StyleSheet, Pressable, FlatList } from "react-native";
 import { AirbnbRating } from 'react-native-elements';
-import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput, Modal, Portal, Avatar, AntDesign } from 'react-native-paper';
+import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput, Modal, Portal, Avatar } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { db } from '../config-firebase';
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
