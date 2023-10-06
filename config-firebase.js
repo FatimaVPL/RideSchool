@@ -2,7 +2,6 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth'
 import 'firebase/compat/firestore'
 
-
 const firebaseConfig = {
     apiKey: "AIzaSyCsVrksMacPO9bF_aOowmUHoaKVoTX6Hws",
     authDomain: "rideschool-2f902.firebaseapp.com",

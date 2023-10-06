@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import {View } from 'react-native';
+import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -14,24 +14,23 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../config-firebase';
 import Animation from '../components/Loader'
 import { useTheme } from "../hooks/ThemeContext";
+import { subscribeToUsers } from '../firebaseSubscriptions';
 
 const Tab = createBottomTabNavigator();
 
 function ButtonTabScreen() {
-  const { colors} = useTheme()
+  const { colors } = useTheme()
   const { user, setUsage } = useAuth();
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     setUsage();
-    const unsubscribe = db.collection('users').onSnapshot(() => { getUser() });
+
+    const unsubscribeUsers = subscribeToUsers(() => { getUser() });
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
+      unsubscribeUsers();
     };
-
   }, [])
 
   async function getUser() {
@@ -65,7 +64,7 @@ function ButtonTabScreen() {
         component={InicioScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size}  color={colors.text}  />
+            <Ionicons name="home" size={size} color={colors.text} />
           ),
         }} />
       <Tab.Screen
@@ -73,7 +72,7 @@ function ButtonTabScreen() {
         component={userData?.role == "Conductor" ? RidesSolicitados : FrmSolicitarRide}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="directions-car" size={size}  color={colors.text}/>
+            <MaterialIcons name="directions-car" size={size} color={colors.text} />
           ),
         }} />
       <Tab.Screen
@@ -89,7 +88,7 @@ function ButtonTabScreen() {
         component={ChatScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-ellipses" size={size} color={colors.text}/>
+            <Ionicons name="chatbubble-ellipses" size={size} color={colors.text} />
           ),
           tabBarBadge: 5
         }} />
@@ -98,7 +97,7 @@ function ButtonTabScreen() {
         component={PerfilScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size}  color={colors.text} />
+            <Ionicons name="person" size={size} color={colors.text} />
           )
         }} />
     </Tab.Navigator>

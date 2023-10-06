@@ -7,8 +7,9 @@ import { object, string } from 'yup';
 import { Formik } from 'formik';
 import Animation from '../../components/Loader'
 import { useTheme } from "../../hooks/ThemeContext";
+import { registerIndieID } from 'native-notify';
 
-const WelcomeScreen = ({ navigation }) => {
+export default function WelcomeScreen ({ navigation }) {
   const { colors, image } = useTheme()
   const { refreshUser } = useAuth();
   const [email, setEmail] = useState('');
@@ -46,6 +47,8 @@ const WelcomeScreen = ({ navigation }) => {
       // El usuario ha iniciado sesión con éxito
       const userCredential = await firebase.auth().signInWithEmailAndPassword(email.toLowerCase(), password);
       const user = userCredential.user;
+      //Notificaciones
+      registerIndieID(email.toLowerCase(), 13000, 'Dke2V9YbViRt26fTH2Mv7q');
       // Verificar si el correo electrónico ha sido verificado
       if (!user.emailVerified) {
         // El correo electrónico no ha sido verificado
@@ -221,4 +224,3 @@ const styles = StyleSheet.create({
     color: '#F4574B'
   }
 });
-export default WelcomeScreen;
