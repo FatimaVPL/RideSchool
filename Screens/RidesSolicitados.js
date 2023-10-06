@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from "../hooks/ThemeContext";
+import { subscribeToRides } from '../firebaseSubscriptions';
 
 const styles = StyleSheet.create({
     container: {
@@ -44,14 +45,10 @@ const RidesSolicitados = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribeOfertas = db.collection('users').onSnapshot(() => { getRides() });
-        const unsubscribeRides = db.collection('rides').onSnapshot(() => { getRides() });
+        const unsubscribeRides = subscribeToRides(() => { getRides() });
 
         return () => {
-            if (unsubscribeOfertas && unsubscribeRides) {
-                unsubscribeOfertas();
-                unsubscribeRides();
-            }
+            unsubscribeRides();
         };
     }, []);
 
@@ -62,7 +59,6 @@ const RidesSolicitados = ({ navigation }) => {
             return;
         }
         const { coords } = await Location.getCurrentPositionAsync({});
-        //setOrigin({ lat: coords.latitude, lng: coords.longitude });
         return coords;
     }
 
@@ -344,9 +340,7 @@ const RidesSolicitados = ({ navigation }) => {
                                 </View>
                             </Modal>
                         </Portal>
-
                     </>
-
                 ) : (
                     <View style={styles.centeredView}>
                         <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
