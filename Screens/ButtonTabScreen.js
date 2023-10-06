@@ -51,54 +51,100 @@ function ButtonTabScreen() {
 
   if (userData === null) {
     return (
-      <View>
+      <View style={{backgroundColor: colors.background}}>
         <Animation></Animation>
       </View>
     );
   }
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+    screenOptions={({ route }) => ({
+     // headerShown: false,
+     tabBarActiveTintColor: colors.colorSelect,
+     tabBarInactiveTintColor: "#78A57D",
+      tabBarStyle: {
+        height: 60,
+        paddingHorizontal: 5,
+        paddingTop: 0,
+        backgroundColor: colors.background2,
+        position: 'absolute',
+        borderTopWidth: 0,
+    },
+  })}
+    >
       <Tab.Screen
         name="Inicio"
         component={InicioScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={colors.text} />
+            <Ionicons name="home" size={size}  color={colors.iconTab}  />
           ),
-        }} />
+          headerStyle: {
+            backgroundColor: colors.background2,
+          },
+          headerTitleStyle: {
+            color: colors.text
+          },
+        }} 
+        
+        />
       <Tab.Screen
         name="Rides"
         component={userData?.role == "Conductor" ? RidesSolicitados : FrmSolicitarRide}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="directions-car" size={size} color={colors.text} />
+            <MaterialIcons name="directions-car" size={size}  color={colors.iconTab}/>
           ),
+          headerStyle: {
+            backgroundColor: colors.background2,
+          },
+          headerTitleStyle: {
+            color: colors.text
+          },
         }} />
       <Tab.Screen
         name={userData?.role == "Conductor" ? "Mis Ofertas" : "Mis Rides"}
         component={userData?.role == "Conductor" ? GestionarOfertas : GestionarRides}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="pin-drop" size={size} color={colors.text} />
+            <MaterialIcons name="pin-drop" size={size} color={colors.iconTab} />
           ),
+          headerStyle: {
+            backgroundColor: colors.background2,
+          },
+          headerTitleStyle: {
+            color: colors.text
+          },
         }} />
       <Tab.Screen
         name="Chat"
         component={ChatScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-ellipses" size={size} color={colors.text} />
+            <Ionicons name="chatbubble-ellipses" size={size} color={colors.iconTab}/>
           ),
-          tabBarBadge: 5
+          tabBarBadge: 5,
+          headerStyle: {
+            backgroundColor: colors.background2,
+          },
+          headerTitleStyle: {
+            color: colors.text
+          },
         }} />
       <Tab.Screen
         name="Perfil"
         component={PerfilScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={colors.text} />
-          )
+            <Ionicons name="person" size={size}  color={colors.iconTab} />
+          ),
+          headerStyle: {
+            backgroundColor: colors.background2,
+          },
+          headerTitleStyle: {
+            color: colors.text
+          },
         }} />
     </Tab.Navigator>
   );

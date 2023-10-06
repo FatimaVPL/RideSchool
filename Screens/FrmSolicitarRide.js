@@ -8,15 +8,10 @@ import SolicitarRide from './SolicitarRide';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTheme } from "../hooks/ThemeContext";
 
-const styles = StyleSheet.create({
-    centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 },
-    modalView: { margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, width: 320 },
-    modalText: { marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black' }
-});
-
-const FrmSolicitarRide = ({ navigation }) => {
+const FrmSolicitarRide = () => {
+    const { colors } = useTheme()
     const validate = values => {
         const errors = {};
         if (!values.personas) {
@@ -130,126 +125,168 @@ const FrmSolicitarRide = ({ navigation }) => {
     return (
         <PaperProvider>
             <FormikProvider value={formik}>
-                <View style={{
-                    flex: 1,
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                }}>
-                    <View style={{ flexDirection: 'column', width: "100%", marginTop: 10 }}>
-                        <View style={{ flexDirection: 'row' }}>
-                            <Button style={{ flex: 1, margin: 5, height: 45, justifyContent: 'center' }}
-                                icon="clock" mode="contained" buttonColor="gray" contentStyle={{ alignSelf: 'center' }} labelStyle={{ fontSize: 18 }} onPress={() => showDatePicker()}>
-                                Fecha y hora del ride
-                            </Button>
-                            <DateTimePickerModal
-                                isVisible={isDatePickerVisible}
-                                mode="datetime"
-                                onConfirm={handleConfirm}
-                                onCancel={handleCancel}
-                            />
-                        </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', width: '100%' }}>
-                            <Text style={{ color: 'green', fontSize: 20 }}>{rightNow ? format(formik.values?.date, 'Pp') : "Justo ahora"}</Text>
-                        </View>
-                        <View style={{ flexDirection: 'column' }}>
-                            <Button style={{ margin: 5, height: 45, justifyContent: 'center' }}
-                                icon="map" mode="contained" buttonColor="gray" contentStyle={{ alignSelf: 'center' }} labelStyle={{ fontSize: 18 }} onPress={showModal}>
-                                ¿A dónde te diriges?
-                            </Button>
-                            {formik.errors.origin || formik.errors.destination ? (<HelperText type="error" visible={true}>{formik.errors.origin}</HelperText>) : null}
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', width: '100%' }}>
-                                <Text style={{ color: 'green', fontSize: 20 }}>{formik.values?.origin && formik.values?.destination && "Ubicación cargada"}</Text>
-                            </View>
-                        </View>
+                <View style={[styles.container, { backgroundColor: colors.background }]}>
 
-                        <Portal>
-                            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={{ flex: 1, flexDirection: 'column' }}>
-                                <SafeAreaView style={{ flex: 1 }}>
-                                    <SolicitarRide formikk={formik} />
-                                </SafeAreaView>
-                                <View style={{ flexDirection: 'row', padding: 10, justifyContent: 'space-between', backgroundColor: 'white' }}>
+                    <View style={styles.button1}>
+                        <Button 
+                            icon="clock" mode="contained" buttonColor= '#D6A50C' textColor='white' onPress={() => showDatePicker()}>
+                            Fecha y hora del ride
+                        </Button>
+                    </View>
+
+                    <DateTimePickerModal
+                        isVisible={isDatePickerVisible}
+                        mode="datetime"
+                        onConfirm={handleConfirm}
+                        onCancel={handleCancel}
+                        color
+                    />
+
+                    <Text style={{ color: colors.text, fontSize: 20 }}>{rightNow ? format(formik.values?.date, 'Pp') : "Justo ahora"}</Text>
+
+                    <View style={styles.button1}>
+                    <Button 
+                        icon="map" mode="contained" onPress={showModal} buttonColor= '#D6A50C' textColor='white'>
+                        ¿A dónde te diriges?
+                    </Button>
+                    </View>
+                    {formik.errors.origin || formik.errors.destination ? (<HelperText type="error" visible={true}>{formik.errors.origin}</HelperText>) : null}
+                    <View style={{ flexDirection: 'row', justifyContent: 'center', width: '100%' }}>
+                        <Text style={{ color: 'green', fontSize: 20 }}>{formik.values?.origin && formik.values?.destination && "Ubicación cargada"}</Text>
+
+                    </View>
+
+                    <Portal>
+                        <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={{ flex: 1, flexDirection: 'column' }}>
+
+                            <SafeAreaView style={{ flex: 1 }}>
+                                <SolicitarRide formikk={formik} />
+                            </SafeAreaView>
+                            <View style={{ padding: 10, justifyContent: 'space-between', backgroundColor: 'white' }}>
+                                <View style={{ position: 'absolute',
+                                    bottom: 0,
+                                    width: '90%',
+                                    height: 50,
+                                    backgroundColor: 'green',
+                                    borderRadius: 10,
+                                    shadowColor: "#000",
+                                    shadowOffset: {
+                                        width: 0,
+                                        height: 3,
+                                    },
+                                    shadowOpacity: 0.27,
+                                    shadowRadius: 4.65,
+                                    elevation: 6,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',}}>
+                                    <Button icon="cancel" mode="contained" onPress={() => { hideModal(); formik.setFieldValue('origin', null); formik.setFieldValue('destination', null); }} buttonColor='red'>
+                                        Cancelar
+                                    </Button>
+                                </View>
+                                {
+                                    formik.values.origin && formik.values.destination &&
                                     <View style={{}}>
-                                        <Button icon="cancel" mode="contained" onPress={() => { hideModal(); formik.setFieldValue('origin', null); formik.setFieldValue('destination', null); }} buttonColor='red'>
-                                            Cancelar
+                                        <Button icon="check" mode="contained" onPress={hideModal} buttonColor='green'>
+                                            Aceptar
                                         </Button>
                                     </View>
-                                    {
-                                        formik.values.origin && formik.values.destination &&
-                                        <View style={{}}>
-                                            <Button icon="check" mode="contained" onPress={hideModal} buttonColor='green'>
-                                                Aceptar
-                                            </Button>
-                                        </View>
-                                    }
-                                </View>
-                            </Modal>
-                        </Portal>
+                                }
 
-                        <View style={{ flexDirection: 'column' }}>
-                            <TextInput
-                                style={{ margin: 7, height: 50 }}
-                                mode="outlined"
-                                label="¿Cuántas personas van?"
-                                value={formik.values.personas}
-                                onChangeText={formik.handleChange('personas')}
-                                keyboardType='numeric'
-                                theme={{ colors: { text: 'green', primary: 'green' } }}
-                            />
-                            {formik.errors.personas ? (<HelperText type="error" visible={true}>{formik.errors.personas}</HelperText>) : null}
-                        </View>
+                            </View>
+                        </Modal>
+                    </Portal>
 
-                        <View style={{ flexDirection: 'column' }}>
-                            <TextInput
-                                style={{ margin: 7, height: 100 }}
-                                mode="outlined"
-                                label="Comentarios"
-                                value={formik.values.comentarios}
-                                onChangeText={formik.handleChange('comentarios')}
-                                keyboardType='default'
-                                theme={{ colors: { text: 'green', primary: 'green' } }}
-                                multiline={true}   // habilita múltiples líneas
-                                numberOfLines={4}  // muestra 4 líneas antes de desplazarse
-                            />
-                        </View>
+                    <TextInput
+                        style={{ margin: 7, height: 50, width: 350 }}
+                        mode="outlined"
+                        label="¿Cuántas personas van?"
+                        value={formik.values.personas}
+                        onChangeText={formik.handleChange('personas')}
+                        keyboardType='numeric'
+                        theme={{ colors: { text: 'green', primary: 'green' } }}
+                    />
+                    {formik.errors.personas ? (<HelperText type="error" visible={true}>{formik.errors.personas}</HelperText>) : null}
+
+
+                    <TextInput
+                        style={{ margin: 7, height: 100, width: 350 }}
+                        mode="outlined"
+                        label="Comentarios"
+                        value={formik.values.comentarios}
+                        onChangeText={formik.handleChange('comentarios')}
+                        keyboardType='default'
+                        theme={{ colors: { text: 'green', primary: 'green' } }}
+                        multiline={true}
+                        numberOfLines={4}
+                    />
+                    <View style={styles.button}>
+                    <Button 
+                        icon="car" mode="contained" textColor='white' buttonColor='green' onPress={formik.handleSubmit}>
+                        Solicitar Ride
+                    </Button>
                     </View>
-
-                    <View style={{ width: "75%" }}>
-                        <View style={{ flexDirection: 'row' }}>
-                            <Button style={{ flex: 1, margin: 5, height: 45, justifyContent: 'center' }}
-                                icon="car" mode="contained" buttonColor="#479B3B" 
-                                contentStyle={{ alignSelf: 'center' }} labelStyle={{ fontSize: 18 }} onPress={formik.handleSubmit}>
-                                Solicitar Ride
-                            </Button>
-                        </View>
-                    </View>
-
                 </View>
             </FormikProvider>
-
+           
             <Portal>
-                <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ flex: 1 }}>
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <Ionicons name="checkmark-circle-outline" style={{ marginRight: 6, fontSize: 70, color: "#81BC12" }}></Ionicons>
-                                <Text style={[styles.modalText, { fontSize: 18 }]}>SOLICITUD ENVIADA</Text>
-                                <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>Espera las ofertas de ride y acepta la que sea más de tu agrado</Text>
-                            </View>
-
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <Button mode="contained" buttonColor='#B0B0B0' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
-                                    onPress={() => navigation.navigate('GestionarRides')}> Ver Rides </Button>
-                                <Button mode="contained" buttonColor='#B2D474' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
-                                    onPress={() => { setSuccessModalVisible(false) }} > Ok </Button>
-                            </View>
-                        </View>
-                    </View>
+                <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ padding: 20, backgroundColor: colors.background3, width:'100%' }}>
+                    <Text style={{ fontSize: 20, color: '#171717' }}>¡Solicitud enviada con éxito!</Text>
+                    <Text style={{ marginTop: 10, color: '#171717' }}>Espera las ofertas de ride y acepta la que sea más de tu agrado.</Text>
+                    <Button style={styles.button} textColor='white' mode="contained" onPress={() => { setSuccessModalVisible(false) }}>Entendido</Button>
                 </Modal>
             </Portal>
-
+        
+           
         </PaperProvider>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    button: {
+        marginTop: 30,
+        width: 300,
+        height: 50,
+        backgroundColor: 'green',
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.27,
+        shadowRadius: 4.65,
+        elevation: 6,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    button1: {
+        margin: 5,
+        width: 300,
+        height: 50,
+        backgroundColor: '#D6A50C',
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.27,
+        shadowRadius: 4.65,
+        elevation: 6,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    inputs: {
+        borderRadius: 8,
+    }
+});
 
 export default FrmSolicitarRide;

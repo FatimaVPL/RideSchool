@@ -344,7 +344,7 @@ const RidesSolicitados = ({ navigation }) => {
                 ) : (
                     <View style={styles.centeredView}>
                         <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-                        <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+                        <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
                     </View>
                 )}
             </View>

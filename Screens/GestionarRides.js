@@ -2,7 +2,7 @@ import * as React from "react";
 import { useEffect, useState } from 'react'
 import { View, StyleSheet, Pressable, FlatList } from "react-native";
 import { AirbnbRating } from 'react-native-elements';
-import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput, Modal, Portal, Avatar } from 'react-native-paper';
+import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider, TextInput, Modal, Portal, Avatar, AntDesign } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { db } from '../config-firebase';
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { subscribeToOfertas, subscribeToRides } from '../firebaseSubscriptions';
+import { useTheme } from "../hooks/ThemeContext";
 
 const styles = StyleSheet.create({
     container: {
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
 });
 
 const GestionarRides = ({ navigation }) => {
-
+    const { colors} = useTheme();
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState([]);
@@ -258,7 +259,7 @@ const GestionarRides = ({ navigation }) => {
 
     return (
         <PaperProvider>
-            <View style={[styles.container, { alignItems: 'center' }]}>
+            <View style={[styles.container, { alignItems: 'center' }, {backgroundColor: colors.background}]}>
                 {!isLoading ? (
                     <>
                         <FlatList
@@ -276,8 +277,8 @@ const GestionarRides = ({ navigation }) => {
                                                 <Ionicons name="location-sharp" style={{ fontSize: 22, paddingTop: 6, marginRight: 6 }} />
                                                 <Text style={styles.text}>
                                                     Ruta {'\n'}
-                                                    <Text style={{ fontWeight: 'bold' }}>Inicio:</Text> {cutDirection(item.ride.origin.direction)} {'\n'}
-                                                    <Text style={{ fontWeight: 'bold' }}>Destino:</Text> {cutDirection(item.ride.destination.direction)}
+                                                    <Text style={{ fontWeight: 'bold', color: '#171717' }}>Inicio:</Text> {cutDirection(item.ride.origin.direction)} {'\n'}
+                                                    <Text style={{ fontWeight: 'bold', color: '#171717' }}>Destino:</Text> {cutDirection(item.ride.destination.direction)}
                                                 </Text>
                                             </View>
                                             <View style={{ flexDirection: 'row' }}>
@@ -689,7 +690,7 @@ const GestionarRides = ({ navigation }) => {
                 ) : (
                     <View style={styles.centeredView}>
                         <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-                        <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+                        <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
                     </View>
                 )}
             </View>

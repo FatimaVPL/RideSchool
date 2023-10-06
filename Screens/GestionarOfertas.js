@@ -10,6 +10,7 @@ import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_MAPS_API_KEY } from "@env";
 import { useAuth } from '../context/AuthContext';
 import { subscribeToOfertas, subscribeToRides } from '../firebaseSubscriptions';
+import { useTheme } from "../hooks/ThemeContext";
 
 const styles = StyleSheet.create({
     container: {
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
 });
 
 const RidesConductor = ({ navigation }) => {
-
+    const { colors } = useTheme();
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState([]);
@@ -115,11 +116,11 @@ const RidesConductor = ({ navigation }) => {
     const getInfoByStatus = (status) => {
         switch (status) {
             case "aceptada":
-                return { color: "#B2D474", text: "Ir al chat" };
+                return { color: colors.cardAceptada, text: "Ir al chat" };
             case "finalizada":
                 return { color: "#EEBF55", text: "Calificar" };
             default:
-                return { color: "#EE6464", text: "Cancelar" };
+                return { color: colors.cardFinalizada, text: "Cancelar" };
         }
     };
 
@@ -138,14 +139,14 @@ const RidesConductor = ({ navigation }) => {
 
     return (
         <PaperProvider>
-            <View style={[styles.container, { alignItems: 'center' }]}>
+            <View style={[styles.container, { alignItems: 'center', backgroundColor: colors.background }]}>
                 {!isLoading ? (
                     <><FlatList
                         data={data}
                         renderItem={({ item, index }) => (
                             <Card
                                 key={index}
-                                style={{ width: 360, borderRadius: 8, margin: 8, backgroundColor: "#F8F7F6" }}
+                                style={{ width: 360, borderRadius: 8, margin: 8, backgroundColor: colors.background3 }}
                             >
                                 <Card.Content>
                                     <Text variant="titleLarge" style={[styles.textBorder, { borderBottomColor: getInfoByStatus(item.oferta.estado).color }]}>{item.oferta.estado.toUpperCase()}</Text>
@@ -189,7 +190,7 @@ const RidesConductor = ({ navigation }) => {
                             <Portal>
                                 <Modal visible={modalDetails} onDismiss={() => setModalDetails(false)} contentContainerStyle={{ flex: 1 }}>
                                     <View style={styles.centeredView}>
-                                        <View style={styles.modalView}>
+                                        <View style={[styles.modalView,{backgroundColor: colors.background3}]}>
                                             <View style={{ flexDirection: 'row' }}>
                                                 <View><Text style={[styles.modalText, { marginRight: 20 }]}>Información del Ride</Text></View>
                                                 <View>
@@ -201,7 +202,7 @@ const RidesConductor = ({ navigation }) => {
 
                                             <View>
                                                 <TextInput
-                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    style={{ margin: 6, height: 45, width: 260, backgroundColor:colors.input }}
                                                     mode="outlined"
                                                     label="Pasajero"
                                                     value={`${data[index].pasajero.firstName} ${data[index].pasajero.lastName}`}
@@ -209,7 +210,7 @@ const RidesConductor = ({ navigation }) => {
                                                     left={<TextInput.Icon icon="account" style={{ marginTop: 15 }} />}
                                                 />
                                                 <TextInput
-                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                   style={{ margin: 6, height: 45, width: 260, backgroundColor:colors.input }}
                                                     mode="outlined"
                                                     label="Num Pasajeros"
                                                     value={`${data[index].ride.personas}`}
@@ -217,7 +218,7 @@ const RidesConductor = ({ navigation }) => {
                                                     left={<TextInput.Icon icon="account-multiple" style={{ marginTop: 15 }} />}
                                                 />
                                                 <TextInput
-                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    style={{ margin: 6, height: 45, width: 260, backgroundColor:colors.input }}
                                                     mode="outlined"
                                                     label="Cooperación Voluntaria"
                                                     value={data[index].oferta.cooperacion}
@@ -225,7 +226,7 @@ const RidesConductor = ({ navigation }) => {
                                                     left={<TextInput.Icon icon="cash-multiple" style={{ marginTop: 10 }} />}
                                                 />
                                                 <TextInput
-                                                    style={{ margin: 6, height: 45, width: 260 }}
+                                                    style={{ margin: 6, height: 45, width: 260, backgroundColor:colors.input }}
                                                     mode="outlined"
                                                     label="Fecha/Hora"
                                                     value={formatDate(data[index].oferta.fechaSolicitud, 'numeric')}
@@ -433,7 +434,7 @@ const RidesConductor = ({ navigation }) => {
                 ) : (
                     <View style={styles.centeredView}>
                         <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-                        <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+                        <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
                     </View>
                 )}
             </View>

@@ -10,7 +10,7 @@ import { useTheme } from "../../hooks/ThemeContext";
 import { registerIndieID } from 'native-notify';
 
 export default function WelcomeScreen ({ navigation }) {
-  const { colors, image } = useTheme()
+  const { colors, isDark } = useTheme()
   const { refreshUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -99,7 +99,7 @@ export default function WelcomeScreen ({ navigation }) {
     >
       {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
        <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <Image style={styles.logo} source={require('../../assets/ride-school-dark.png')}/>
+          <Image style={styles.logo} source={isDark ? require('../../assets/ride-school-dark.png') : require('../../assets/ride-school.png')}/>
           <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educación</Text>
           <TextInput
             placeholder="Correo institucional"
