@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import {View } from 'react-native';
+import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -14,24 +14,23 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../config-firebase';
 import Animation from '../components/Loader'
 import { useTheme } from "../hooks/ThemeContext";
+import { subscribeToUsers } from '../firebaseSubscriptions';
 
 const Tab = createBottomTabNavigator();
 
 function ButtonTabScreen() {
-  const { colors} = useTheme()
+  const { colors } = useTheme()
   const { user, setUsage } = useAuth();
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     setUsage();
-    const unsubscribe = db.collection('users').onSnapshot(() => { getUser() });
+
+    const unsubscribeUsers = subscribeToUsers(() => { getUser() });
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
+      unsubscribeUsers();
     };
-
   }, [])
 
   async function getUser() {

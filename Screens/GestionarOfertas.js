@@ -9,6 +9,7 @@ import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_MAPS_API_KEY } from "@env";
 import { useAuth } from '../context/AuthContext';
+import { subscribeToOfertas, subscribeToRides } from '../firebaseSubscriptions';
 import { useTheme } from "../hooks/ThemeContext";
 
 const styles = StyleSheet.create({
@@ -44,14 +45,12 @@ const RidesConductor = ({ navigation }) => {
     const [modalReview, setModalReview] = useState(false);
 
     useEffect(() => {
-        const unsubscribeOfertas = db.collection('ofertas').onSnapshot(() => { getData() });
-        const unsubscribeRides = db.collection('rides').onSnapshot(() => { getData() });
+        const unsubscribeOfertas = subscribeToOfertas(() => { getData() });
+        const unsubscribeRides = subscribeToRides(() => { getData() });
 
         return () => {
-            if (unsubscribeOfertas && unsubscribeRides) {
-                unsubscribeOfertas();
-                unsubscribeRides();
-            }
+            unsubscribeOfertas();
+            unsubscribeRides();
         };
     }, []);
 
