@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from "../hooks/ThemeContext";
+import { subscribeToRides } from '../firebaseSubscriptions';
 
 const styles = StyleSheet.create({
   container: {
@@ -33,33 +34,33 @@ const styles = StyleSheet.create({
 });
 
 const RidesSolicitados = ({ navigation }) => {
-  const { colors } = useTheme()
-  const { user } = useAuth();
-  const [origin, setOrigin] = useState(null);
-  const [data, setData] = useState([]);
-  const [index, setIndex] = useState([]);
-  const [modalUser, setModalUser] = useState(false);
-  const [modalDetails, setModalDetails] = useState(false);
-  const [modalAlert, setModalAlert] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribeOfertas = db.collection('users').onSnapshot(() => { getRides() });
-    const unsubscribeRides = db.collection('rides').onSnapshot(() => { getRides() });
+    const { colors } = useTheme()
+    const { user } = useAuth();
+    const [origin, setOrigin] = useState(null);
+    const [data, setData] = useState([]);
+    const [index, setIndex] = useState([]);
+    const [modalUser, setModalUser] = useState(false);
+    const [modalDetails, setModalDetails] = useState(false);
+    const [modalAlert, setModalAlert] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    return () => {
-      if (unsubscribeOfertas && unsubscribeRides) {
-        unsubscribeOfertas();
-        unsubscribeRides();
-      }
-    };
-  }, []);
+    useEffect(() => {
+        const unsubscribeRides = subscribeToRides(() => { getRides() });
 
-  async function getLocationPermission() {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permission to access location was denied");
-      return;
+        return () => {
+            unsubscribeRides();
+        };
+    }, []);
+
+    async function getLocationPermission() {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+            alert("Permission to access location was denied");
+            return;
+        }
+        const { coords } = await Location.getCurrentPositionAsync({});
+        return coords;
     }
     const { coords } = await Location.getCurrentPositionAsync({});
     //setOrigin({ lat: coords.latitude, lng: coords.longitude });
@@ -280,65 +281,171 @@ const RidesSolicitados = ({ navigation }) => {
                           cooperacion: null,
                           comentario: '',
                         }}
-                        validateOnMount={true}
-                        validationSchema={validationSchema}
-                        onSubmit={(values) => { setValues(values) }}
-                      >
-                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
-                          <View>
-                            <TextInput
-                              style={{ margin: 7, height: 60 }}
-                              mode="outlined"
-                              label="Cooperación voluntaria"
-                              value={values.cooperacion}
-                              onChangeText={handleChange('cooperacion')}
-                              onBlur={handleBlur('cooperacion')}
-                              keyboardType='numeric'
-                              theme={{ colors: { text: 'green', primary: 'green' } }}
-                            />
-                            {touched.cooperacion && errors.cooperacion && <Text style={{ color: 'red' }}>{errors.cooperacion}</Text>}
+                    >
+                        {data.map((m, index) => (
+                            <Marker
+                                key={index}
+                                coordinate={{ latitude: m.ride.origin.coordinates?.latitude, longitude: m.ride.origin.coordinates?.longitude }}
+                                onPress={() => { setIndex(index); setModalUser(true); }} />
+                        ))}
+                    </MapView>
 
-                            <TextInput
-                              style={{ margin: 7, height: 100 }}
-                              mode="outlined"
-                              label="Comentarios"
-                              value={values.comentario}
-                              multiline={true}
-                              onChangeText={handleChange('comentario')}
-                              onBlur={handleBlur('comentario')}
-                              theme={{ colors: { text: 'green', primary: 'green' } }}
-                            />
-                            {touched.comentario && errors.comentario && <Text style={{ color: 'red' }}>{errors.comentario}</Text>}
+                        {modalUser && (
+                            <Portal>
+                                <Modal visible={modalUser} onDismiss={() => setModalUser(false)} contentContainerStyle={{ flex: 1 }} >
+                                    <View style={styles.centeredView}>
+                                        <View style={styles.modalView}>
+                                            <Text style={styles.modalText}>Información del Ride</Text>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 18 }}>
+                                                <View><Avatar.Image size={80} source={require('../assets/PerfilImage.jpg')} /></View>
+                                                <View style={{ marginStart: 10 }}>
+                                                    <View style={{ flexDirection: 'row' }}>
+                                                        {/* INSIGNIA */}
+                                                        {data[index].pasajero.numRidesPasajero >= 30 && (
+                                                            <MaterialCommunityIcons name="medal" style={{ fontSize: 30 }} color={getInfoMedal(data[index].pasajero.numRidesPasajero)} />
+                                                        )}
+                                                        <Text style={[styles.text, { textAlign: 'center' }]}>{`${data[index].pasajero.firstName} \n ${data[index].pasajero.lastName}`}</Text>
+                                                    </View>
+                                                    {/* CALIFICACION GENERAL */}
+                                                    <View style={styles.iconRow}>
+                                                        {Array.from({ length: data[index].pasajero.califPasajero }).map((_, index) => (
+                                                            <Ionicons key={index} name="star" style={{ marginRight: 4, fontSize: 20, color: "#FFC107" }} />
+                                                        ))}
+                                                        {Array.from({ length: 5 - data[index].pasajero.califPasajero }).map((_, index) => (
+                                                            <Ionicons key={index} name="star" style={{ marginRight: 4, fontSize: 20, color: "#8C8A82" }} />
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            </View>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                              <Button icon="check" mode="contained" buttonColor='#479B3B' labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
-                                onPress={() => { handleSubmit(); setModalDetails(false); setModalAlert(true); }}> Aceptar </Button>
-                              <Button icon="close" mode="contained" buttonColor='#D83F20' labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
-                                onPress={() => setModalDetails(false)} > Cancelar </Button>
-                            </View>
-                          </View>)}
-                      </Formik>
-                    </View>
-                  </View>
-                </Modal>
-              </Portal>
-            )}
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Ionicons name="time" style={styles.icon} />
+                                                    <Text style={styles.text}>{formatDate(data[index].ride.date)}</Text>
+                                                </View>
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Ionicons name="person" style={[styles.icon, { marginLeft: 30 }]} />
+                                                    <Text style={styles.text}>{data[index].ride.personas}</Text>
+                                                </View>
+                                            </View>
 
-            <Portal>
-              <Modal visible={modalAlert} onDismiss={() => setModalAlert(false)} contentContainerStyle={{ flex: 1 }}>
-                <View style={styles.centeredView}>
-                  <View style={[styles.modalView, { padding: 15 }]}>
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name="checkmark-circle-outline" style={{ marginRight: 6, fontSize: 70, color: "#81BC12" }}></Ionicons>
-                      <Text style={[styles.modalText, { fontSize: 18 }]}>SOLICITUD ENVIADA</Text>
-                      <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>Te notificaremos cuando el pasajero confirme el ride</Text>
-                    </View>
+                                            {data[index].ride.comentarios !== null && (
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Ionicons name="chatbubbles" style={styles.icon} />
+                                                    <Text style={styles.text}>{data[index].ride.comentarios}</Text>
+                                                </View>
+                                            )}
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Button mode="contained" buttonColor='#B0B0B0' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
-                        onPress={() => navigation.navigate('GestionarOfertas')}> Ver Ofertas </Button>
-                      <Button mode="contained" buttonColor='#B2D474' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
-                        onPress={() => setModalAlert(false)} > Ok </Button>
+                                            <View style={{ flexDirection: 'row', width: 230 }}>
+                                                <Ionicons name="location-sharp" style={styles.icon} />
+                                                <Text style={styles.text}>
+                                                    Ruta {'\n'}
+                                                    <Text style={{ fontWeight: 'bold' }}>Inicio:</Text> {cutDirection(data[index].ride.origin.direction)} {'\n'}
+                                                    <Text style={{ fontWeight: 'bold' }}>Destino:</Text> {cutDirection(data[index].ride.destination.direction)}
+                                                </Text>
+                                            </View>
+
+                                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                                                <Pressable onPress={() => console.log('hacer algo')}>
+                                                    <View style={{ flexDirection: 'row' }}>
+                                                        <Text style={{ marginBottom: 10, fontSize: 15, borderBottomWidth: 1, borderBottomColor: 'gray', color: 'gray' }}>Ver detalles</Text>
+                                                    </View>
+                                                </Pressable>
+                                            </View>
+
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                                <Button icon="check" mode="contained" buttonColor='#479B3B' style={{ width: 130 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                    onPress={() => { setModalUser(false); setModalDetails(true); }}> Aceptar </Button>
+                                                <Button icon="close" mode="contained" buttonColor='#D83F20' style={{ width: 130 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                    onPress={() => setModalUser(false)}> Cancelar </Button>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </Modal>
+                            </Portal>
+                        )}
+
+                        {modalDetails && (
+                            <Portal>
+                                <Modal visible={modalDetails} onDismiss={() => setModalDetails(false)} contentContainerStyle={{ flex: 1 }}>
+                                    <View style={styles.centeredView}>
+                                        <View style={styles.modalView}>
+                                            <Text style={styles.modalText}>Detalles del Ride</Text>
+
+                                            <Formik
+                                                initialValues={{
+                                                    cooperacion: null,
+                                                    comentario: '',
+                                                }}
+                                                validateOnMount={true}
+                                                validationSchema={validationSchema}
+                                                onSubmit={(values) => { setValues(values) }}
+                                            >
+                                                {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
+                                                    <View>
+                                                        <TextInput
+                                                            style={{ margin: 7, height: 60 }}
+                                                            mode="outlined"
+                                                            label="Cooperación voluntaria"
+                                                            value={values.cooperacion}
+                                                            onChangeText={handleChange('cooperacion')}
+                                                            onBlur={handleBlur('cooperacion')}
+                                                            keyboardType='numeric'
+                                                            theme={{ colors: { text: 'green', primary: 'green' } }}
+                                                        />
+                                                        {touched.cooperacion && errors.cooperacion && <Text style={{ color: 'red' }}>{errors.cooperacion}</Text>}
+
+                                                        <TextInput
+                                                            style={{ margin: 7, height: 100 }}
+                                                            mode="outlined"
+                                                            label="Comentarios"
+                                                            value={values.comentario}
+                                                            multiline={true}
+                                                            onChangeText={handleChange('comentario')}
+                                                            onBlur={handleBlur('comentario')}
+                                                            theme={{ colors: { text: 'green', primary: 'green' } }}
+                                                        />
+                                                        {touched.comentario && errors.comentario && <Text style={{ color: 'red' }}>{errors.comentario}</Text>}
+
+                                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                                            <Button icon="check" mode="contained" buttonColor='#479B3B' labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                                onPress={() => { handleSubmit(); setModalDetails(false); setModalAlert(true); }}> Aceptar </Button>
+                                                            <Button icon="close" mode="contained" buttonColor='#D83F20' labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                                onPress={() => setModalDetails(false)} > Cancelar </Button>
+                                                        </View>
+                                                    </View>)}
+                                            </Formik>
+                                        </View>
+                                    </View>
+                                </Modal>
+                            </Portal>
+                        )}
+
+                        <Portal>
+                            <Modal visible={modalAlert} onDismiss={() => setModalAlert(false)} contentContainerStyle={{ flex: 1 }}>
+                                <View style={styles.centeredView}>
+                                    <View style={[styles.modalView, { padding: 15 }]}>
+                                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                            <Ionicons name="checkmark-circle-outline" style={{ marginRight: 6, fontSize: 70, color: "#81BC12" }}></Ionicons>
+                                            <Text style={[styles.modalText, { fontSize: 18 }]}>SOLICITUD ENVIADA</Text>
+                                            <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>Te notificaremos cuando el pasajero confirme el ride</Text>
+                                        </View>
+
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                            <Button mode="contained" buttonColor='#B0B0B0' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                onPress={() => navigation.navigate('GestionarOfertas')}> Ver Ofertas </Button>
+                                            <Button mode="contained" buttonColor='#B2D474' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                                                onPress={() => setModalAlert(false)} > Ok </Button>
+                                        </View>
+                                    </View>
+                                </View>
+                            </Modal>
+                        </Portal>
+                    </>
+                ) : (
+                    <View style={styles.centeredView}>
+                        <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
+                        <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
                     </View>
                   </View>
                 </View>

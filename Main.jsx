@@ -13,15 +13,47 @@ import GestionarOfertas from './Screens/GestionarOfertas';
 import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
 import ChatScreen from './Screens/ChatScreen';
 import GestionarRides from './Screens/GestionarRides';
+import InicioScreen from './Screens/InicioScreen';
+import { useEffect } from 'react';
+import { subscribeToOfertasAdd } from './firebaseSubscriptions';
+import axios from 'axios';
 
 const Main = () => {
-
   const Stack = createStackNavigator();
   const { user, initializing, firstTime } = useAuth()
 
+  useEffect(() => {
+    const unsubscribeOfertas = subscribeToOfertasAdd((data) => {
+      if (user !== null) {
+        if (data.pasajeroID.uid === user.uid) {
+          sendNotification();
+        }
+      }
+    })
+
+    return () => {
+      unsubscribeOfertas();
+    }
+  }, []);
+
+  const sendNotification = () => {
+    axios.post(`https://app.nativenotify.com/api/indie/notification`, {
+      subID: user.email,
+      appId: 13000,
+      appToken: 'Dke2V9YbViRt26fTH2Mv7q',
+      title: 'Nueva Oferta',
+      message: 'Tienes una nueva oferta de Ride!',
+      icon: '../assets/rideSchoolS.png',
+      color: '#2B6451',
+      data: {
+        screenToOpen: 'GestionarRides'
+      }
+    })
+  }
+
   return (
     <>
-      { initializing ? <Loader /> : !user  ?
+      {initializing ? <Loader /> : !user ?
         <Stack.Navigator>
           {
             firstTime && <>
@@ -35,7 +67,7 @@ const Main = () => {
                 component={OnboardingScreen}
                 options={{ headerShown: false }}
               />
-               <Stack.Screen
+              <Stack.Screen
                 name="ReestablecerPassword"
                 component={ReestablecerPassword}
                 options={{ headerShown: false }}
@@ -57,6 +89,7 @@ const Main = () => {
           <Stack.Screen name="GestionarOfertas" component={GestionarOfertas} options={{ presentation: "modal" }} />
           <Stack.Screen name="GestionarRides" component={GestionarRides} options={{ presentation: "modal" }} />
           <Stack.Screen name="ChatScreen" component={ChatScreen} />
+          <Stack.Screen name="InicioScreen" component={InicioScreen} />
         </Stack.Navigator>
       }
     </>
