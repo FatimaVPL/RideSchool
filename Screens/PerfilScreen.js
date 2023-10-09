@@ -4,10 +4,14 @@ import { View, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Avatar, Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button, Modal, Portal } from 'react-native-paper';
+import { Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button, Modal, Portal } from 'react-native-paper';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from "../hooks/ThemeContext";
+import {Avatar} from 'react-native-elements';
+import * as ImagePicker from 'expo-image-picker'
+import { Alert } from 'react-native';
+import * as FileSystem from 'expo-file-system';
 
 
 const PerfilScreen = ({ navigation }) => {
@@ -18,6 +22,67 @@ const PerfilScreen = ({ navigation }) => {
   const [modalALert, setModalAlert] = useState(false);
   const [modalDialog, setModalDialog] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
+const [permisos, setPermisos] = useState(null);
+const [imagen, setImagen] = useState(null);
+const [uploading, setUploading] = useState(false);
+
+// Cargar imagen de galeria
+useEffect(() =>{
+  (async () => {
+    const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    setPermisos(galeriaStatus.status === 'granted');
+  })();
+},[])
+
+/********************************************************** */
+const pickImage = async () => {
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 1,
+  });
+
+  if(!result.canceled){
+    setImagen(result.assets[0].uri)
+  }
+
+  if(permisos === false){
+   Alert.alert("Permisos", "Necesitas dar permiso para cargar para la imagen") 
+  }
+
+  const unploadImage = async () =>{
+    setUploading(true)
+   }
+   
+   try {
+     const {uri} = await FileSystem.getInfoAsync(imagen)
+     const blob = await new Promise((resolve, reject)=>{
+      const xhr = new XMLHttpRequest()
+      xhr.onload =  () => {
+        resolve(xhr.response)
+      }
+      xhr.onerror = (e) => {reject(new Error('Error de conexión'))}
+    xhr.responseType = 'blob'
+    xhr.open('GET', uri, true)
+    xhr.send(null)
+    })
+  const filename = imagen.substring(imagen.lastIndexOf('/') +1)
+  const ref = firebase.storage().ref().child("avatars/"+filename);
+
+  await ref.put(blob)
+  setUploading(false)
+  Alert.alert("Cambio de foto","Se subio correctamente tu foto")
+  setImagen(null)
+}catch(error){
+  console.error(error)
+  setUploading(false)
+}
+
+}
+
+
+/* ************************************************************* */
 
   useEffect(() => {
     const unsubscribe = db.collection('users').onSnapshot(() => { getUser() });
@@ -101,7 +166,12 @@ const PerfilScreen = ({ navigation }) => {
         {!isLoading ? (
           <>
             <View style={[styles.profileContainer, {backgroundColor: colors.background}]}>
-              <Avatar.Image size={130} source={require('../assets/PerfilImage.jpg')} />
+            <Avatar 
+            rounded
+            onPress={() => pickImage()}
+            size="xlarge"
+            source={imagen ? {uri: imagen} : require('../assets/default.jpg') }
+            />
               <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
               <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
