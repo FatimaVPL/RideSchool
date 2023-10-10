@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect} from "react";
-import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Image, Alert } from "react-native"
+import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Image, Alert, Keyboard } from "react-native"
 import { TextInput, RadioButton, ActivityIndicator, MD2Colors, Checkbox } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
 import { useTheme } from "../../hooks/ThemeContext";
@@ -40,6 +40,8 @@ const OnboardingScreen = ({ navigation }) => {
    const [spiner, setSpiner] = useState(false)
 
 
+
+
    //Variables de control de estado de error
    let isEmailInvalid = true;
    let isNameInvalid = true;
@@ -78,6 +80,23 @@ const OnboardingScreen = ({ navigation }) => {
             .max(16, "Debe ser menor a 17")
    })
 
+   // Visibilidad del teclado 
+   /*
+   useEffect(() => {
+      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+         setKeyboardVisible(true);
+      });
+      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+         setKeyboardVisible(false);
+      });
+
+      return () => {
+         keyboardDidShowListener.remove();
+         keyboardDidHideListener.remove();
+      };
+   }, []);
+    */
+   
    /**********************************  Slides *******************************************/
    const slides = [
       {
