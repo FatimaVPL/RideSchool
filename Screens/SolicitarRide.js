@@ -8,7 +8,9 @@ import { StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, Key
 import { useAuth } from '../context/AuthContext'
 import { Image } from "react-native";
 import Geocoder from 'react-native-geocoding';
+import { set } from "date-fns";
 
+/* Styles */
 const styles = StyleSheet.create({
     container: {
         ...StyleSheet.absoluteFillObject,
@@ -20,8 +22,9 @@ const styles = StyleSheet.create({
     },
 });
 
+/* Places */
 const ITSUR_PLACE = {
-    description: "Instituto Tecnologico Superior del Sur de Guanajuato",
+    description: "ITSUR",
     geometry: {
         location: {
             lat: 20.140368,
@@ -33,73 +36,71 @@ const ITSUR_PLACE = {
 const SolicitarRide = ({ formikk }) => {
     const { user } = useAuth();
 
-    // Referencias a los componentes
+    /* Referencias a los componentes */
     const mapRef = React.useRef(null);
     const originRef = React.useRef(null);
     const destinationRef = React.useRef(null);
 
-    // ubicacion actual
+    /* Ruta que se va a solicitar */
+    const [route, setRoute] = React.useState({ origin: null, destination: null })
     const [homePlace, setHomePlace] = React.useState(null);
 
-    // Ruta que se va a solicitar
-    const [route, setRoute] = React.useState({ origin: null, destination: null })
 
-    // Indica si se esta seleccionando un lugar
-    const [selecting, setSelecting] = React.useState(null)
-
+    /* Obtener permiso de ubicacion */
     React.useEffect(() => {
         Geocoder.init(GOOGLE_MAPS_API_KEY);
         getLocationPermission();
     }, []);
 
-    async function getLocationPermission() {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-            alert("Permission to access location was denied");
-            return;
+    const updateAddressInAutocomplete = async (latitude, longitude, ref, fieldName) => {
+        try {
+            const json = await Geocoder.from(latitude, longitude);
+            const addressComponent = json.results[0].formatted_address;
+            ref.current?.setAddressText(addressComponent);
+            formikk.setFieldValue(fieldName, addressComponent);
+        } catch (error) {
+            console.warn(error);
         }
-        const { coords } = await Location.getCurrentPositionAsync({});
-        setHomePlace({ description: 'Ubicacion Actual', geometry: { location: { lat: coords.latitude, lng: coords.longitude } } })
+    };
+
+    const handleDragEnd = async (type, e) => {
+        const coords = {
+            latitude: e.nativeEvent.coordinate.latitude,
+            longitude: e.nativeEvent.coordinate.longitude
+        };
+        setRoute(prev => ({ ...prev, [type]: coords }));
+        const ref = type === 'origin' ? originRef : destinationRef;
+        const fieldName = type === 'origin' ? 'directionOrigin' : 'directionDestination';
+        updateAddressInAutocomplete(coords.latitude, coords.longitude, ref, fieldName);
     }
 
-    // Marcar el centro del mapa cuando se esta seleccionando un lugar
-    const markCenter = async (selecting) => {
+    /* Obtener la ubicacion actual */
 
-        // Acceder a la posicion del centro del mapa
-        const mapRegion = await mapRef.current.getCamera();
-        const { latitude, longitude } = mapRegion.center;
+    const getLocationPermission = async () => {
+        try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                alert('Permission to access location was denied');
+                return;
+            }
+            const { coords } = await Location.getCurrentPositionAsync({});
+            const currentPlace = {
+                description: 'Ubicación actual',
+                geometry: { location: { lat: coords.latitude, lng: coords.longitude } },
+            };
+            setHomePlace(currentPlace);
+            if (!formikk.values.origin) {
+                setRoute((p) => ({ ...p, origin: { latitude: coords.latitude, longitude: coords.longitude } }));
+            }
+            updateAddressInAutocomplete(coords.latitude, coords.longitude, originRef, 'directionOrigin');
+            mapRef.current.animateCamera({ center: { latitude: coords.latitude, longitude: coords.longitude } });
+        } catch (error) {
+            console.error('Error getting location permission:', error);
+        }
+    };
 
-        // Obtener la direccion del centro del mapa
-        await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_MAPS_API_KEY}`)
-            .then(response => response.json())
-            .then(data => {
-                // Settear la direccion en el Input correspondiente
-                if (data.results && data.results.length > 0) {
-                    const address = data.results[0].formatted_address;
-                    if (selecting === 'origin') {
-                        originRef?.current?.setAddressText(address)
-                        destinationRef?.current?.focus()
-                    }
-                    if (selecting === 'destination') {
-                        destinationRef?.current?.setAddressText(address)
-                        setSelecting(null)
-                    }
-                } else {
-                    console.error("Couldn't fetch address");
-                }
-            })
-            .catch(error => console.warn(error));
 
-        setRoute(p => ({ ...p, [selecting]: { latitude, longitude } }))
-    }
 
-    const handleSolicitar = () => {
-        console.log({
-            ...user,
-            route,
-            date: new Date().toLocaleString(),
-        })
-    }
 
     //Formik
     React.useEffect(() => {
@@ -141,7 +142,6 @@ const SolicitarRide = ({ formikk }) => {
                         ref={originRef}
                         fetchDetails={true}
                         placeholder='Donde estas?'
-                        textInputProps={{ onFocus: () => setSelecting('origin'), }}
                         onPress={(data, details = null) => {
                             setRoute(p => ({
                                 ...p,
@@ -150,7 +150,6 @@ const SolicitarRide = ({ formikk }) => {
                                     longitude: details?.geometry?.location.lng,
                                 }
                             }));
-                            setSelecting(null)
                             formikk.setFieldValue('directionOrigin', data.description);
                         }}
                         query={{
@@ -167,7 +166,6 @@ const SolicitarRide = ({ formikk }) => {
                         ref={destinationRef}
                         placeholder='A donde te diriges?'
                         autoFocus={false}
-                        textInputProps={{ onFocus: () => setSelecting('destination') }}
                         fetchDetails={true}
                         onPress={(data, details = null) => {
                             setRoute(p => ({
@@ -177,7 +175,6 @@ const SolicitarRide = ({ formikk }) => {
                                     longitude: details?.geometry?.location.lng,
                                 }
                             }));
-                            setSelecting(null)
                             formikk.setFieldValue('directionDestination', data.description);
 
                         }}
@@ -212,7 +209,7 @@ const SolicitarRide = ({ formikk }) => {
                                 id="origin"
                                 coordinate={route.origin}
                                 draggable={true}
-                            //onDragEnd={(e) => setOrigin(e.nativeEvent.coordinate)}
+                                onDragEnd={(e) => handleDragEnd('origin', e)}
 
                             />
                         }
@@ -222,7 +219,7 @@ const SolicitarRide = ({ formikk }) => {
                                 id="destination"
                                 coordinate={route.destination}
                                 draggable={true}
-                            //onDragEnd={(e) => setOrigin(e.nativeEvent.coordinate)}
+                                onDragEnd={(e) => handleDragEnd('destination', e)}
 
                             />
                         }
@@ -241,43 +238,7 @@ const SolicitarRide = ({ formikk }) => {
                         }
                     </MapView>
                 </TouchableWithoutFeedback>
-                {
-                    selecting !== null && <>
-                        {/* Centered Mark */}
-                        <View
-                            style={{
-                                position: 'absolute',
-                                height: 36,
-                                width: 36,
-                                left: '50%',
-                                top: '50%',
-                                transform: [{ translateX: -18 }, { translateY: -40 }],
-                                zIndex: 2,
-                            }}>
-                            <View style={{ position: 'relative', height: '100%', width: '100%' }}>
-                                <View style={{
-                                    position: 'absolute',
-                                    height: "100%",
-                                    width: "100%",
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }} >
-                                    <Image
-                                        style={{ height: '100%', width: '100%', resizeMode: 'contain' }}
-                                        source={require('../assets/placeholder.png')}></Image>
-                                </View>
-                            </View>
-                        </View>
 
-                        {/* Boton seleccionar ubicacion */}
-                        <TouchableOpacity
-                            onPress={() => markCenter(selecting)}
-                            style={{ position: 'absolute', bottom: 0, width: '100%', height: 50, backgroundColor: '#5e5' }}>
-                            <Text>Seleccionar</Text>
-                        </TouchableOpacity>
-                    </>
-                }
             </View>
         </View>
     );
