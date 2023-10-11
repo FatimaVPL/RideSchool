@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect} from "react";
-import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Image, Alert } from "react-native"
+import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Image, Alert, Keyboard } from "react-native"
 import { TextInput, RadioButton, ActivityIndicator, MD2Colors, Checkbox } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
 import { useTheme } from "../../hooks/ThemeContext";
@@ -40,6 +40,8 @@ const OnboardingScreen = ({ navigation }) => {
    const [spiner, setSpiner] = useState(false)
 
 
+
+
    //Variables de control de estado de error
    let isEmailInvalid = true;
    let isNameInvalid = true;
@@ -60,12 +62,12 @@ const OnboardingScreen = ({ navigation }) => {
          .required("Campo obligatorio")
          .min(4, "Debe ser un nombre válido")
          .max(20, "Debe ser menor a 20")
-         .matches(/^[A-Za-z-áéíóúÁÉÍÓÚ]*$/, "Debe contener solo letras"),
+         .matches(/^[A-Za-záéíóúÁÉÍÓÚñÑ]+(?:\s[A-Za-záéíóúÁÉÍÓÚñÑ]+)?$/, "Debe contener solo letras"),
       lastName: string()
          .required("Campo obligatorio")
          .min(4, "Debe ser un apellido válido")
          .max(20, "Debe ser menor a 20")
-         .matches(/^[A-Za-z-áéíóúÁÉÍÓÚ ]*$/, "Debe contener solo letras"),
+         .matches(/^[A-Za-záéíóúÁÉÍÓÚñÑ]+(?:\s[A-Za-záéíóúÁÉÍÓÚñÑ]+)?$/, "Debe contener solo letras"),
       password: string()
          .required("Campo obligatorio")
          .min(8, "Debe ser mayor o igual a 8")
@@ -78,6 +80,23 @@ const OnboardingScreen = ({ navigation }) => {
             .max(16, "Debe ser menor a 17")
    })
 
+   // Visibilidad del teclado 
+   /*
+   useEffect(() => {
+      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+         setKeyboardVisible(true);
+      });
+      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+         setKeyboardVisible(false);
+      });
+
+      return () => {
+         keyboardDidShowListener.remove();
+         keyboardDidHideListener.remove();
+      };
+   }, []);
+    */
+   
    /**********************************  Slides *******************************************/
    const slides = [
       {
@@ -200,7 +219,6 @@ const OnboardingScreen = ({ navigation }) => {
                         CorreosActivos({ correo: formData.email })
                            .then((result) => {
                               if (result) {
-                                 // Hacer algo si el correo existe en la base de datos
                                  crearUsuario()
                               } else {
                                  Alert.alert("Correo no vigente","Tu correo no está en nuestros registros")
@@ -210,12 +228,13 @@ const OnboardingScreen = ({ navigation }) => {
                               Alert.alert("Error de verificación","Ocurrio un error al verificar tu email")
                               navigation.navigate('Welcome')
                            })
-                     }
+                     } 
+                     setSpiner(false)
                      break;
                }
             } else {
                // Crear registro
-               setSpiner(true);
+               setSpiner(true)
                if (formData.role !== "") {
                   CorreosActivos({ correo: formData.email })
                      .then((result) => {
@@ -223,7 +242,7 @@ const OnboardingScreen = ({ navigation }) => {
                            // Hacer algo si el correo existe en la base de datos
                            crearUsuario()
                         } else {
-                           Alert.alert("Correo no vigente","Tu correo actualmente no está vigente",formData.email)
+                           Alert.alert("Correo no vigente","Tu correo no está en nuestros registros")
                            navigation.navigate('Welcome')
                         }
                      }).catch((error) => {
@@ -231,6 +250,7 @@ const OnboardingScreen = ({ navigation }) => {
                         navigation.navigate('Welcome')
                      })
                }
+               setSpiner(false)
             }
          }
       } catch (err) {
@@ -340,7 +360,7 @@ const OnboardingScreen = ({ navigation }) => {
                                  textAlign: 'center',
                                  fontSize: 18,
                                  marginBottom: 15,
-                                 color: colors.text2,
+                                 color: colors.text,
                                  fontWeight: "500",
                               }}>
                               {info}
@@ -366,7 +386,7 @@ const OnboardingScreen = ({ navigation }) => {
                                   onPress={() => {
                                     handleSelectRole(option.value)
                                   }}
-                                  labelStyle={{ color: '#606060', fontWeight: 'bold', fontSize:20 }}
+                                  labelStyle={{ color: colors.text, fontWeight: 'bold', fontSize:20 }}
                                   uncheckedColor="#E1A43B" 
                                   color="#E1A43B" 
                                 />
@@ -382,8 +402,9 @@ const OnboardingScreen = ({ navigation }) => {
                                           style={{
                                              width: 300,
                                              height: 50,
-                                             backgroundColor: 'white',
                                              borderRadius: 8,
+                                             backgroundColor: colors.input,
+                                             color:colors.text,
                                              shadowColor: '#000',
                                              shadowOffset: {
                                                 width: 0,
@@ -406,6 +427,7 @@ const OnboardingScreen = ({ navigation }) => {
                                           secureTextEntry={passwordVisible}
                                           right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
                                           onBlur={handleBlur(field.atr)}
+                                          theme={{ colors: { text: 'green', primary: 'green' } }}
                                        />
                                        {touched[field.atr] && errors[field.atr] && <Text style={{ color: "#F4574B" }}>{errors[field.atr]}</Text>}
                                        {
@@ -424,8 +446,9 @@ const OnboardingScreen = ({ navigation }) => {
                                           style={{
                                              width: 300,
                                              height: 50,
-                                             backgroundColor: 'white',
                                              borderRadius: 8,
+                                             backgroundColor: colors.input,
+                                             color:colors.text,
                                              shadowColor: '#000',
                                              shadowOffset: {
                                                 width: 0,
@@ -448,6 +471,7 @@ const OnboardingScreen = ({ navigation }) => {
                                           placeholder={`${indx}` == 0 ? "Ingresa tus nombre(s)" : "Ingresa tu apellido"}
                                           placeholderTextColor="#888"
                                           onBlur={handleBlur(field.atr)}
+                                          theme={{ colors: { text: 'green', primary: 'green' } }}
                                        />
                                        {touched[field.atr] && errors[field.atr] && <Text style={{ color: "#F4574B" }}>{errors[field.atr]}</Text>}
                                        {
@@ -468,14 +492,14 @@ const OnboardingScreen = ({ navigation }) => {
                                              <View key={`${option.value}-${index}`} style={{ flexDirection: 'row', marginBottom: 10 }}>
                                                 <RadioButton.Item
                                                    color="green"
-                                                   labelStyle={{ color: '#606060' }}
+                                                   labelStyle={{ color: colors.text }}
                                                    label={optionsConductor[index].label}
                                                    value={optionsConductor[index].value}
                                                 />
                                                 {index + 1 < optionsConductor.length && (
                                                    <RadioButton.Item
                                                       color="green"
-                                                      labelStyle={{ color: '#606060' }}
+                                                      labelStyle={{ color: colors.text }}
                                                       label={optionsConductor[index + 1].label}
                                                       value={optionsConductor[index + 1].value}
                                                    />
@@ -507,14 +531,14 @@ const OnboardingScreen = ({ navigation }) => {
                                              <View key={`${index.value}-${index}`} style={{ flexDirection: 'row', marginBottom: 10 }}>
                                                 <RadioButton.Item
                                                    color="green"
-                                                   labelStyle={{ color: '#606060' }}
+                                                   labelStyle={{ color: colors.text}}
                                                    label={optionsLicencia[index].label}
                                                    value={optionsLicencia[index].value}
                                                 />
                                                 {index + 1 < optionsLicencia.length && (
                                                    <RadioButton.Item
                                                       color="green"
-                                                      labelStyle={{ color: '#606060' }}
+                                                      labelStyle={{ color: colors.text }}
                                                       label={optionsLicencia[index + 1].label}
                                                       value={optionsLicencia[index + 1].value}
                                                    />
@@ -536,8 +560,9 @@ const OnboardingScreen = ({ navigation }) => {
                                              color: 'black',
                                              width: 350,
                                              height: 50,
-                                             backgroundColor: 'white',
                                              borderRadius: 8,
+                                             backgroundColor: colors.input,
+                                             color:colors.text,
                                              shadowColor: '#000',
                                              shadowOffset: {
                                                 width: 0,
@@ -560,6 +585,7 @@ const OnboardingScreen = ({ navigation }) => {
                                           autoCapitalize="none"
                                           onBlur={handleBlur(field.atr)}
                                           autoComplete='email'
+                                          theme={{ colors: { text: 'green', primary: 'green' } }}
                                        />
                                        {
                                           touched[field.atr] && errors[field.atr] && <Text style={{ color: "#F4574B" }}>{errors[field.atr]}</Text>}
@@ -589,7 +615,7 @@ const OnboardingScreen = ({ navigation }) => {
          flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22
       }}>
        <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-       <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+       <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
    </View>
       ) : (
          <View style={{
@@ -599,6 +625,7 @@ const OnboardingScreen = ({ navigation }) => {
             color: colors.text,
             position: 'relative',
             paddingTop: 50,
+            backgroundColor: colors.background
          }}>
             <View style={{
                width: 70,
@@ -741,6 +768,7 @@ const OnboardingScreen = ({ navigation }) => {
                         fontSize: 20,
                         fontWeight: 'bold',
                         textAlign: 'center',
+                        shadowColor: colors.shadow
                      }}>
                         Continuar
                      </Text>

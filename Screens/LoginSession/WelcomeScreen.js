@@ -6,14 +6,17 @@ import { useAuth } from '../../context/AuthContext';
 import { object, string } from 'yup';
 import { Formik } from 'formik';
 import Animation from '../../components/Loader'
+import { useTheme } from "../../hooks/ThemeContext";
+import { registerIndieID } from 'native-notify';
 
-const WelcomeScreen = ({ navigation }) => {
-  const { user, refreshUser } = useAuth();
+export default function WelcomeScreen ({ navigation }) {
+  const { colors, isDark } = useTheme()
+  const { refreshUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(true)
   const [spiner, setSpiner] = useState(false);
-
+  
   //Esquema de validación
   const validationSchema = object().shape({
     email: string()
@@ -42,12 +45,15 @@ const WelcomeScreen = ({ navigation }) => {
   const loginUser = async (email, password) => {
     try {
       // El usuario ha iniciado sesión con éxito
-      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email.toLowerCase(), password);
       const user = userCredential.user;
+      //Notificaciones
+      registerIndieID(email.toLowerCase(), 13000, 'Dke2V9YbViRt26fTH2Mv7q');
       // Verificar si el correo electrónico ha sido verificado
       if (!user.emailVerified) {
         // El correo electrónico no ha sido verificado
         Alert.alert("Verificar Correo","Por favor, verifica tu correo electrónico antes de iniciar sesión.");
+        setSpiner(false)
       }
     } catch (error) {
       // Manejo de errores específicos
@@ -77,7 +83,7 @@ const WelcomeScreen = ({ navigation }) => {
     // El formularío 
     <>
      {spiner ? (
-        <View style={styles.spiner}>
+        <View style={[styles.spiner, {backgroundColor: colors.background}]}>
           <Animation></Animation>
         </View>
       ) : (
@@ -92,37 +98,38 @@ const WelcomeScreen = ({ navigation }) => {
       }}
     >
       {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
-        <View style={styles.container} >
-          <Image style={styles.logo} source={require('../../assets/ride-school.png')} />
+       <View style={[styles.container, { backgroundColor: colors.background }]}>
+          <Image style={styles.logo} source={isDark ? require('../../assets/ride-school-dark.png') : require('../../assets/ride-school.png')}/>
           <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educación</Text>
-
           <TextInput
             placeholder="Correo institucional"
-            style={styles.input}
+            style={[styles.input, {backgroundColor: colors.input, color:colors.text}]}
             onChangeText={handleChange('email')}
             onBlur={handleBlur('email')}
             value={values.email}
             autoCapitalize="none"
             autoComplete='email'
+            theme={{ colors: { text: 'green', primary: 'green' } }}
           />
           {touched.email && errors.email && (
             <Text style={styles.errorText}>{errors.email}</Text>
           )}
           <TextInput
             placeholder="Contraseña"
-            style={styles.input}
+            style={[styles.input, {backgroundColor: colors.input, color:colors.text}]}
             onChangeText={handleChange('password')}
             onBlur={handleBlur('password')}
             value={values.password}
             autoCapitalize="none"
             secureTextEntry={passwordVisible}
             right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
-          />
+            theme={{ colors: { text: 'green', primary: 'green' } }}
+         />
           {touched.password && errors.password && (
             <Text style={styles.errorText}>{errors.password}</Text>
           )}
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Entrar</Text>
+          <TouchableOpacity style={[styles.button]} onPress={handleSubmit}>
+            <Text style={[styles.buttonText,{color: colors.textButton}]}>Entrar</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('ReestablecerPassword')} >
             <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
@@ -163,12 +170,10 @@ const styles = StyleSheet.create({
     color: "#D6A50C"
   },
   input: {
-    color: 'black',
     width: 350,
     height: 50,
-    backgroundColor: 'white',
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -182,11 +187,11 @@ const styles = StyleSheet.create({
   button: {
     width: 300,
     height: 50,
-    backgroundColor: 'green', //por definir en dark
+    backgroundColor: 'green', 
     padding: 10,
     marginTop: 20,
     borderRadius: 10,
-    shadowColor: "#000", //por definir en dark
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 3,
@@ -196,7 +201,6 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   buttonText: {
-    color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -220,4 +224,3 @@ const styles = StyleSheet.create({
     color: '#F4574B'
   }
 });
-export default WelcomeScreen;

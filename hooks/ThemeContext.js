@@ -8,8 +8,6 @@ export function useTheme(){return React.useContext(ThemeContext) }
 export function ThemeProvider({children}){
     const [themeState, setThemeState] = useState( Appearance.getColorScheme());
 
-    console.log( Appearance.getColorScheme() )
-
     useEffect(() => {
         const subscription = Appearance.addChangeListener(({ colorScheme }) => {
             setThemeState(colorScheme);
@@ -24,11 +22,18 @@ export function ThemeProvider({children}){
     const theme = {
         isDark,
         colors: {
-            background: isDark ? '#171717' : '#fff',
-            background2: isDark ? '#313131' : '#e9e9e9',
-            text: isDark ? '#fff' : '#171717',
-            text2: isDark ? '#A8A8A8' : '#424242',
+            background: isDark ? '#17202A' : '#F2F2F2',
+            background2: isDark ? '#283747' : '#FBFCFC',
+            background3: isDark ? '#D3D3D3' : '#F8F7F6',
+            text: isDark ? '#F0F0F0' : '#171717',
             primary: isDark ? '#0D9F45' : '#0D9F45',
+            shadow: isDark ? 'green' : '#D4D4D4',
+            input: isDark? '#283747' : '#ECF0F1',
+            textButton: isDark? '#F3F3F3' : 'white',
+            iconTab: isDark? '#F0F0F0' : '#707B7C',
+            colorSelect: isDark? '#2E973A' : '#445D47',
+            cardAceptada: isDark? '#528045' : '#BEE27B',
+            cardFinalizada: isDark? '#D65656'  : '#EE6464',
         },
         setDark: (isDark) => setThemeState(isDark ? 'dark' : 'light'),
     };

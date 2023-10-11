@@ -14,6 +14,17 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Permitir $(PRODUCT_NAME) tener acceso a tu galeria.",
+          "savePhotosPermission": "Permitir $(PRODUCT_NAME) guardar fotos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ]
+    ,
     "ios": {
       "supportsTablet": true,
       "userInterfaceStyle": "automatic",
@@ -31,11 +42,17 @@
         "googleMaps": {
           "apiKey": "AIzaSyAbCSaSarqD9__N9pXiV32flrOPgSURSRg"
         }
-      }
+      },
+      "package": "com.fatiwi.AwesomeProject"
     },
     "web": {
       "userInterfaceStyle": "automatic",
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8cd231b6-a169-4145-8a05-44f8ddf5b7ab"
+      }
     }
   }
 }

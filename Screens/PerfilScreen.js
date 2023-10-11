@@ -1,23 +1,110 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, Modal, Pressable } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Pressable, StatusBar } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Avatar, Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button } from 'react-native-paper';
+import { Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button, Modal, Portal } from 'react-native-paper';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from "../hooks/ThemeContext";
+import { Avatar } from 'react-native-elements';
+import * as ImagePicker from 'expo-image-picker'
+import { Alert } from 'react-native';
+import * as FileSystem from 'expo-file-system';
 
 
 const PerfilScreen = ({ navigation }) => {
-
+  const { colors } = useTheme()
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [modalALert, setModalAlert] = useState(false);
   const [modalDialog, setModalDialog] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [permisos, setPermisos] = useState(null);
+  const [imagen, setImagen] = useState(null);
 
+  // Cargar imagen de galeria
+  useEffect(() => {
+    (async () => {
+      const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      setPermisos(galeriaStatus.status === 'granted');
+    })();
+  }, [])
+
+  /********************************************************** */
+  const pickImage = async () => {
+    setIsLoading(true)
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImagen(result.assets[0].uri)
+    }
+
+    if (permisos === false) {
+      Alert.alert("Permisos", "Necesitas dar permiso para cargar para la imagen")
+    }
+
+    if (imagen) {
+      try {
+        const { uri } = await FileSystem.getInfoAsync(imagen)
+        const blob = await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest()
+          xhr.onload = () => {
+            resolve(xhr.response)
+          }
+          xhr.onerror = (e) => { reject(new Error('Error de conexión')) }
+          xhr.responseType = 'blob'
+          xhr.open('GET', uri, true)
+          xhr.send(null)
+        })
+        const filename = imagen.substring(imagen.lastIndexOf('/') + 1)
+        const ref = firebase.storage().ref().child("avatars/" + filename);
+
+        await ref.put(blob)
+        const imageURL = await ref.getDownloadURL();
+        setIsLoading(false)
+        updatePhotoURL(imageURL)
+        Alert.alert("Cambio de foto", "Se subio correctamente tu foto")
+        setImagen(null)
+      } catch (error) {
+        console.error(error)
+        setIsLoading(false)
+      }
+    } else {
+      Alert.alert("No hay imagen", "Por favor selecciona una imagen")
+      setIsLoading(false)
+    }
+
+  }
+
+
+  /* *********************** Mofificar campo de photo URL ******************************** */
+  async function updatePhotoURL(imageURL) {
+    const userRef = db.collection('users').doc(userData.email);
+
+    try {
+      const docSnapshot = await userRef.get();
+
+      if (docSnapshot.exists) {
+        await userRef.update({
+          photoURL: imageURL,
+        });
+      }
+    } catch (error) {
+      console.log('Error al actualizar', error);
+    }
+  }
+
+
+
+  /*************************************************************** */
   useEffect(() => {
     const unsubscribe = db.collection('users').onSnapshot(() => { getUser() });
 
@@ -29,7 +116,7 @@ const PerfilScreen = ({ navigation }) => {
   }, []);
 
   async function getUser() {
-    var reference = db.collection('users').doc(user?.email);
+    var reference = db.collection('users').doc(user.email);
     try {
       const doc = await reference.get();
       if (doc.exists) {
@@ -49,8 +136,8 @@ const PerfilScreen = ({ navigation }) => {
     setModalAlert(false);
     setShowOverlay(false);
 
-    var user = db.collection('users').doc(userData?.email);
-    const roleConstant = userData?.role === "Conductor" ? "Pasajero" : "Conductor";
+    var user = db.collection('users').doc(userData.email);
+    const roleConstant = userData.role === "Conductor" ? "Pasajero" : "Conductor";
 
     try {
       const docSnapshot = await user.get();
@@ -71,12 +158,7 @@ const PerfilScreen = ({ navigation }) => {
 
     } catch (error) {
       console.error('Error al cerrar sesión:', error.message);
-      // Maneja cualquier error que ocurra durante el cierre de sesión.
     }
-  }
-
-  const cambiarRol = () => {
-    navigation.navigate('Cambiar Rol');
   }
 
   const notificaciones = () => {
@@ -101,28 +183,33 @@ const PerfilScreen = ({ navigation }) => {
 
   return (
     <PaperProvider>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         {!isLoading ? (
           <>
-            <View style={styles.profileContainer}>
-              <Avatar.Image size={130} source={require('../assets/PerfilImage.jpg')} />
-              <Text variant='headlineSmall'>{`${userData?.firstName} ${userData?.lastName}`}</Text>
-              <Text variant='titleMedium'>{userData?.email}</Text>
+            <View style={[styles.profileContainer, { backgroundColor: colors.background }]}>
+              <Avatar
+                rounded
+                onPress={() => pickImage()}
+                size="xlarge"
+                source={userData.photoURL ? { uri: userData.photoURL } : require('../assets/default.jpg')}
+              />
+              <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
+              <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
               <View style={styles.badgesContainer}>
-                {Array.from({ length: userData?.scoreDriver }).map((_, index) => (
+                {Array.from({ length: userData.role === "Pasajero" ? userData.califPasajero : userData.califConductor }).map((_, index) => (
                   <Ionicons key={index} name="star" size={24} color="#FFC107" />
                 ))}
-                {Array.from({ length: 5 - userData?.scoreDriver }).map((_, index) => (
+                {Array.from({ length: 5 - (userData.role === "Pasajero" ? userData.califPasajero : userData.califConductor) }).map((_, index) => (
                   <Ionicons key={index} name="star" size={24} color="#8C8A82" />
                 ))}
               </View>
-              <Text variant='titleMedium'>{userData?.role}</Text>
+              <Text variant='titleMedium'>{userData.role}</Text>
               <Button onPress={() => { setModalAlert(true); setShowOverlay(true); }}>
-                Usar en modo {userData?.role == "Conductor" ? "Pasajero" : "Conductor"}</Button>
+                Usar en modo {userData.role === "Conductor" ? "Pasajero" : "Conductor"}</Button>
             </View>
             {/* INSIGNIAS */}
-            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15 }}>
+            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15, marginBottom: 10 }}>
               <Text variant='titleLarge' style={{ textAlign: 'center', marginBottom: 10 }}>Insignias</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 {userData.role === "Conductor" && (
@@ -141,17 +228,21 @@ const PerfilScreen = ({ navigation }) => {
                     )}
                     {getInfoMedal(userData.numRidesConductor) !== false && (
                       <View style={{ flex: 1, alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRides).color} />
-                        <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal(userData.numRides).text}`}</Text>
+                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRidesConductor).color} />
+                        <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal(userData.numRidesConductor).text}`}</Text>
                       </View>
                     )}
                   </>
                 )}
-                {getInfoMedal(userData.numRidesPasajero) !== false && (
-                  <View style={{ flex: 1, alignItems: 'center' }}>
-                    <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRides).color} />
-                    <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal(userData.numRides).text}`}</Text>
-                  </View>
+                {userData.role === "Pasajero" && (
+                  <>
+                    {getInfoMedal(userData.numRidesPasajero) !== false && (
+                      <View style={{ flex: 1, alignItems: 'center' }}>
+                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal(userData.numRidesPasajero).color} />
+                        <Text style={{ textAlign: 'center' }}>{`Pasajero \n ${getInfoMedal(userData.numRidesPasajero).text}`}</Text>
+                      </View>
+                    )}
+                  </>
                 )}
               </View>
 
@@ -161,19 +252,13 @@ const PerfilScreen = ({ navigation }) => {
               <Text variant='headlineMedium'>Configuraciones</Text>
               <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
-                  <MaterialIcons name="notifications" size={24} color="#212121" style={{ marginRight: 5 }} />
+                  <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Notificaciones</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={cambiarRol}>
-                <View style={styles.settingsItem}>
-                  <Ionicons name="ios-people" size={24} color="#212121" style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge'>Cambiar de rol</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={ajustesGenerales}>
                 <View style={styles.settingsItem}>
-                  <Ionicons name="settings" size={24} color="#212121" style={{ marginRight: 5 }} />
+                  <Ionicons name="settings" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Ajustes generales</Text>
                 </View>
               </TouchableOpacity>
@@ -186,59 +271,31 @@ const PerfilScreen = ({ navigation }) => {
               <Divider />
             </View>
 
-            {showOverlay && (
-              <TouchableOpacity
-                style={styles.overlay}
-                activeOpacity={1}
-              />
-            )}
-
             {modalALert && (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalALert}
-                onRequestClose={() => {
-                  setModalAlert(!modalALert); setShowOverlay(!showOverlay);
-                }}>
+              <Portal>
+                <Modal visible={modalALert} onDismiss={() => setModalAlert(false)} contentContainerStyle={{ flex: 1 }}>
+                  <View style={styles.centeredView}>
+                    <View style={[styles.modalView, { padding: 15 }]}>
+                      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <Ionicons name="help-circle-outline" style={{ marginRight: 6, fontSize: 70, color: "#FFC300" }}></Ionicons>
+                        <Text style={[styles.modalText, { fontSize: 18 }]}>Cambiar la app a modo:</Text>
+                        <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>{userData.role == "Conductor" ? "PASAJERO" : "CONDUCTOR"}</Text>
+                      </View>
 
-                <View style={styles.centeredView}>
-                  <View style={[styles.modalView, { padding: 15 }]}>
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                      <Ionicons name="help-circle-outline" style={{ marginRight: 6, fontSize: 70, color: "#FFC300" }}></Ionicons>
-                      <Text style={[styles.modalText, { fontSize: 18 }]}>Cambiar la app a modo:</Text>
-                      <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>{userData?.role == "Conductor" ? "PASAJERO" : "CONDUCTOR"}</Text>
-                    </View>
-
-                    <View style={{ flexDirection: 'row' }}>
-                      <Pressable
-                        style={[styles.button, { backgroundColor: '#BEE27B' }]}
-                        onPress={() => { userData.role === "Pasajero" && !userData.conductor ? (() => { setModalAlert(false); setModalDialog(true); })() : updateRole() }}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>SI</Text>
-                        </View>
-                      </Pressable>
-                      <Pressable
-                        style={[styles.button, { backgroundColor: '#EE6464' }]}
-                        onPress={() => { setModalAlert(false); setShowOverlay(false); }}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>NO</Text>
-                        </View>
-                      </Pressable>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Button mode="contained" buttonColor='#B2D474' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                          onPress={() => { userData.role === "Pasajero" && !userData.conductor ? (() => { setModalAlert(false); setModalDialog(true); }) : updateRole() }}> SI </Button>
+                        <Button mode="contained" buttonColor='#EE6464' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                          onPress={() => setModalAlert(false)}> NO </Button>
+                      </View>
                     </View>
                   </View>
-                </View>
-              </Modal>)}
+                </Modal>
+              </Portal>
+            )}
 
-            {modalDialog && (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalDialog}
-                onRequestClose={() => {
-                  setModalAlert(!modalDialog); setShowOverlay(!showOverlay);
-                }}>
-
+            <Portal>
+              <Modal visible={modalDialog} onDismiss={() => setModalDialog(false)} contentContainerStyle={{ flex: 1 }}>
                 <View style={styles.centeredView}>
                   <View style={[styles.modalView, { padding: 15 }]}>
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -246,30 +303,22 @@ const PerfilScreen = ({ navigation }) => {
                       <Text style={[styles.modalText, { fontSize: 16, margin: 4, textAlign: 'center' }]}>Primero necesitas completar tu registro para usar la app en modo conductor</Text>
                     </View>
 
-                    <View style={{ flexDirection: 'row' }}>
-                      <Pressable
-                        style={[styles.button, { backgroundColor: '#BEE27B' }]}
-                        onPress={() => console.log('Pantallas para completar el registro')}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Completar</Text>
-                        </View>
-                      </Pressable>
-                      <Pressable
-                        style={[styles.button, { backgroundColor: '#EE6464' }]}
-                        onPress={() => { setModalDialog(false); setShowOverlay(false); }}>
-                        <View style={{ flexDirection: 'row' }}>
-                          <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Cancelar</Text>
-                        </View>
-                      </Pressable>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Button mode="contained" buttonColor='#B2D474' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                        onPress={() => console.log('Pantallas para completar el registro')}> Completar </Button>
+                      <Button mode="contained" buttonColor='#EE6464' style={{ width: 140 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
+                        onPress={() => setModalDialog(false)}> Cancelar </Button>
                     </View>
                   </View>
                 </View>
-              </Modal>)}
+              </Modal>
+            </Portal>
+
           </>
         ) : (
           <View style={styles.centeredView}>
             <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-            <Text style={{ color: "black", marginTop: 40 }}>Cargando...</Text>
+            <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
           </View>
         )}
       </View>

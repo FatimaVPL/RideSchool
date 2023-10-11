@@ -73,7 +73,7 @@ export function AuthProvider({ children }) {
 
   const reestablecerPassword = async (email) => {
     try {
-      await firebase.auth().sendPasswordResetEmail(email)
+      await firebase.auth().sendPasswordResetEmail(email.toLowerCase())
     } catch (error) {
       // Manejo de errores específicos
       switch (error.code) {
@@ -88,7 +88,8 @@ export function AuthProvider({ children }) {
   const registerUser = async ({ email, password, role, firstName = "", lastName = "", tipoVehiculo, licencia, conductor }) => {
     try {
       // Crear uusario con contraseña
-      const userCredential = await auth.createUserWithEmailAndPassword(email, password)
+      const emailMinuscula = email.toLowerCase()
+      const userCredential = await auth.createUserWithEmailAndPassword(emailMinuscula, password)
 
       if (userCredential.user) {
         // Enviar verificación por correo electrónico
@@ -97,7 +98,7 @@ export function AuthProvider({ children }) {
       }
       const user = userCredential.user
       // Crear un nuevo documento de usuario en Firestore
-      await db.collection('users').doc(email).set({
+      await db.collection('users').doc(emailMinuscula).set({
         uid: user.uid,
         email: user.email,
         role,
