@@ -79,23 +79,6 @@ const OnboardingScreen = ({ navigation }) => {
             .min(8, "Debe ser mayor o igual a 8")
             .max(16, "Debe ser menor a 17")
    })
-
-   // Visibilidad del teclado 
-   /*
-   useEffect(() => {
-      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-         setKeyboardVisible(true);
-      });
-      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-         setKeyboardVisible(false);
-      });
-
-      return () => {
-         keyboardDidShowListener.remove();
-         keyboardDidHideListener.remove();
-      };
-   }, []);
-    */
    
    /**********************************  Slides *******************************************/
    const slides = [

@@ -8,7 +8,7 @@ import { Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button, Mod
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from "../hooks/ThemeContext";
-import { Avatar } from 'react-native-elements';
+import { Avatar, LinearProgress } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker'
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
@@ -24,68 +24,76 @@ const PerfilScreen = ({ navigation }) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [permisos, setPermisos] = useState(null);
   const [imagen, setImagen] = useState(null);
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
-  // Cargar imagen de galeria
-  useEffect(() => {
-    (async () => {
-      const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      setPermisos(galeriaStatus.status === 'granted');
-    })();
-  }, [])
 
-  /********************************************************** */
-  const pickImage = async () => {
-    setIsLoading(true)
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+  const pickImage = async (tipo) => {
+    try {
+        const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        setPermisos(galeriaStatus.status === 'granted');
+        if (permisos === false) {
+            Alert.alert("Permisos", "Necesitas dar permiso para cargar para la imagen")
+            return
+        }
+        setIsImageLoading(true)
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.5,
+        });
 
-    if (!result.canceled) {
-      setImagen(result.assets[0].uri)
-    }
-
-    if (permisos === false) {
-      Alert.alert("Permisos", "Necesitas dar permiso para cargar para la imagen")
-    }
-
-    if (imagen) {
-      try {
-        const { uri } = await FileSystem.getInfoAsync(imagen)
-        const blob = await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest()
-          xhr.onload = () => {
-            resolve(xhr.response)
-          }
-          xhr.onerror = (e) => { reject(new Error('Error de conexión')) }
-          xhr.responseType = 'blob'
-          xhr.open('GET', uri, true)
-          xhr.send(null)
-        })
-        const filename = imagen.substring(imagen.lastIndexOf('/') + 1)
-        const ref = firebase.storage().ref().child("avatars/" + filename);
-
-        await ref.put(blob)
-        const imageURL = await ref.getDownloadURL();
-        setIsLoading(false)
-        updatePhotoURL(imageURL)
-        Alert.alert("Cambio de foto", "Se subio correctamente tu foto")
-        setImagen(null)
-      } catch (error) {
+        if (!result.canceled) {
+            setImagen(result.assets[0].uri);
+            if (imagen) {
+                try {
+                    const { uri } = await FileSystem.getInfoAsync(imagen)
+                    const blob = await new Promise((resolve, reject) => {
+                        const xhr = new XMLHttpRequest()
+                        xhr.onload = () => {
+                            resolve(xhr.response)
+                        }
+                        xhr.onerror = (e) => { reject(new Error('Error de conexión')) }
+                        xhr.responseType = 'blob'
+                        xhr.open('GET', uri, true)
+                        xhr.send(null)
+                    })
+                    const filename = imagen.substring(imagen.lastIndexOf('/') + 1)
+                    const ref = firebase.storage().ref().child("documentos/" + filename);
+                    await ref.put(blob)
+                    const imageURL = await ref.getDownloadURL();
+                    setIsImageLoading(false)
+                    updatePhotoURL(imageURL)
+                    Alert.alert("Imagen almacenada", "Se subio correctamente tu foto")
+                    setImagen(null)
+                } catch (error) {
+                    console.error(error)
+                    setIsImageLoading(false)
+                }
+            }
+        } else {
+            Alert.alert("No hay imagen", "Por favor selecciona una imagen")
+        }
+    } catch (error) {
         console.error(error)
-        setIsLoading(false)
-      }
-    } else {
-      Alert.alert("No hay imagen", "Por favor selecciona una imagen")
-      setIsLoading(false)
+    } finally {
+        setIsImageLoading(false)
     }
+}
+  /* *********************** Borrar foto de perfil anterior ************************** */
 
+  const borrarFoto = async (previousPhotoURL) =>{
+ if (previousPhotoURL) {
+    try {
+      const previousImageRef = firebase.storage().refFromURL(previousPhotoURL);
+      await previousImageRef.delete();
+    } catch (error) {
+      console.error("Error al eliminar la imagen anterior", error);
+    }
+  }
   }
 
-
-  /* *********************** Mofificar campo de photo URL ******************************** */
+  /* *********************** Mofificar campo  photoURL ******************************** */
   async function updatePhotoURL(imageURL) {
     const userRef = db.collection('users').doc(userData.email);
 
@@ -101,8 +109,6 @@ const PerfilScreen = ({ navigation }) => {
       console.log('Error al actualizar', error);
     }
   }
-
-
 
   /*************************************************************** */
   useEffect(() => {
@@ -168,6 +174,9 @@ const PerfilScreen = ({ navigation }) => {
   const ajustesGenerales = () => {
     navigation.navigate('Ajustes Generales');
   }
+  const SubirDocumentosScreen = () => {
+    navigation.navigate('Subir documentos');
+  }
 
   const getInfoMedal = (num) => {
     if (num >= 100) {
@@ -193,6 +202,7 @@ const PerfilScreen = ({ navigation }) => {
                 size="xlarge"
                 source={userData.photoURL ? { uri: userData.photoURL } : require('../assets/default.jpg')}
               />
+              {!isImageLoading ?(<LinearProgress color="gray" style={{margin: 10}}/>): <></>}
               <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
               <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
@@ -262,6 +272,15 @@ const PerfilScreen = ({ navigation }) => {
                   <Text variant='labelLarge'>Ajustes generales</Text>
                 </View>
               </TouchableOpacity>
+              {/** Cambiar a === "Conductor" nomas es para pruebas */}
+              {userData.role === "Pasajero" && (
+                 <TouchableOpacity onPress={SubirDocumentosScreen}>
+                 <View style={styles.settingsItem}>
+                 <Ionicons name="image" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+             <Text variant='labelLarge'>Subir licencia/tarjeta de circulación</Text>
+                 </View>
+         </TouchableOpacity>
+              )}
               <TouchableOpacity onPress={handleLogout}>
                 <View style={styles.settingsItem}>
                   <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
@@ -270,7 +289,6 @@ const PerfilScreen = ({ navigation }) => {
               </TouchableOpacity>
               <Divider />
             </View>
-
             {modalALert && (
               <Portal>
                 <Modal visible={modalALert} onDismiss={() => setModalAlert(false)} contentContainerStyle={{ flex: 1 }}>
