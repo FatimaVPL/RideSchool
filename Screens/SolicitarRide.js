@@ -94,7 +94,6 @@ const SolicitarRide = ({ formikk }) => {
                 setRoute((p) => ({ ...p, origin: { latitude: coords.latitude, longitude: coords.longitude } }));
             }
             updateAddressInAutocomplete(coords.latitude, coords.longitude, originRef, 'directionOrigin');
-            mapRef.current.animateCamera({ center: { latitude: coords.latitude, longitude: coords.longitude } });
         } catch (error) {
             console.error('Error getting location permission:', error);
         }
@@ -137,16 +136,20 @@ const SolicitarRide = ({ formikk }) => {
                     height: '100%',
                 }}>
                 {/* Inputs Origin & Destino */}
-                <View style={{ zIndex: 20, width: '100%', position: 'absolute', backgroundColor: colors.background }}>
+                <View style={{ zIndex: 20, 
+                    width: '100%', 
+                    position: 'absolute',
+                    backgroundColor: colors.transparent,
+                     }}>
                     <GooglePlacesAutocomplete
                         styles={
                             {
                                 textInput: {
-                                    backgroundColor: '#85929E', height: 38,
-                                    color: colors.text,
+                                    backgroundColor: '#56565B',
+                                    color: '#fff',
                                     fontSize: 16,
                                     height: 50,
-                                    fontWeight: 'bold',
+                                    fontWeight: 'normal',
                                     shadowColor: "#000",
                                     shadowOffset: {
                                         width: 0,
@@ -173,7 +176,6 @@ const SolicitarRide = ({ formikk }) => {
                         ref={originRef}
                         fetchDetails={true}
                         placeholder='¿Dónde estás?'
-                        textInputProps={{ onFocus: () => setSelecting('origin'), }}
                         onPress={(data, details = null) => {
                             setRoute(p => ({
                                 ...p,
@@ -198,11 +200,11 @@ const SolicitarRide = ({ formikk }) => {
                         styles={
                             {
                                 textInput: {
-                                    backgroundColor: '#85929E', height: 38,
-                                    color: colors.text,
+                                    backgroundColor: '#56565B', height: 38,
+                                    color: '#fff',
                                     fontSize: 16,
                                     height: 50,
-                                    fontWeight: 'bold',
+                                    fontWeight: 'normal',
                                     shadowColor: "#000",
                                     shadowOffset: {
                                         width: 0,
@@ -287,6 +289,7 @@ const SolicitarRide = ({ formikk }) => {
                             />
                         }
                         {route.origin !== null && route.destination !== null &&
+                            
                             <MapViewDirections
                                 origin={route.origin}
                                 destination={route.destination}
@@ -296,6 +299,14 @@ const SolicitarRide = ({ formikk }) => {
                                 strokeColor="green"
                                 onReady={(result) => {
                                     formikk.setFieldValue('informationRoute', { distance: Math.ceil(result.distance), duration: Math.ceil(result.duration) });
+                                    mapRef.current?.fitToCoordinates(result.coordinates, {
+                                        edgePadding: {
+                                            right: 50,
+                                            bottom: 50,
+                                            left: 50,
+                                            top: 60,
+                                        },
+                                    });
                                 }}
                             />
                         }
