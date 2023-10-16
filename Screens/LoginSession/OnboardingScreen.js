@@ -22,7 +22,6 @@ const OnboardingScreen = ({ navigation }) => {
       passwordConfirm: "",
       role: "",
       tipoVehiculo: "motocicleta",
-      licencia: "motocicleta",
       conductor: false
    })
 
@@ -118,15 +117,7 @@ const OnboardingScreen = ({ navigation }) => {
          text1: [{ value: "Elije el tipo de vehículo con el que cuentas:" }],
          optionsConductor: [{ label: "Motocicleta", value: "motocicleta" }, { label: "Automóvil", value: "automovil" }, { label: "Ambos", value: "ambos" }],
       },
-      {
-         id: 6,
-         title: 'Completa el perfil de conductor',
-         // info: 'Para ser conductor, debes de completar los siguientes datos.',
-         svg: <Lottie source={require('../../assets/LottieFiles/Credentials.json')} />,
-         text2: [{ value: "¿Tienes licencia de motocicleta, automóvil o ambas?" }],
-         optionsLicencia: [{ label: "Motocicleta", value: "motocicleta" }, { label: "Automóvil", value: "automovil" }, { label: "Ambos", value: "ambas" }, { label: "Ninguna", value: "ninguna" }]
-      }
-   ].filter(item => item.id !== 5 && item.id !== 6 || (showLastSlide && formData.role === "Conductor"))
+   ].filter(item => item.id !== 5 || (showLastSlide && formData.role === "Conductor"))
 
    const handleSelectRole = (role) => {
       setFormData(p => ({ ...p, role: role }))
@@ -145,9 +136,6 @@ const OnboardingScreen = ({ navigation }) => {
       setFormData(p => ({ ...p, tipoVehiculo: value }))
    }
 
-   const handleLicencia = (value) => {
-      setFormData(p => ({ ...p, licencia: value }))
-   }
 
    const onViewableItemsChanged = useRef(({ viewableItems }) => {
       setSelectedScreen(viewableItems[0].index)
@@ -192,10 +180,8 @@ const OnboardingScreen = ({ navigation }) => {
             if (formData.role === "Conductor") {
                switch (selectedScreen) {
                   case 4:
-                     slidesRef.current.scrollToIndex({ index: selectedScreen + 1 });
-                     setSelectedScreen(selectedScreen + 1);
-                     break;
-                  case 5:
+                     // slidesRef.current.scrollToIndex({ index: selectedScreen + 1 });
+                     // setSelectedScreen(selectedScreen + 1);
                      // Crear Un Registro
                      setSpiner(true);
                      if (formData.role !== "") {
@@ -246,7 +232,6 @@ const OnboardingScreen = ({ navigation }) => {
    const crearUsuario = async () => {
       if (formData.role !== "Conductor") {
          formData.tipoVehiculo = "";
-         formData.licencia = "";
       }else{
          formData.conductor = true
       }
@@ -260,7 +245,6 @@ const OnboardingScreen = ({ navigation }) => {
             firstName: formData.name,
             lastName: formData.lastName,
             tipoVehiculo: formData.tipoVehiculo,
-            licencia: formData.licencia,
             conductor: formData.conductor
          })
          setUsage()
@@ -281,7 +265,7 @@ const OnboardingScreen = ({ navigation }) => {
 
    /* Componente condicional */
    const Screen = ({ item }) => {
-      const { title, info, svg, options, input, inputPassword, inputName, optionsConductor, optionsLicencia, text1, text2 } = item
+      const { title, info, svg, options, input, inputPassword, inputName, optionsConductor, text1, text2 } = item
       return (
          <>
             <Formik
@@ -502,35 +486,6 @@ const OnboardingScreen = ({ navigation }) => {
                                        {option.value}
                                     </Text>
                                  )}
-                              </View>
-                           }
-                           {
-                              optionsLicencia &&
-                              <View  >
-                                 <RadioButton.Group onValueChange={newValue => handleLicencia(newValue)} value={formData.licencia}>
-                                    <View style={{ flexDirection: 'column' }}>
-                                       {optionsLicencia.map((option, index) => (
-                                          (index % 2 === 0) && (
-                                             <View key={`${index.value}-${index}`} style={{ flexDirection: 'row', marginBottom: 10 }}>
-                                                <RadioButton.Item
-                                                   color="green"
-                                                   labelStyle={{ color: colors.text}}
-                                                   label={optionsLicencia[index].label}
-                                                   value={optionsLicencia[index].value}
-                                                />
-                                                {index + 1 < optionsLicencia.length && (
-                                                   <RadioButton.Item
-                                                      color="green"
-                                                      labelStyle={{ color: colors.text }}
-                                                      label={optionsLicencia[index + 1].label}
-                                                      value={optionsLicencia[index + 1].value}
-                                                   />
-                                                )}
-                                             </View>
-                                          )
-                                       ))}
-                                    </View>
-                                 </RadioButton.Group>
                               </View>
                            }
                            {

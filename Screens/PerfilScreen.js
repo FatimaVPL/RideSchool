@@ -202,7 +202,6 @@ const PerfilScreen = ({ navigation }) => {
   }
 
   return (
-    <ScrollView>
     <PaperProvider>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {!isLoading ? (
@@ -352,9 +351,8 @@ const PerfilScreen = ({ navigation }) => {
         )}
       </View>
     </PaperProvider >
-    </ScrollView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },

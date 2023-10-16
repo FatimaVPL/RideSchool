@@ -31,13 +31,14 @@ const SubirDocumentosScreen = ({ navigation }) => {
 
     const pickImage = async (tipo) => {
         let result
+        setTipoDoc(tipo)
         try {
           const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
           if (galeriaStatus.status === 'granted') {
            result = await ImagePicker.launchImageLibraryAsync({
               mediaTypes: ImagePicker.MediaTypeOptions.Images,
               allowsEditing: true,
-              aspect: [1, 1],
+              aspect: [4, 3],
               quality: 1,
           });  
           }else{
@@ -62,6 +63,7 @@ const SubirDocumentosScreen = ({ navigation }) => {
                             "state_changed",
                             (snapshot) => {
                               const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                              console.log(progress)
                               setProgress(progress);
                             },
                             (error) => {
@@ -95,6 +97,7 @@ const SubirDocumentosScreen = ({ navigation }) => {
     async function updatePhotoURL(imageURL) {
         const userRef = db.collection('users').doc(userData.email);
         const updateField = tipoDoc
+        console.log("tipo doc", tipoDoc)
         try {
             const docSnapshot = await userRef.get();
 
