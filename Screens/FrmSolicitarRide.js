@@ -161,32 +161,21 @@ const FrmSolicitarRide = () => {
                             <SafeAreaView style={{ flex: 1 }}>
                                 <SolicitarRide formikk={formik} />
                             </SafeAreaView>
-                            <View style={{ padding: 10, justifyContent: 'space-between', backgroundColor: 'white' }}>
-                                <View style={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    width: '90%',
-                                    height: 50,
-                                    backgroundColor: 'green',
-                                    borderRadius: 10,
-                                    shadowColor: "#000",
-                                    shadowOffset: {
-                                        width: 0,
-                                        height: 3,
-                                    },
-                                    shadowOpacity: 0.27,
-                                    shadowRadius: 4.65,
-                                    elevation: 6,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
+                            <View style={{
+                                padding: 10,
+                                flex: 0.15,
+                                justifyContent: 'space-between',
+                                backgroundColor: 'white',
+                                flexDirection: 'row',
+                            }}>
+                                <View>
                                     <Button icon="cancel" mode="contained" onPress={() => { hideModal(); formik.setFieldValue('origin', null); formik.setFieldValue('destination', null); }} buttonColor='red'>
                                         Cancelar
                                     </Button>
                                 </View>
                                 {
                                     formik.values.origin && formik.values.destination &&
-                                    <View style={{}}>
+                                    <View >
                                         <Button icon="check" mode="contained" onPress={hideModal} buttonColor='green'>
                                             Aceptar
                                         </Button>
@@ -207,7 +196,6 @@ const FrmSolicitarRide = () => {
                         theme={{ colors: { text: 'green', primary: 'green' } }}
                     />
                     {formik.errors.personas ? (<HelperText type="error" visible={true}>{formik.errors.personas}</HelperText>) : null}
-
 
                     <TextInput
                         style={{ margin: 7, height: 100, width: 350 }}
