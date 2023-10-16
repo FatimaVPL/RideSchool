@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, Pressable, StatusBar } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,9 +10,9 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from "../hooks/ThemeContext";
 import { Avatar, LinearProgress } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker'
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { Alert } from 'react-native';
-import * as FileSystem from 'expo-file-system';
-
+import ProgressBar from './ProgressBar';
 
 const PerfilScreen = ({ navigation }) => {
   const { colors } = useTheme()
@@ -24,62 +24,73 @@ const PerfilScreen = ({ navigation }) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [permisos, setPermisos] = useState(null);
   const [imagen, setImagen] = useState(null);
-  const [isImageLoading, setIsImageLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
-
-  const pickImage = async (tipo) => {
+  const pickImage = async () => {
+    let result
     try {
-        const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        setPermisos(galeriaStatus.status === 'granted');
-        if (permisos === false) {
-            Alert.alert("Permisos", "Necesitas dar permiso para cargar para la imagen")
-            return
-        }
-        setIsImageLoading(true)
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.5,
-        });
+      const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (galeriaStatus.status === 'granted') {
+       result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+      });  
+      }else{
+        Alert.alert("Permisos", "Necesitas dar permiso para cargar la imagen. Por favor, ve a la configuración de la aplicación para habilitar los permisos.");
+      }
+     
+      if (!result.canceled) {
+         const originalImageUri = result.assets[0].uri
+         const manipulatedImage = await manipulateAsync(
+          originalImageUri,
+          [{ resize: { width: 200, height: 200 } }], 
+          { compress: 1, format: SaveFormat.JPEG }
+      )
+      setImagen(manipulatedImage.uri)
+          if (imagen) {
+              try {
+                  const response = await fetch(imagen);
+                  const blob = await response.blob();
+                  const filename = imagen.substring(imagen.lastIndexOf('/') + 1)
+                  const ref = firebase.storage().ref().child("avatars/" + filename);
+                  ref.put(blob).on(
+                      "state_changed",
+                      (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        setProgress(progress);
+                        console.log("Progreso ",progress)
+                      },
+                      (error) => {
+                        console.error(error);
+                        setProgress(0);
+                      },
+                      async () => { 
+                        const imageURL = await ref.getDownloadURL()
+                  blob.close();
+                  updatePhotoURL(imageURL)
+                  Alert.alert("Imagen almacenada", "Se subio correctamente tu foto")
+                  setImagen(null)
+                  setProgress(0);
+              })
+              } catch (error) {
+                  console.error(error)
+                  setProgress(0);
 
-        if (!result.canceled) {
-            setImagen(result.assets[0].uri);
-            if (imagen) {
-                try {
-                    const { uri } = await FileSystem.getInfoAsync(imagen)
-                    const blob = await new Promise((resolve, reject) => {
-                        const xhr = new XMLHttpRequest()
-                        xhr.onload = () => {
-                            resolve(xhr.response)
-                        }
-                        xhr.onerror = (e) => { reject(new Error('Error de conexión')) }
-                        xhr.responseType = 'blob'
-                        xhr.open('GET', uri, true)
-                        xhr.send(null)
-                    })
-                    const filename = imagen.substring(imagen.lastIndexOf('/') + 1)
-                    const ref = firebase.storage().ref().child("documentos/" + filename);
-                    await ref.put(blob)
-                    const imageURL = await ref.getDownloadURL();
-                    setIsImageLoading(false)
-                    updatePhotoURL(imageURL)
-                    Alert.alert("Imagen almacenada", "Se subio correctamente tu foto")
-                    setImagen(null)
-                } catch (error) {
-                    console.error(error)
-                    setIsImageLoading(false)
-                }
-            }
-        } else {
-            Alert.alert("No hay imagen", "Por favor selecciona una imagen")
-        }
-    } catch (error) {
-        console.error(error)
-    } finally {
-        setIsImageLoading(false)
-    }
+              }
+          }
+      } else {
+          Alert.alert("No hay imagen", "Por favor selecciona una imagen")
+      }
+  } catch (error) {
+      console.error(error)
+  } finally {
+    setProgress(0);
+  }
 }
+
+
   /* *********************** Borrar foto de perfil anterior ************************** */
 
   const borrarFoto = async (previousPhotoURL) =>{
@@ -191,6 +202,7 @@ const PerfilScreen = ({ navigation }) => {
   }
 
   return (
+    <ScrollView>
     <PaperProvider>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {!isLoading ? (
@@ -202,7 +214,7 @@ const PerfilScreen = ({ navigation }) => {
                 size="xlarge"
                 source={userData.photoURL ? { uri: userData.photoURL } : require('../assets/default.jpg')}
               />
-              {!isImageLoading ?(<LinearProgress color="gray" style={{margin: 10}}/>): <></>}
+               { imagen &&  <ProgressBar progress={progress}/> } 
               <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
               <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
@@ -330,8 +342,7 @@ const PerfilScreen = ({ navigation }) => {
                   </View>
                 </View>
               </Modal>
-            </Portal>
-
+            </Portal>   
           </>
         ) : (
           <View style={styles.centeredView}>
@@ -341,6 +352,7 @@ const PerfilScreen = ({ navigation }) => {
         )}
       </View>
     </PaperProvider >
+    </ScrollView>
   );
 };
 

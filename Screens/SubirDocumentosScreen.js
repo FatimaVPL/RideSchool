@@ -7,16 +7,15 @@ import {
     Linking,
 } from 'react-native';
 import {
-    Text, ActivityIndicator, RadioButton, Button, MD2Colors,
+    Text, ActivityIndicator, Button, MD2Colors,
 } from 'react-native-paper';
-import { LinearProgress } from 'react-native-elements';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../hooks/ThemeContext';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
-import * as FileSystem from 'expo-file-system';
-
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import ProgressBar from './ProgressBar';
 
 /************************************************************* */
 const SubirDocumentosScreen = ({ navigation }) => {
@@ -26,58 +25,60 @@ const SubirDocumentosScreen = ({ navigation }) => {
     const [userData, setUserData] = useState(null);
     const [permisos, setPermisos] = useState(null);
     const [imagen, setImagen] = useState(null);
-    const [isImageLoading, setIsImageLoading] = useState(true);
     const [tipoDoc, setTipoDoc] = useState('licenciaImagen');
-
+    const [progress, setProgress] = useState(0);
     /********************************************************** */
 
     const pickImage = async (tipo) => {
+        let result
         try {
-            console.log(tipo)
-            setTipoDoc(tipo)
-            const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            setPermisos(galeriaStatus.status === 'granted');
-
-            if (permisos === false) {
-                Alert.alert("Permisos", "Necesitas dar permiso para cargar para la imagen")
-                return
-            }
-
-            setIsImageLoading(true)
-
-            let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [4, 3],
-                quality: 0.5,
-            });
-
+          const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (galeriaStatus.status === 'granted') {
+           result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 1,
+          });  
+          }else{
+            Alert.alert("Permisos", "Necesitas dar permiso para cargar la imagen. Por favor, ve a la configuración de la aplicación para habilitar los permisos.");
+          }
+    
             if (!result.canceled) {
-                setImagen(result.assets[0].uri);
+               const originalImageUri = result.assets[0].uri
+               const manipulatedImage = await manipulateAsync(
+                originalImageUri,
+                [{ resize: { width: 400, height: 300 } }], 
+                { compress: 1, format: SaveFormat.JPEG }
+            )
+            setImagen(manipulatedImage.uri)
                 if (imagen) {
                     try {
-                        const { uri } = await FileSystem.getInfoAsync(imagen)
-                        const blob = await new Promise((resolve, reject) => {
-                            const xhr = new XMLHttpRequest()
-                            xhr.onload = () => {
-                                resolve(xhr.response)
-                            }
-                            xhr.onerror = (e) => { reject(new Error('Error de conexión')) }
-                            xhr.responseType = 'blob'
-                            xhr.open('GET', uri, true)
-                            xhr.send(null)
-                        })
+                        const response = await fetch(imagen);
+                        const blob = await response.blob();
                         const filename = imagen.substring(imagen.lastIndexOf('/') + 1)
                         const ref = firebase.storage().ref().child("documentos/" + filename);
-                        await ref.put(blob)
-                        const imageURL = await ref.getDownloadURL();
-                        setIsImageLoading(false)
+                        ref.put(blob).on(
+                            "state_changed",
+                            (snapshot) => {
+                              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                              setProgress(progress);
+                            },
+                            (error) => {
+                              console.error(error);
+                              setProgress(0);
+                            },
+                            async () => { 
+                              const imageURL = await ref.getDownloadURL()
+                        blob.close();
                         updatePhotoURL(imageURL)
                         Alert.alert("Imagen almacenada", "Se subio correctamente tu foto")
                         setImagen(null)
+                        setProgress(0);
+                    })
                     } catch (error) {
                         console.error(error)
-                        setIsImageLoading(false)
+                        setProgress(0)
                     }
                 }
             } else {
@@ -86,7 +87,7 @@ const SubirDocumentosScreen = ({ navigation }) => {
         } catch (error) {
             console.error(error)
         } finally {
-            setIsImageLoading(false)
+            setProgress(0)
         }
     }
 
@@ -145,7 +146,7 @@ const SubirDocumentosScreen = ({ navigation }) => {
                         console.error('Error al abrir el enlace:', err);
                     });
             } else {
-                console.log("Error")
+              Alert.alert("No hay imagen", "Sube tu imagen para poder visualizarla")
             }
         } else {
             if (userData && userData.tarjetaCirculacionImagen) {
@@ -157,7 +158,7 @@ const SubirDocumentosScreen = ({ navigation }) => {
                         console.error('Error al abrir el enlace:', err);
                     });
             } else {
-                console.log("Error")
+                Alert.alert("No hay imagen", "Sube tu imagen para poder visualizarla")
             }
         }
     }
@@ -167,16 +168,15 @@ const SubirDocumentosScreen = ({ navigation }) => {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             {!isLoading ? (
                 <>
-                    <Text style={[styles.bienvenida, { color: colors.text }]} variant='headlineLarge'>Para tener más insignias, sube tu licencia o tarjeta de circulación</Text>
+                    <Text style={[styles.bienvenida, { color: colors.text }]} variant='headlineLarge'>Para tener más insignias, sube tu licencia o tarjeta de circulación (en imagen)</Text>
                     <View style={styles.container2}>
-                        <Text style={[{ color: colors.text }, styles.textInfo]}>Selecciona el tipo de archivo que subirás</Text>
                         <TouchableOpacity style={styles.button} onPress={() => pickImage('licenciaImagen')}>
                             <Text style={[styles.buttonText, { color: colors.textButton }]}>Subir licencia</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button} onPress={() => pickImage('tarjetaCirculacionImagen')}>
                             <Text style={[styles.buttonText, { color: colors.textButton }]}>Subir tarjeta de circulación</Text>
                         </TouchableOpacity>
-                        {isImageLoading ? (<LinearProgress color="gray" style={{ margin: 10 }} />) : <></>}
+                      { imagen &&  <ProgressBar progress={progress}/> } 
                         <View>
                             <Button icon="camera" style={styles.buttonPhoto} mode="contained" buttonColor='gray' textColor={colors.text} onPress={() => verImagen('licenciaImagen')}>
                                 Ver licencia
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
         fontSize: 27,
         fontWeight: '900',
         marginBottom: 10,
-        marginTop: 10,
+        marginTop: '20%',
     },
     button: {
         width: 300,
