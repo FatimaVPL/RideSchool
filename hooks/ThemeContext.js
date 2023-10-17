@@ -25,6 +25,8 @@ export function ThemeProvider({children}){
             background: isDark ? '#17202A' : '#F2F2F2',
             background2: isDark ? '#283747' : '#FBFCFC',
             background3: isDark ? '#D3D3D3' : '#F8F7F6',
+            background4: isDark ? '#F0F0F0' : '#F8F7F6',
+            backgroundCard: isDark ? '#EDEDED' : '#F8F7F6',
             text: isDark ? '#F0F0F0' : '#171717',
             primary: isDark ? '#0D9F45' : '#0D9F45',
             shadow: isDark ? 'green' : '#D4D4D4',

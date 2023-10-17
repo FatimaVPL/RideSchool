@@ -7,8 +7,8 @@ import InicioScreen from './InicioScreen';
 import PerfilScreen from './PerfilScreen';
 import ChatScreen from './ChatScreen';
 import RidesSolicitados from './RidesSolicitados';
-import GestionarOfertas from './GestionarOfertas';
-import GestionarRides from './GestionarRides';
+import GestionarOfertas from './GestionarScreens/Ofertas';
+import GestionarRides from './GestionarScreens/Rides';
 import FrmSolicitarRide from './FrmSolicitarRide';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../config-firebase';
@@ -64,11 +64,11 @@ function ButtonTabScreen() {
      tabBarActiveTintColor: colors.colorSelect,
      tabBarInactiveTintColor: "#78A57D",
       tabBarStyle: {
-        height: 60,
-        paddingHorizontal: 5,
-        paddingTop: 0,
+        //height: 55,
+        //paddingHorizontal: 5,
+        //paddingTop: 0,
         backgroundColor: colors.background2,
-        position: 'absolute',
+        //position: 'absolute',
         borderTopWidth: 0,
     },
   })}
