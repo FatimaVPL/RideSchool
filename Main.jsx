@@ -17,6 +17,7 @@ import InicioScreen from './Screens/InicioScreen';
 import { useEffect } from 'react';
 import { subscribeToOfertasAdd } from './firebaseSubscriptions';
 import axios from 'axios';
+import SubirDocumentosScreen from './Screens/SubirDocumentosScreen';
 
 const Main = () => {
   const Stack = createStackNavigator();
@@ -84,13 +85,14 @@ const Main = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="Perfil" component={PerfilScreen} />
+          <Stack.Screen name="Subir documentos" component={SubirDocumentosScreen} options={{ presentation: "modal" }}/>
           <Stack.Screen name="Notificaciones" component={NotificacionesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Ajustes Generales" component={AjustesGeneralesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Solicitar Ride" component={FrmSolicitarRide} options={{ presentation: "modal" }} />
           <Stack.Screen name="GestionarOfertas" component={GestionarOfertas} options={{ presentation: "modal" }} />
           <Stack.Screen name="GestionarRides" component={GestionarRides} options={{ presentation: "modal" }} />
           <Stack.Screen name="ChatScreen" component={ChatScreen} />
-          <Stack.Screen name="InicioScreen" component={InicioScreen} />
+          <Stack.Screen name="InicioScreen" component={InicioScreen} />   
         </Stack.Navigator>
       }
     </>

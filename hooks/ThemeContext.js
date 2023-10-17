@@ -22,6 +22,7 @@ export function ThemeProvider({children}){
     const theme = {
         isDark,
         colors: {
+            transparent: isDark? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
             background: isDark ? '#17202A' : '#F2F2F2',
             background2: isDark ? '#283747' : '#FBFCFC',
             background3: isDark ? '#D3D3D3' : '#F8F7F6',

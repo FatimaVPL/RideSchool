@@ -85,7 +85,7 @@ export function AuthProvider({ children }) {
   }
 
 
-  const registerUser = async ({ email, password, role, firstName = "", lastName = "", tipoVehiculo, licencia, conductor }) => {
+  const registerUser = async ({ email, password, role, firstName = "", lastName = "", tipoVehiculo, conductor }) => {
     try {
       // Crear uusario con contraseña
       const emailMinuscula = email.toLowerCase()
@@ -105,7 +105,6 @@ export function AuthProvider({ children }) {
         firstName,
         lastName,
         tipoVehiculo,
-        licencia,
         conductor,
         numRidesConductor: 0,
         numRidesPasajero: 0,

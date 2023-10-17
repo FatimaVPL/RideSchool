@@ -1,14 +1,18 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Avatar, Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button, Modal, Portal } from 'react-native-paper';
+import { Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button, Modal, Portal } from 'react-native-paper';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from "../hooks/ThemeContext";
-
+import { Avatar, LinearProgress } from 'react-native-elements';
+import * as ImagePicker from 'expo-image-picker'
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { Alert } from 'react-native';
+import ProgressBar from './ProgressBar';
 
 const PerfilScreen = ({ navigation }) => {
   const { colors } = useTheme()
@@ -18,7 +22,123 @@ const PerfilScreen = ({ navigation }) => {
   const [modalALert, setModalAlert] = useState(false);
   const [modalDialog, setModalDialog] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [showProgressBar, setShowProgressBar] = useState(false)
 
+
+  const pickImage = async () => {
+    setShowProgressBar(true)
+    try {
+      const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (galeriaStatus.status === 'granted') {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+        })
+        if (!result.canceled) {
+          const originalImageUri = result.assets[0].uri;
+          const manipulatedImage = await manipulateAsync(
+            originalImageUri,
+            [{ resize: { width: 200, height: 200 } }],
+            { compress: 1, format: SaveFormat.JPEG }
+          )
+          const manipulatedImageUri = manipulatedImage.uri
+
+          try {
+            const response = await fetch(manipulatedImageUri)
+            const blob = await response.blob()
+            const filename = manipulatedImageUri.substring(manipulatedImageUri.lastIndexOf('/') + 1)
+            const ref = firebase.storage().ref().child("avatars/" + filename)
+
+            ref.put(blob).on(
+              "state_changed",
+              (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setProgress(progress)
+                console.log("Progreso ", progress)
+              },
+              (error) => {
+                console.error(error)
+                setProgress(0)
+              },
+              async () => {
+                const imageURL = await ref.getDownloadURL()
+                blob.close()
+                updatePhotoURL(imageURL)
+                Alert.alert("Imagen almacenada", "Se subió correctamente tu foto")
+                setProgress(0)
+              }
+            )
+          } catch (error) {
+            console.error(error);
+            setProgress(0);
+          }
+        } else {
+          Alert.alert("No hay imagen", "Por favor selecciona una imagen")
+        }
+      }
+      setShowProgressBar(false)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setProgress(0)
+    }
+  }
+
+  /* *********************** Borrar foto de perfil anterior ************************** */
+  const borrarFoto = async (previousPhotoURL) => {
+    if (previousPhotoURL) {
+      try {
+        const previousImageRef = firebase.storage().refFromURL(previousPhotoURL);
+        const imageExists = await previousImageRef.getDownloadURL().then(() => true).catch(() => false)
+
+        if (imageExists) {
+          await previousImageRef.delete()
+        } else {
+          console.warn("La imagen anterior no existe en Firebase Storage.")
+        }
+      } catch (error) {
+        console.error("Error al eliminar la imagen anterior", error)
+      }
+    }
+  }
+
+  /* *********************** Mofificar campo photoURL ******************************** */
+  async function updatePhotoURL(imageURL) {
+    const userRef = db.collection('users').doc(userData.email);
+
+    try {
+      const docSnapshot = await userRef.get();
+      const urlBorrar = userData?.photoURL
+      borrarFoto(urlBorrar)
+      if (docSnapshot.exists) {
+        await userRef.update({
+          photoURL: imageURL,
+        });
+      }
+    } catch (error) {
+      console.log('Error al actualizar', error)
+    }
+  }
+
+  /*************************** Ver imagen ************************ */
+  const verImagen = () => {
+        if (userData && userData.photoURL) {
+            Linking.openURL(userData?.photoURL)
+                .then(() => {
+                    console.log('Enlace abierto correctamente en el navegador.')
+                })
+                .catch((err) => {
+                    console.error('Error al abrir el enlace:', err)
+                });
+        } else {
+          Alert.alert("No hay imagen", "Sube tu imagen para poder visualizarla")
+        }
+    } 
+
+  /*************************************************************** */
   useEffect(() => {
     const unsubscribe = db.collection('users').onSnapshot(() => { getUser() });
 
@@ -82,6 +202,9 @@ const PerfilScreen = ({ navigation }) => {
   const ajustesGenerales = () => {
     navigation.navigate('Ajustes Generales');
   }
+  const SubirDocumentosScreen = () => {
+    navigation.navigate('Subir documentos');
+  }
 
   const getInfoMedal = (num) => {
     if (num >= 100) {
@@ -97,11 +220,17 @@ const PerfilScreen = ({ navigation }) => {
 
   return (
     <PaperProvider>
-      <View style={[styles.container, {backgroundColor: colors.background}]}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         {!isLoading ? (
           <>
-            <View style={[styles.profileContainer, {backgroundColor: colors.background}]}>
-              <Avatar.Image size={130} source={require('../assets/PerfilImage.jpg')} />
+            <View style={[styles.profileContainer, { backgroundColor: colors.background }]}>
+              <Avatar
+                rounded
+                onPress={() => verImagen()}
+                size="xlarge"
+                source={userData.photoURL ? { uri: userData.photoURL } : require('../assets/default.jpg')}
+              />
+             {showProgressBar && <ProgressBar progress={progress} />}
               <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
               <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
@@ -118,7 +247,7 @@ const PerfilScreen = ({ navigation }) => {
                 Usar en modo {userData.role === "Conductor" ? "Pasajero" : "Conductor"}</Button>
             </View>
             {/* INSIGNIAS */}
-            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15, marginBottom:10}}>
+            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15, marginBottom: 10 }}>
               <Text variant='titleLarge' style={{ textAlign: 'center', marginBottom: 10 }}>Insignias</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 {userData.role === "Conductor" && (
@@ -154,11 +283,16 @@ const PerfilScreen = ({ navigation }) => {
                   </>
                 )}
               </View>
-
             </View>
-
             <View style={styles.settingsContainer}>
               <Text variant='headlineMedium'>Configuraciones</Text>
+         
+              <TouchableOpacity onPress={() => pickImage()}>
+                <View style={styles.settingsItem}>
+                  <Ionicons name="person-circle" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+                  <Text variant='labelLarge'>Cambiar foto de perfil</Text>
+                </View>
+              </TouchableOpacity>
               <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
                   <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
@@ -171,15 +305,23 @@ const PerfilScreen = ({ navigation }) => {
                   <Text variant='labelLarge'>Ajustes generales</Text>
                 </View>
               </TouchableOpacity>
+              {/** Cambiar a === "Conductor" nomas es para pruebas */}
+              {userData.role === "Pasajero" && (
+                <TouchableOpacity onPress={SubirDocumentosScreen}>
+                  <View style={styles.settingsItem}>
+                    <Ionicons name="image" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+                    <Text variant='labelLarge'>Subir licencia/tarjeta de circulación</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity onPress={handleLogout}>
                 <View style={styles.settingsItem}>
                   <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge' style={styles.logOutItem}>Cerrar sesión</Text>
+                  <Text variant='labelLarge' style={{color:"red"}}>Cerrar sesión</Text>
                 </View>
               </TouchableOpacity>
               <Divider />
             </View>
-
             {modalALert && (
               <Portal>
                 <Modal visible={modalALert} onDismiss={() => setModalAlert(false)} contentContainerStyle={{ flex: 1 }}>
@@ -222,7 +364,6 @@ const PerfilScreen = ({ navigation }) => {
                 </View>
               </Modal>
             </Portal>
-
           </>
         ) : (
           <View style={styles.centeredView}>
@@ -232,8 +373,9 @@ const PerfilScreen = ({ navigation }) => {
         )}
       </View>
     </PaperProvider >
-  );
-};
+   
+  )
+}
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
@@ -242,7 +384,6 @@ const styles = StyleSheet.create({
   badgesContainer: { flexDirection: 'row', marginBottom: 10 },
   settingsContainer: { borderTopWidth: 1, borderTopColor: '#E0E0E0', paddingTop: 20 },
   settingsItem: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 },
-  logOutItem: { color: '#DC3803' },
   centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 },
   modalView: { margin: 20, backgroundColor: 'white', borderRadius: 20, padding: 25, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5, width: 320 },
   overlay: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' },
