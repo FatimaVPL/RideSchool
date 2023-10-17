@@ -15,7 +15,7 @@ import { useTheme } from '../hooks/ThemeContext';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import ProgressBar from './ProgressBar';
+import { LinearProgress } from 'react-native-elements';
 
 /************************************************************* */
 const SubirDocumentosScreen = ({ navigation }) => {
@@ -25,12 +25,12 @@ const SubirDocumentosScreen = ({ navigation }) => {
     const [userData, setUserData] = useState(null);
     const [permisos, setPermisos] = useState(null);
     const [tipoDoc, setTipoDoc] = useState('licenciaImagen');
-    const [progress, setProgress] = useState(0);
     const [showProgressBar, setShowProgressBar] = useState(false)
-    /********************************************************** */
 
+    /********************************************************** */
     const pickImage = async (tipo) => {
         setTipoDoc(tipo)
+        setShowProgressBar(true)
         try {
             const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (galeriaStatus.status === 'granted') {
@@ -58,34 +58,30 @@ const SubirDocumentosScreen = ({ navigation }) => {
                   ref.put(blob).on(
                     "state_changed",
                     (snapshot) => {
-                      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                      setProgress(progress)
+                      //const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     },
                     (error) => {
                       console.error(error)
-                      setProgress(0)
                     },
                     async () => {
                       const imageURL = await ref.getDownloadURL()
                       blob.close()
                       updatePhotoURL(imageURL)
                       Alert.alert("Imagen almacenada", "Se subió correctamente tu foto")
-                      setProgress(0)
+                      setShowProgressBar(false)
                     }
                   )
                 } catch (error) {
                   console.error(error);
-                  setProgress(0);
                 }
               } else {
                 Alert.alert("No hay imagen", "Por favor selecciona una imagen")
               }
             }
-            setShowProgressBar(false)
           } catch (error) {
             console.error(error)
           } finally {
-            setProgress(0)
+            setShowProgressBar(false)
           }
     }
 
@@ -200,7 +196,7 @@ const SubirDocumentosScreen = ({ navigation }) => {
                         <TouchableOpacity style={styles.button} onPress={() => pickImage('tarjetaCirculacionImagen')}>
                             <Text style={[styles.buttonText, { color: colors.textButton }]}>Subir tarjeta de circulación</Text>
                         </TouchableOpacity>
-                        {showProgressBar && <ProgressBar progress={progress} />}
+                        {showProgressBar && <LinearProgress style={{marginTop:10}} color='#1DBE99'/>}
                         <View>
                             <Button icon="camera" style={styles.buttonPhoto} mode="contained" buttonColor='gray' textColor={colors.text} onPress={() => verImagen('licenciaImagen')}>
                                 Ver licencia
@@ -259,7 +255,7 @@ const styles = StyleSheet.create({
     centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 },
     buttonPhoto: {
         marginTop: 15,
-    }
+    },
 });
 
 export default SubirDocumentosScreen;

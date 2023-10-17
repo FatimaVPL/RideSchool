@@ -12,17 +12,15 @@ import { Avatar, LinearProgress } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker'
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { Alert } from 'react-native';
-import ProgressBar from './ProgressBar';
 
 const PerfilScreen = ({ navigation }) => {
   const { colors } = useTheme()
-  const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [userData, setUserData] = useState(null);
-  const [modalALert, setModalAlert] = useState(false);
-  const [modalDialog, setModalDialog] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const { user } = useAuth()
+  const [isLoading, setIsLoading] = useState(true)
+  const [userData, setUserData] = useState(null)
+  const [modalALert, setModalAlert] = useState(false)
+  const [modalDialog, setModalDialog] = useState(false)
+  const [showOverlay, setShowOverlay] = useState(false)
   const [showProgressBar, setShowProgressBar] = useState(false)
 
 
@@ -51,39 +49,33 @@ const PerfilScreen = ({ navigation }) => {
             const blob = await response.blob()
             const filename = manipulatedImageUri.substring(manipulatedImageUri.lastIndexOf('/') + 1)
             const ref = firebase.storage().ref().child("avatars/" + filename)
-
             ref.put(blob).on(
               "state_changed",
               (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                setProgress(progress)
-                console.log("Progreso ", progress)
+                //const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
               },
               (error) => {
                 console.error(error)
-                setProgress(0)
               },
               async () => {
                 const imageURL = await ref.getDownloadURL()
                 blob.close()
                 updatePhotoURL(imageURL)
                 Alert.alert("Imagen almacenada", "Se subió correctamente tu foto")
-                setProgress(0)
+                setShowProgressBar(false)
               }
             )
           } catch (error) {
             console.error(error);
-            setProgress(0);
           }
         } else {
           Alert.alert("No hay imagen", "Por favor selecciona una imagen")
         }
       }
-      setShowProgressBar(false)
     } catch (error) {
       console.error(error)
     } finally {
-      setProgress(0)
+      setShowProgressBar(false)
     }
   }
 
@@ -230,7 +222,7 @@ const PerfilScreen = ({ navigation }) => {
                 size="xlarge"
                 source={userData.photoURL ? { uri: userData.photoURL } : require('../assets/default.jpg')}
               />
-             {showProgressBar && <ProgressBar progress={progress} />}
+             {showProgressBar && <LinearProgress style={{marginTop:10}} color='#1DBE99'/>}
               <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
               <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
