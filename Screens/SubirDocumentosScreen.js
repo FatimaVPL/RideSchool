@@ -24,92 +24,113 @@ const SubirDocumentosScreen = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [userData, setUserData] = useState(null);
     const [permisos, setPermisos] = useState(null);
-    const [imagen, setImagen] = useState(null);
     const [tipoDoc, setTipoDoc] = useState('licenciaImagen');
     const [progress, setProgress] = useState(0);
+    const [showProgressBar, setShowProgressBar] = useState(false)
     /********************************************************** */
 
     const pickImage = async (tipo) => {
-        let result
         setTipoDoc(tipo)
         try {
-          const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
-          if (galeriaStatus.status === 'granted') {
-           result = await ImagePicker.launchImageLibraryAsync({
-              mediaTypes: ImagePicker.MediaTypeOptions.Images,
-              allowsEditing: true,
-              aspect: [4, 3],
-              quality: 1,
-          });  
-          }else{
-            Alert.alert("Permisos", "Necesitas dar permiso para cargar la imagen. Por favor, ve a la configuración de la aplicación para habilitar los permisos.");
-          }
-    
-            if (!result.canceled) {
-               const originalImageUri = result.assets[0].uri
-               const manipulatedImage = await manipulateAsync(
-                originalImageUri,
-                [{ resize: { width: 400, height: 300 } }], 
-                { compress: 1, format: SaveFormat.JPEG }
-            )
-            setImagen(manipulatedImage.uri)
-                if (imagen) {
-                    try {
-                        const response = await fetch(imagen);
-                        const blob = await response.blob();
-                        const filename = imagen.substring(imagen.lastIndexOf('/') + 1)
-                        const ref = firebase.storage().ref().child("documentos/" + filename);
-                        ref.put(blob).on(
-                            "state_changed",
-                            (snapshot) => {
-                              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                              console.log(progress)
-                              setProgress(progress);
-                            },
-                            (error) => {
-                              console.error(error);
-                              setProgress(0);
-                            },
-                            async () => { 
-                              const imageURL = await ref.getDownloadURL()
-                        blob.close();
-                        updatePhotoURL(imageURL)
-                        Alert.alert("Imagen almacenada", "Se subio correctamente tu foto")
-                        setImagen(null)
-                        setProgress(0);
-                    })
-                    } catch (error) {
-                        console.error(error)
-                        setProgress(0)
+            const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (galeriaStatus.status === 'granted') {
+              const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+              })
+              if (!result.canceled) {
+                const originalImageUri = result.assets[0].uri;
+                const manipulatedImage = await manipulateAsync(
+                  originalImageUri,
+                  [{ resize: { width: 400, height: 300 } }],
+                  { compress: 1, format: SaveFormat.JPEG }
+                )
+                const manipulatedImageUri = manipulatedImage.uri
+      
+                try {
+                  const response = await fetch(manipulatedImageUri)
+                  const blob = await response.blob()
+                  const filename = manipulatedImageUri.substring(manipulatedImageUri.lastIndexOf('/') + 1)
+                  const ref = firebase.storage().ref().child("documentos/" + filename)
+      
+                  ref.put(blob).on(
+                    "state_changed",
+                    (snapshot) => {
+                      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                      setProgress(progress)
+                    },
+                    (error) => {
+                      console.error(error)
+                      setProgress(0)
+                    },
+                    async () => {
+                      const imageURL = await ref.getDownloadURL()
+                      blob.close()
+                      updatePhotoURL(imageURL)
+                      Alert.alert("Imagen almacenada", "Se subió correctamente tu foto")
+                      setProgress(0)
                     }
+                  )
+                } catch (error) {
+                  console.error(error);
+                  setProgress(0);
                 }
-            } else {
+              } else {
                 Alert.alert("No hay imagen", "Por favor selecciona una imagen")
+              }
             }
-        } catch (error) {
+            setShowProgressBar(false)
+          } catch (error) {
             console.error(error)
-        } finally {
+          } finally {
             setProgress(0)
-        }
+          }
     }
 
     /**********************************************************************/
     async function updatePhotoURL(imageURL) {
         const userRef = db.collection('users').doc(userData.email);
         const updateField = tipoDoc
-        console.log("tipo doc", tipoDoc)
+        let urlBorrar
+        if(tipoDoc === "tarjetaCirculacionImagen"){
+            urlBorrar = userData?.tarjetaCirculacionImagen
+        }else{
+            urlBorrar = userData?.licenciaImagen
+        }
+        borrarFoto(urlBorrar)
         try {
-            const docSnapshot = await userRef.get();
+            const docSnapshot = await userRef.get()
 
             if (docSnapshot.exists) {
                 const updateObject = {};
-                updateObject[updateField] = imageURL;
-                await userRef.update(updateObject);
+                updateObject[updateField] = imageURL
+                await userRef.update(updateObject)
             }
         } catch (error) {
-            console.log('Error al actualizar', error);
+            console.log('Error al actualizar', error)
         }
     }
+
+    /* *********************** Borrar foto de perfil anterior ************************** */
+
+  const borrarFoto = async (previousPhotoURL) =>{
+    if (previousPhotoURL) {
+        try {
+          const previousImageRef = firebase.storage().refFromURL(previousPhotoURL);
+          const imageExists = await previousImageRef.getDownloadURL().then(() => true).catch(() => false);
+    
+          if (imageExists) {
+            await previousImageRef.delete();
+          } else {
+            console.warn("La imagen anterior no existe en Firebase Storage.");
+          }
+        } catch (error) {
+          console.error("Error al eliminar la imagen anterior", error);
+        }
+      }
+     }
 
     useEffect(() => {
         const unsubscribe = db.collection('users').onSnapshot(() => { getUser() });
@@ -179,7 +200,7 @@ const SubirDocumentosScreen = ({ navigation }) => {
                         <TouchableOpacity style={styles.button} onPress={() => pickImage('tarjetaCirculacionImagen')}>
                             <Text style={[styles.buttonText, { color: colors.textButton }]}>Subir tarjeta de circulación</Text>
                         </TouchableOpacity>
-                      { imagen &&  <ProgressBar progress={progress}/> } 
+                        {showProgressBar && <ProgressBar progress={progress} />}
                         <View>
                             <Button icon="camera" style={styles.buttonPhoto} mode="contained" buttonColor='gray' textColor={colors.text} onPress={() => verImagen('licenciaImagen')}>
                                 Ver licencia

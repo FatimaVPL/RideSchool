@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -22,104 +22,121 @@ const PerfilScreen = ({ navigation }) => {
   const [modalALert, setModalAlert] = useState(false);
   const [modalDialog, setModalDialog] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [permisos, setPermisos] = useState(null);
-  const [imagen, setImagen] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [showProgressBar, setShowProgressBar] = useState(false)
+
 
   const pickImage = async () => {
-    let result
+    setShowProgressBar(true)
     try {
       const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (galeriaStatus.status === 'granted') {
-       result = await ImagePicker.launchImageLibraryAsync({
+        const result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           aspect: [1, 1],
           quality: 1,
-      });  
-      }else{
-        Alert.alert("Permisos", "Necesitas dar permiso para cargar la imagen. Por favor, ve a la configuración de la aplicación para habilitar los permisos.");
-      }
-     
-      if (!result.canceled) {
-         const originalImageUri = result.assets[0].uri
-         const manipulatedImage = await manipulateAsync(
-          originalImageUri,
-          [{ resize: { width: 200, height: 200 } }], 
-          { compress: 1, format: SaveFormat.JPEG }
-      )
-      setImagen(manipulatedImage.uri)
-          if (imagen) {
-              try {
-                  const response = await fetch(imagen);
-                  const blob = await response.blob();
-                  const filename = imagen.substring(imagen.lastIndexOf('/') + 1)
-                  const ref = firebase.storage().ref().child("avatars/" + filename);
-                  ref.put(blob).on(
-                      "state_changed",
-                      (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        setProgress(progress);
-                        console.log("Progreso ",progress)
-                      },
-                      (error) => {
-                        console.error(error);
-                        setProgress(0);
-                      },
-                      async () => { 
-                        const imageURL = await ref.getDownloadURL()
-                  blob.close();
-                  updatePhotoURL(imageURL)
-                  Alert.alert("Imagen almacenada", "Se subio correctamente tu foto")
-                  setImagen(null)
-                  setProgress(0);
-              })
-              } catch (error) {
-                  console.error(error)
-                  setProgress(0);
+        })
+        if (!result.canceled) {
+          const originalImageUri = result.assets[0].uri;
+          const manipulatedImage = await manipulateAsync(
+            originalImageUri,
+            [{ resize: { width: 200, height: 200 } }],
+            { compress: 1, format: SaveFormat.JPEG }
+          )
+          const manipulatedImageUri = manipulatedImage.uri
 
+          try {
+            const response = await fetch(manipulatedImageUri)
+            const blob = await response.blob()
+            const filename = manipulatedImageUri.substring(manipulatedImageUri.lastIndexOf('/') + 1)
+            const ref = firebase.storage().ref().child("avatars/" + filename)
+
+            ref.put(blob).on(
+              "state_changed",
+              (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setProgress(progress)
+                console.log("Progreso ", progress)
+              },
+              (error) => {
+                console.error(error)
+                setProgress(0)
+              },
+              async () => {
+                const imageURL = await ref.getDownloadURL()
+                blob.close()
+                updatePhotoURL(imageURL)
+                Alert.alert("Imagen almacenada", "Se subió correctamente tu foto")
+                setProgress(0)
               }
+            )
+          } catch (error) {
+            console.error(error);
+            setProgress(0);
           }
-      } else {
+        } else {
           Alert.alert("No hay imagen", "Por favor selecciona una imagen")
+        }
       }
-  } catch (error) {
-      console.error(error)
-  } finally {
-    setProgress(0);
-  }
-}
-
-
-  /* *********************** Borrar foto de perfil anterior ************************** */
-
-  const borrarFoto = async (previousPhotoURL) =>{
- if (previousPhotoURL) {
-    try {
-      const previousImageRef = firebase.storage().refFromURL(previousPhotoURL);
-      await previousImageRef.delete();
+      setShowProgressBar(false)
     } catch (error) {
-      console.error("Error al eliminar la imagen anterior", error);
+      console.error(error)
+    } finally {
+      setProgress(0)
     }
   }
+
+  /* *********************** Borrar foto de perfil anterior ************************** */
+  const borrarFoto = async (previousPhotoURL) => {
+    if (previousPhotoURL) {
+      try {
+        const previousImageRef = firebase.storage().refFromURL(previousPhotoURL);
+        const imageExists = await previousImageRef.getDownloadURL().then(() => true).catch(() => false)
+
+        if (imageExists) {
+          await previousImageRef.delete()
+        } else {
+          console.warn("La imagen anterior no existe en Firebase Storage.")
+        }
+      } catch (error) {
+        console.error("Error al eliminar la imagen anterior", error)
+      }
+    }
   }
 
-  /* *********************** Mofificar campo  photoURL ******************************** */
+  /* *********************** Mofificar campo photoURL ******************************** */
   async function updatePhotoURL(imageURL) {
     const userRef = db.collection('users').doc(userData.email);
 
     try {
       const docSnapshot = await userRef.get();
-
+      const urlBorrar = userData?.photoURL
+      borrarFoto(urlBorrar)
       if (docSnapshot.exists) {
         await userRef.update({
           photoURL: imageURL,
         });
       }
     } catch (error) {
-      console.log('Error al actualizar', error);
+      console.log('Error al actualizar', error)
     }
   }
+
+  /*************************** Ver imagen ************************ */
+  const verImagen = () => {
+        if (userData && userData.photoURL) {
+            Linking.openURL(userData?.photoURL)
+                .then(() => {
+                    console.log('Enlace abierto correctamente en el navegador.')
+                })
+                .catch((err) => {
+                    console.error('Error al abrir el enlace:', err)
+                });
+        } else {
+          Alert.alert("No hay imagen", "Sube tu imagen para poder visualizarla")
+        }
+    } 
 
   /*************************************************************** */
   useEffect(() => {
@@ -209,11 +226,11 @@ const PerfilScreen = ({ navigation }) => {
             <View style={[styles.profileContainer, { backgroundColor: colors.background }]}>
               <Avatar
                 rounded
-                onPress={() => pickImage()}
+                onPress={() => verImagen()}
                 size="xlarge"
                 source={userData.photoURL ? { uri: userData.photoURL } : require('../assets/default.jpg')}
               />
-               { imagen &&  <ProgressBar progress={progress}/> } 
+             {showProgressBar && <ProgressBar progress={progress} />}
               <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
               <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
@@ -266,11 +283,16 @@ const PerfilScreen = ({ navigation }) => {
                   </>
                 )}
               </View>
-
             </View>
-
             <View style={styles.settingsContainer}>
               <Text variant='headlineMedium'>Configuraciones</Text>
+         
+              <TouchableOpacity onPress={() => pickImage()}>
+                <View style={styles.settingsItem}>
+                  <Ionicons name="person-circle" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+                  <Text variant='labelLarge'>Cambiar foto de perfil</Text>
+                </View>
+              </TouchableOpacity>
               <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
                   <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
@@ -285,17 +307,17 @@ const PerfilScreen = ({ navigation }) => {
               </TouchableOpacity>
               {/** Cambiar a === "Conductor" nomas es para pruebas */}
               {userData.role === "Pasajero" && (
-                 <TouchableOpacity onPress={SubirDocumentosScreen}>
-                 <View style={styles.settingsItem}>
-                 <Ionicons name="image" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-             <Text variant='labelLarge'>Subir licencia/tarjeta de circulación</Text>
-                 </View>
-         </TouchableOpacity>
+                <TouchableOpacity onPress={SubirDocumentosScreen}>
+                  <View style={styles.settingsItem}>
+                    <Ionicons name="image" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+                    <Text variant='labelLarge'>Subir licencia/tarjeta de circulación</Text>
+                  </View>
+                </TouchableOpacity>
               )}
               <TouchableOpacity onPress={handleLogout}>
                 <View style={styles.settingsItem}>
                   <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge' style={styles.logOutItem}>Cerrar sesión</Text>
+                  <Text variant='labelLarge' style={{color:"red"}}>Cerrar sesión</Text>
                 </View>
               </TouchableOpacity>
               <Divider />
@@ -341,7 +363,7 @@ const PerfilScreen = ({ navigation }) => {
                   </View>
                 </View>
               </Modal>
-            </Portal>   
+            </Portal>
           </>
         ) : (
           <View style={styles.centeredView}>
@@ -351,6 +373,7 @@ const PerfilScreen = ({ navigation }) => {
         )}
       </View>
     </PaperProvider >
+   
   )
 }
 
@@ -361,7 +384,6 @@ const styles = StyleSheet.create({
   badgesContainer: { flexDirection: 'row', marginBottom: 10 },
   settingsContainer: { borderTopWidth: 1, borderTopColor: '#E0E0E0', paddingTop: 20 },
   settingsItem: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 },
-  logOutItem: { color: '#DC3803' },
   centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 },
   modalView: { margin: 20, backgroundColor: 'white', borderRadius: 20, padding: 25, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5, width: 320 },
   overlay: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' },
