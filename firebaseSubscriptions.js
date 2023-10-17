@@ -18,18 +18,6 @@ export const subscribeToUsers = (customCallback) => {
   })
 }
 
-/* export const subscribeToOfertasAdd = (customCallback) => {
-  return db.collection('ofertas').onSnapshot((querySnapshot) => {
-    querySnapshot.docChanges().forEach((change) => {
-      if (change.type === 'added') {
-        const nuevoDocumento = change.doc;
-        const data = nuevoDocumento.data();
-        customCallback(data);
-      }
-    })
-  })
-} */
-
 export const subscribeToOfertasAdd = (customCallback) => {
   let isFirstRun = true; 
   const unsubscribe = db.collection('ofertas').onSnapshot((querySnapshot) => {
