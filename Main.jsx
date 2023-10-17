@@ -9,10 +9,10 @@ import Loader from './components/Loader';
 import OnboardingScreen from './Screens/LoginSession/OnboardingScreen';
 import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
 import FrmSolicitarRide from './Screens/FrmSolicitarRide';
-import GestionarOfertas from './Screens/GestionarOfertas';
+import GestionarOfertas from './Screens/GestionarScreens/Ofertas';
 import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
 import ChatScreen from './Screens/ChatScreen';
-import GestionarRides from './Screens/GestionarRides';
+import GestionarRides from './Screens/GestionarScreens/Rides';
 import InicioScreen from './Screens/InicioScreen';
 import { useEffect } from 'react';
 import { subscribeToOfertasAdd } from './firebaseSubscriptions';
@@ -25,11 +25,12 @@ const Main = () => {
 
   useEffect(() => {
     const unsubscribeOfertas = subscribeToOfertasAdd((data) => {
-      if (user !== null) {
+      
         if (data.pasajeroID.uid === user.uid) {
+          console.log('Nueva oferta para el usuario', user.uid)
           sendNotification();
         }
-      }
+      
     })
 
     return () => {
