@@ -1,6 +1,7 @@
 import * as React from "react";
-import { Modal, Portal, Text, Button, Avatar } from 'react-native-paper';
+import { Modal, Portal, Text, Button } from 'react-native-paper';
 import { View } from "react-native";
+import { Avatar } from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getInfoMedal } from "../others/Functions";
@@ -13,7 +14,13 @@ const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, se
                     <View style={{ margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, width: 320 }}>
                         <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black' }}>Información de la oferta</Text>
                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 18 }}>
-                            <View><Avatar.Image size={90} source={require('../../../assets/PerfilImage.jpg')} /></View>
+                            <View>
+                                <Avatar
+                                    rounded
+                                    size="large"
+                                    source={data.pasajero.photoURL ? { uri: data.pasajero.photoURL } : require('../../../assets/default.jpg')}
+                                />
+                            </View>
                             <View style={{ marginStart: 10 }}>
                                 <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: 'black', textAlign: 'center' }}>{`${user.firstName} \n ${user.lastName}`}</Text>
 

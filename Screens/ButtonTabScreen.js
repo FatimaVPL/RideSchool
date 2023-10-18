@@ -6,7 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import InicioScreen from './InicioScreen';
 import PerfilScreen from './PerfilScreen';
 import ChatScreen from './ChatScreen';
-import RidesSolicitados from './RidesSolicitados';
+import RidesSolicitados from './RidesSolicitados/RidesMap';
 import GestionarOfertas from './GestionarScreens/Ofertas';
 import GestionarRides from './GestionarScreens/Rides';
 import FrmSolicitarRide from './FrmSolicitarRide';
