@@ -8,7 +8,7 @@ import { Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button, Mod
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from "../hooks/ThemeContext";
-import { Avatar, LinearProgress } from 'react-native-elements';
+import { Avatar, Icon, LinearProgress } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker'
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { Alert } from 'react-native';
@@ -25,7 +25,6 @@ const PerfilScreen = ({ navigation }) => {
 
 
   const pickImage = async () => {
-    setShowProgressBar(true)
     try {
       const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (galeriaStatus.status === 'granted') {
@@ -36,6 +35,7 @@ const PerfilScreen = ({ navigation }) => {
           quality: 1,
         })
         if (!result.canceled) {
+          setShowProgressBar(true)
           const originalImageUri = result.assets[0].uri;
           const manipulatedImage = await manipulateAsync(
             originalImageUri,
@@ -117,18 +117,18 @@ const PerfilScreen = ({ navigation }) => {
 
   /*************************** Ver imagen ************************ */
   const verImagen = () => {
-        if (userData && userData.photoURL) {
-            Linking.openURL(userData?.photoURL)
-                .then(() => {
-                    console.log('Enlace abierto correctamente en el navegador.')
-                })
-                .catch((err) => {
-                    console.error('Error al abrir el enlace:', err)
-                });
-        } else {
-          Alert.alert("No hay imagen", "Sube tu imagen para poder visualizarla")
-        }
-    } 
+    if (userData && userData.photoURL) {
+      Linking.openURL(userData?.photoURL)
+        .then(() => {
+          console.log('Enlace abierto correctamente en el navegador.')
+        })
+        .catch((err) => {
+          console.error('Error al abrir el enlace:', err)
+        });
+    } else {
+      Alert.alert("No hay imagen", "Sube tu imagen para poder visualizarla")
+    }
+  }
 
   /*************************************************************** */
   useEffect(() => {
@@ -221,8 +221,10 @@ const PerfilScreen = ({ navigation }) => {
                 onPress={() => verImagen()}
                 size="xlarge"
                 source={userData.photoURL ? { uri: userData.photoURL } : require('../assets/default.jpg')}
-              />
-             {showProgressBar && <LinearProgress style={{marginTop:10}} color='#1DBE99'/>}
+              >
+                <Avatar.Accessory size={30} underlayColor="#696969" selectionColor="red" onPress={() => pickImage()}/>
+              </Avatar>
+              {showProgressBar && <LinearProgress style={{ marginTop: 10 }} color='#1DBE99' />}
               <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
               <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
@@ -278,13 +280,6 @@ const PerfilScreen = ({ navigation }) => {
             </View>
             <View style={styles.settingsContainer}>
               <Text variant='headlineMedium'>Configuraciones</Text>
-         
-              <TouchableOpacity onPress={() => pickImage()}>
-                <View style={styles.settingsItem}>
-                  <Ionicons name="person-circle" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge'>Cambiar foto de perfil</Text>
-                </View>
-              </TouchableOpacity>
               <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
                   <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
@@ -309,7 +304,7 @@ const PerfilScreen = ({ navigation }) => {
               <TouchableOpacity onPress={handleLogout}>
                 <View style={styles.settingsItem}>
                   <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge' style={{color:"red"}}>Cerrar sesión</Text>
+                  <Text variant='labelLarge' style={{ color: "red" }}>Cerrar sesión</Text>
                 </View>
               </TouchableOpacity>
               <Divider />
@@ -365,7 +360,7 @@ const PerfilScreen = ({ navigation }) => {
         )}
       </View>
     </PaperProvider >
-   
+
   )
 }
 
