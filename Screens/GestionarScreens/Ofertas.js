@@ -158,11 +158,11 @@ const RidesConductor = ({ navigation }) => {
 
                         {modalALert && (
                             <ModalALert
-                                icon={modalProps.icon}
-                                color={modalProps.color}
-                                title={modalProps.title}
-                                content={modalProps.content}
-                                type={modalProps.type}
+                                icon={modalPropsALert.icon}
+                                color={modalPropsALert.color}
+                                title={modalPropsALert.title}
+                                content={modalPropsALert.content}
+                                type={modalPropsALert.type}
                                 ride={data[index].ride}
                                 indexOferta={0}
                                 ofertas={null}
