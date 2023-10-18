@@ -1,11 +1,9 @@
 import * as React from "react";
-import { useState } from 'react'
 import { Modal, Portal, Text, Button } from 'react-native-paper';
 import { View } from "react-native";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { deleteDoc, updateRide, updateStatus } from "../others/Queries";
 import { db } from "../../../config-firebase";
-import ModalDialog from "./ModalDialog";
 
 // 1 = Cancelar en estado pendiente -- Eliminar ride la BD
 // 2 = Cancelar en estado en curso/aceptada -- Cambiar estado del ride y oferta a cancelado, enviar notificacion 

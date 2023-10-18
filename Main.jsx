@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import { subscribeToOfertasAdd } from './firebaseSubscriptions';
 import axios from 'axios';
 import SubirDocumentosScreen from './Screens/SubirDocumentosScreen';
+import RidesMap from './Screens/RidesSolicitados/RidesMap';
 
 const Main = () => {
   const Stack = createStackNavigator();
@@ -93,6 +94,7 @@ const Main = () => {
           <Stack.Screen name="GestionarRides" component={GestionarRides} options={{ presentation: "modal" }} />
           <Stack.Screen name="ChatScreen" component={ChatScreen} />
           <Stack.Screen name="InicioScreen" component={InicioScreen} />   
+          <Stack.Screen name="RidesMap" component={RidesMap} />  
         </Stack.Navigator>
       }
     </>
