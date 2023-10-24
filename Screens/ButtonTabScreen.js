@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import InicioScreen from './InicioScreen';
+import InicioScreen from './Inicio/InicioScreen';
 import PerfilScreen from './PerfilScreen';
 import ChatScreen from './ChatScreen';
 import RidesSolicitados from './RidesSolicitados/RidesMap';
@@ -67,7 +67,7 @@ function ButtonTabScreen() {
           paddingHorizontal: 5,
           paddingTop: 0,
           backgroundColor: colors.background2,
-          position: 'absolute',
+       // position: 'absolute',
           borderTopWidth: 0,
         },
       })}

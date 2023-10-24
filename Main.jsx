@@ -13,7 +13,7 @@ import GestionarOfertas from './Screens/GestionarScreens/Ofertas';
 import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
 import ChatScreen from './Screens/ChatScreen';
 import GestionarRides from './Screens/GestionarScreens/Rides';
-import InicioScreen from './Screens/InicioScreen';
+import InicioScreen from './Screens/Inicio/InicioScreen';
 import { useEffect } from 'react';
 import { subscribeToOfertasAdd } from './firebaseSubscriptions';
 import axios from 'axios';

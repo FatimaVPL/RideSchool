@@ -9,9 +9,9 @@ import {
 import {
     Text, ActivityIndicator, Button, MD2Colors,
 } from 'react-native-paper';
-import { firebase, db } from '../config-firebase';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../hooks/ThemeContext';
+import { firebase, db } from '../../config-firebase';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../hooks/ThemeContext';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';

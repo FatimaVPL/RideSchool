@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from "firebase/auth";
 
 const AuthContext = createContext();
-let subscriber = null;
+
 export function useAuth() {
   return useContext(AuthContext);
 }
@@ -16,7 +16,8 @@ export function AuthProvider({ children }) {
   const [initializing, setInitializing] = useState(true)
 
   useEffect(() => {
-    subscriber = onAuthStateChanged(auth, async (user) => {
+    const subscriber = firebase.auth().onAuthStateChanged(async (user) => {
+      console.log("cambio de sesion:", user ? "logeado" : "no log")
       if (user) {
         // Obtener el estado de verificación del correo electrónico
         const emailVerified = user.emailVerified
@@ -31,9 +32,8 @@ export function AuthProvider({ children }) {
       }
       setInitializing(false);
     })
-    return () => {
-      subscriber();
-    }
+    return () => subscriber();
+
   }, [])
 
   // Refrescar estado de usario 
@@ -58,6 +58,7 @@ export function AuthProvider({ children }) {
 
   const logoutUser = async () => {
     try {
+      console.log("Loggin out")
       await firebase.auth().signOut();
       setUser(null);
     } catch (error) {
@@ -165,7 +166,7 @@ export function AuthProvider({ children }) {
       setUsage,
       registerUser,
       refreshUser,
-      reestablecerPassword
+      reestablecerPassword,
     }}>
       {children}
     </AuthContext.Provider>
