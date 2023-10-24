@@ -13,7 +13,7 @@ import GestionarOfertas from './Screens/GestionarScreens/Ofertas';
 import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
 import ChatScreen from './Screens/ChatScreen';
 import GestionarRides from './Screens/GestionarScreens/Rides';
-import InicioScreen from './Screens/InicioScreen';
+import InicioScreen from './Screens/Inicio/InicioScreen';
 import SubirDocumentosScreen from './Screens/SubirDocumentosScreen';
 import RidesMap from './Screens/RidesSolicitados/RidesMap';
 

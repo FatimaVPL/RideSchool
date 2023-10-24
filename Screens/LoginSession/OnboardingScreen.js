@@ -10,7 +10,7 @@ import CorreosActivos from "./CorreosActivos";
 import areIntervalsOverlappingWithOptions from "date-fns/esm/fp/areIntervalsOverlappingWithOptions/index";
 
 const OnboardingScreen = ({ navigation }) => {
-   const { setUsage, registerUser, firstTime } = useAuth()
+   const { registerUser } = useAuth()
    const { colors } = useTheme()
    const { width } = useWindowDimensions()
 
@@ -247,7 +247,6 @@ const OnboardingScreen = ({ navigation }) => {
             tipoVehiculo: formData.tipoVehiculo,
             conductor: formData.conductor
          })
-         setUsage()
          navigation.navigate('Welcome')
       } catch (error) {
        areIntervalsOverlappingWithOptions("Error al registrar el usuario", error)

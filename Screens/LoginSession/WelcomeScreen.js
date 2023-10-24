@@ -9,14 +9,15 @@ import Animation from '../../components/Loader'
 import { useTheme } from "../../hooks/ThemeContext";
 import { registerIndieID } from 'native-notify';
 
-export default function WelcomeScreen ({ navigation }) {
+
+export default function WelcomeScreen({ navigation }) {
   const { colors, isDark } = useTheme()
-  const { refreshUser } = useAuth();
+  const { refreshUser, setUsage, registerUser, firstTime, user, setUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(true)
   const [spiner, setSpiner] = useState(false);
-  
+
   //Esquema de validación
   const validationSchema = object().shape({
     email: string()
@@ -38,7 +39,7 @@ export default function WelcomeScreen ({ navigation }) {
     // Refresca el estado del usuario cada 5 segundos
     const intervalId = setInterval(() => {
       refreshUser();
-    }, 5000);
+    }, 10000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -52,22 +53,22 @@ export default function WelcomeScreen ({ navigation }) {
       // Verificar si el correo electrónico ha sido verificado
       if (!user.emailVerified) {
         // El correo electrónico no ha sido verificado
-        Alert.alert("Verificar Correo","Por favor, verifica tu correo electrónico antes de iniciar sesión.");
+        Alert.alert("Verificar Correo", "Por favor, verifica tu correo electrónico antes de iniciar sesión.");
         setSpiner(false)
       }
     } catch (error) {
       // Manejo de errores específicos
       switch (error.code) {
         case "auth/user-not-found":
-          Alert.alert("Usuario no encontrado.","Verifica el correo electrónico o regístrate si eres nuevo");
+          Alert.alert("Usuario no encontrado.", "Verifica el correo electrónico o regístrate si eres nuevo");
           setSpiner(false)
           break;
         case "auth/invalid-email":
-          Alert.alert("Correo electrónico no válido","Verifica el formato de correo electrónico");
+          Alert.alert("Correo electrónico no válido", "Verifica el formato de correo electrónico");
           setSpiner(false)
           break;
         case "auth/wrong-password":
-          Alert.alert("Contraseña incorrecta","Vuelve a intentarlo o reestablece tu contraseña");
+          Alert.alert("Contraseña incorrecta", "Vuelve a intentarlo o reestablece tu contraseña");
           setSpiner(false)
           break;
         default:
@@ -76,75 +77,72 @@ export default function WelcomeScreen ({ navigation }) {
           break;
       }
     }
-
   }
 
   return (
-    // El formularío 
     <>
-     {spiner ? (
-        <View style={[styles.spiner, {backgroundColor: colors.background}]}>
+      {spiner ? (
+        <View style={[styles.spiner, { backgroundColor: colors.background }]}>
           <Animation></Animation>
         </View>
       ) : (
-     <Formik
-      enableReinitialize={true}
-      initialValues={{ email: email, password: password }}
-      validationSchema={validationSchema}
-      validateOnMount={true}
-      onSubmit={(values) => {
-        setSpiner(true);
-        loginUser(values.email, values.password);
-      }}
-    >
-      {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
-       <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <Image style={styles.logo} source={isDark ? require('../../assets/ride-school-dark.png') : require('../../assets/ride-school.png')}/>
-          <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educación</Text>
-          <TextInput
-            placeholder="Correo institucional"
-            style={[styles.input, {backgroundColor: colors.input, color:colors.text}]}
-            onChangeText={handleChange('email')}
-            onBlur={handleBlur('email')}
-            value={values.email}
-            autoCapitalize="none"
-            autoComplete='email'
-            theme={{ colors: { text: 'green', primary: 'green' } }}
-          />
-          {touched.email && errors.email && (
-            <Text style={styles.errorText}>{errors.email}</Text>
+        <Formik
+          enableReinitialize={true}
+          initialValues={{ email: email, password: password }}
+          validationSchema={validationSchema}
+          validateOnMount={true}
+          onSubmit={(values) => {
+            setSpiner(true);
+            loginUser(values.email, values.password);
+          }}
+        >
+          {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
+            <View style={[styles.container, { backgroundColor: colors.background }]}>
+              <Image style={styles.logo} source={isDark ? require('../../assets/ride-school-dark.png') : require('../../assets/ride-school.png')} />
+              <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educación</Text>
+              <TextInput
+                placeholder="Correo institucional"
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                value={values.email}
+                autoCapitalize="none"
+                autoComplete='email'
+                theme={{ colors: { text: 'green', primary: 'green' } }}
+              />
+              {touched.email && errors.email && (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              )}
+              <TextInput
+                placeholder="Contraseña"
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+                value={values.password}
+                autoCapitalize="none"
+                secureTextEntry={passwordVisible}
+                right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
+                theme={{ colors: { text: 'green', primary: 'green' } }}
+              />
+              {touched.password && errors.password && (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              )}
+              <TouchableOpacity style={[styles.button]} onPress={handleSubmit}>
+                <Text style={[styles.buttonText, { color: colors.textButton }]}>Entrar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('ReestablecerPassword')} >
+                <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Onboarding')} >
+                <Text style={styles.linkText}>Registrate</Text>
+              </TouchableOpacity>
+              <StatusBar style="auto" />
+            </View >
           )}
-          <TextInput
-            placeholder="Contraseña"
-            style={[styles.input, {backgroundColor: colors.input, color:colors.text}]}
-            onChangeText={handleChange('password')}
-            onBlur={handleBlur('password')}
-            value={values.password}
-            autoCapitalize="none"
-            secureTextEntry={passwordVisible}
-            right={<TextInput.Icon icon={passwordVisible ? "eye" : "eye-off"} onPress={() => setPasswordVisible(!passwordVisible)} />}
-            theme={{ colors: { text: 'green', primary: 'green' } }}
-         />
-          {touched.password && errors.password && (
-            <Text style={styles.errorText}>{errors.password}</Text>
-          )}
-          <TouchableOpacity style={[styles.button]} onPress={handleSubmit}>
-            <Text style={[styles.buttonText,{color: colors.textButton}]}>Entrar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('ReestablecerPassword')} >
-            <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Onboarding')} >
-            <Text style={styles.linkText}>Registrate</Text>
-          </TouchableOpacity>
-          <StatusBar style="auto" />
-        </View >
-      )}
-    </Formik>
-       )
+        </Formik>
+      )
       }
     </>
-   
   );
 }
 
@@ -187,7 +185,7 @@ const styles = StyleSheet.create({
   button: {
     width: 300,
     height: 50,
-    backgroundColor: 'green', 
+    backgroundColor: 'green',
     padding: 10,
     marginTop: 20,
     borderRadius: 10,

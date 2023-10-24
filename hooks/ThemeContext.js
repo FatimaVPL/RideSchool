@@ -39,6 +39,7 @@ export function ThemeProvider({children}){
             cardFinalizada: isDark? '#D65656'  : '#EE6464',
             icon: isDark? '#DFDFDF': 'black',
             textRide: isDark? '#22c55e' : 'green',
+            cardInfo: isDark? '#E1E0E0'  : '#D2CECE',
         },
         setDark: (isDark) => setThemeState(isDark ? 'dark' : 'light'),
     };
