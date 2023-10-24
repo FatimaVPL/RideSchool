@@ -8,9 +8,9 @@ import CargarRuta from './components/CargarRuta';
 import { firebase, db } from '../../config-firebase';
 import { useAuth } from '../../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
-import { useTheme } from "../hooks/ThemeContext";
-import { getDriverUsers } from './GestionarScreens/others/Queries';
+import { getDriverUsers } from '../GestionarScreens/others/Queries';
 import Lottie from 'lottie-react-native';
+import { useTheme } from '../../hooks/ThemeContext';
 
 
 const FrmSolicitarRide = () => {
@@ -86,7 +86,8 @@ const FrmSolicitarRide = () => {
         onSubmit: values => {
             saveRideToFirestore(values)
             .then(documentId => {
-                console.log(`Document written with ID: ${documentId}`);
+                //console.log(`Document written with ID: ${documentId}`);
+                getDriverUsers();
             })
             .catch(error => {
                 console.error(`Error adding document: ${error}`);
@@ -196,7 +197,7 @@ const FrmSolicitarRide = () => {
                             </SafeAreaView>
                             <View style={{
                                 padding: 10,
-                                flex: 0.15,
+                                //flex: 0.15,
                                 justifyContent: 'space-between',
                                 backgroundColor: colors.background2,
                                 flexDirection: 'row',

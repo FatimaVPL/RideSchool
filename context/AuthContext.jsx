@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { firebase, auth, db } from '../config-firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from "firebase/auth";
+import { subscribeToUsers } from "../firebaseSubscriptions";
 
 const AuthContext = createContext();
 
@@ -34,7 +35,13 @@ export function AuthProvider({ children }) {
       }
       setInitializing(false);
     })
-    return () => subscriber();
+
+    const unsubscribe = subscribeToUsers(() => { {user !== null && getDataUser(user.email)} });
+
+    return () => {
+      subscriber();
+      unsubscribe();
+    }
 
   }, [])
 

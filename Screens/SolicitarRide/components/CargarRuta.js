@@ -63,6 +63,14 @@ const CargarRuta = ({ formikk }) => {
         getLocationPermission();
     }, []);
 
+    //Cambiar altura en los inputs
+    const [text, setText] = React.useState(''); // Estado para el contenido del TextInput
+    const [inputHeight, setInputHeight] = React.useState(40); // Estado para la altura del TextInput
+
+    const handleContentSizeChange = (contentWidth, contentHeight) => {
+        setInputHeight(contentHeight); // Actualiza la altura del TextInput según su contenido
+    };
+
     const getAddressComponents = async (latitude, longitude) => {
         try {
             const json = await Geocoder.from(latitude, longitude);
@@ -215,8 +223,8 @@ const CargarRuta = ({ formikk }) => {
                                     backgroundColor: '#56565B',
                                     color: '#fff',
                                     fontSize: 16,
-                                    height: 50,
-                                    paddingHorizontal: 16,
+                                    height: 70,
+                                    paddingHorizontal: 20,
                                     marginTop: 10,
                                     borderRadius: 10, // bordes redondeados
                                     shadowColor: "#000",
@@ -242,22 +250,23 @@ const CargarRuta = ({ formikk }) => {
                         }
                         renderRightButton={() => (
                             originRef.current?.getAddressText() ? (
-                                <Icon 
-                                name="times-circle" 
-                                size={20} 
-                                color="#fff" 
-                                style={{width: 20, height: 20, position: 'absolute', right: 10, top: 23}}
-                                onPress={() => {
-                                    originRef.current?.setAddressText('');
-                                    formikk.setFieldValue('directionOrigin', '');
-                                    setRoute(p => ({ ...p, origin: null }));
-                                }} 
+                                <Icon
+                                    name="times-circle"
+                                    size={20}
+                                    color="#fff"
+                                    style={{ width: 20, height: 20, position: 'absolute', right: 8, top: 32 }}
+                                    onPress={() => {
+                                        originRef.current?.setAddressText('');
+                                        formikk.setFieldValue('directionOrigin', '');
+                                        setRoute(p => ({ ...p, origin: null }));
+                                    }}
                                 />
                             ) : null
                         )}
                         textInputProps={{
                             placeholderTextColor: '#fff',
                             placeholder: '¿Dónde estás?',
+                            multiline: true
                         }}
                         ref={originRef}
                         fetchDetails={true}
@@ -270,7 +279,7 @@ const CargarRuta = ({ formikk }) => {
                                     longitude: details?.geometry?.location.lng,
                                 }
                             }));
-                            data.toAutoComplete?formikk.setFieldValue('directionOrigin', data.toAutoComplete):formikk.setFieldValue('directionOrigin', data.description);
+                            data.toAutoComplete ? formikk.setFieldValue('directionOrigin', data.toAutoComplete) : formikk.setFieldValue('directionOrigin', data.description);
                             originRef.current?.setAddressText(data.description);
                         }}
                         query={{
@@ -292,7 +301,7 @@ const CargarRuta = ({ formikk }) => {
                                     color: '#fff',
                                     fontSize: 16,
                                     height: 70,
-                                    paddingHorizontal: 16,
+                                    paddingHorizontal: 20,
                                     marginTop: 10,
                                     borderRadius: 10, // bordes redondeados
                                     shadowColor: "#000",
@@ -312,7 +321,7 @@ const CargarRuta = ({ formikk }) => {
                         textInputProps={{
                             placeholderTextColor: '#fff',
                             placeholder: '¿A dónde te diriges?',
-                            textAlignVertical: 'top',
+                            //textAlignVertical: 'top',
                             multiline: true,
                         }}
                         ref={destinationRef}
@@ -339,16 +348,16 @@ const CargarRuta = ({ formikk }) => {
                         }}
                         renderRightButton={() => (
                             destinationRef.current?.getAddressText() ? (
-                                <Icon 
-                                name="times-circle" 
-                                size={20} 
-                                color="#fff" 
-                                style={{width: 20, height: 20, position: 'absolute', right: 10, top: 25}}
-                                onPress={() => {
-                                    destinationRef.current?.setAddressText('');
-                                    formikk.setFieldValue('directionDestination', '');
-                                    setRoute(p => ({ ...p, destination: null }));
-                                }} 
+                                <Icon
+                                    name="times-circle"
+                                    size={20}
+                                    color="#fff"
+                                    style={{ width: 20, height: 20, position: 'absolute', right: 8, top: 32 }}
+                                    onPress={() => {
+                                        destinationRef.current?.setAddressText('');
+                                        formikk.setFieldValue('directionDestination', '');
+                                        setRoute(p => ({ ...p, destination: null }));
+                                    }}
                                 />
                             ) : null
                         )}
