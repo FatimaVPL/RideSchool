@@ -8,7 +8,8 @@ import CargarRuta from './components/CargarRuta';
 import { firebase, db } from '../../config-firebase';
 import { useAuth } from '../../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
-import { useTheme } from "../../hooks/ThemeContext";
+import { useTheme } from "../hooks/ThemeContext";
+import { getDriverUsers } from './GestionarScreens/others/Queries';
 import Lottie from 'lottie-react-native';
 
 

@@ -2,17 +2,16 @@ import * as React from "react";
 import { useEffect, useState } from 'react'
 import * as Location from "expo-location";
 import { View, StyleSheet } from "react-native";
-import { PaperProvider, ActivityIndicator, MD2Colors, Modal, Portal, Text, Button } from 'react-native-paper';
+import { PaperProvider, ActivityIndicator, MD2Colors, Text } from 'react-native-paper';
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { db, firebase } from '../../config-firebase';
-import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
 import { useTheme } from "../../hooks/ThemeContext";
 import { subscribeToRides } from '../../firebaseSubscriptions';
 import ModalInfoRide from "./components/ModalInfoRide";
 import ModalOfertaDetails from "./components/ModalOfertaDetails";
+import ModalDialog from "../GestionarScreens/components/ModalDialog";
 
 const styles = StyleSheet.create({
     container: {
@@ -22,14 +21,7 @@ const styles = StyleSheet.create({
     map: {
         ...StyleSheet.absoluteFillObject,
         zIndex: 0,
-    },
-    centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 },
-    modalView: { margin: 20, backgroundColor: 'white', borderRadius: 20, padding: 25, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5, width: 320 },
-    textStyle: { color: 'white', fontWeight: 'bold', textAlign: 'center', fontSize: 20 },
-    modalText: { marginBottom: 15, fontWeight: 'bold', fontSize: 20 },
-    text: { marginBottom: 15, fontSize: 20 },
-    iconWhite: { marginRight: 5, color: 'white', fontSize: 24 },
-    icon: { marginRight: 10, fontSize: 24 },
+    }
 });
 
 const RidesMap = ({ navigation }) => {
@@ -40,7 +32,7 @@ const RidesMap = ({ navigation }) => {
     const [index, setIndex] = useState([]);
     const [modalInfoRide, setModalInfoRide] = useState(false);
     const [modalDetails, setModalDetails] = useState(false);
-    const [modalAlert, setModalAlert] = useState(false);
+    const [modalDialog, setModalDialog] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -105,35 +97,6 @@ const RidesMap = ({ navigation }) => {
         }
     }
 
-    async function setValues(values) {
-        setModalDetails(false);
-
-        try {
-            const docRef = db.collection('ofertas').doc();
-            return await docRef.set({
-                id: docRef.id,
-                fechaSolicitud: new Date(),
-                estado: 'pendiente',
-                rideID: { reference: db.collection('rides').doc(data[index].ride.id), id: data[index].ride.id },
-                pasajeroID: data[index].ride.pasajeroID,
-                conductorID: { reference: db.collection('users').doc(user.email), uid: user.uid },
-                ...values
-            })
-        } catch (error) {
-            console.log("Error al guardar", error)
-        }
-    }
-
-    const validationSchema = Yup.object().shape({
-        cooperacion: Yup.number()
-            .typeError('Debe ser un número')
-            .integer('Debe ser un número entero')
-            .max(50, 'Debe ser menor o igual a 50')
-            .min(0, 'Si no deseas cobrar el ride, escribe un cero')
-            .required('Este campo es obligatorio'),
-        comentario: Yup.string(),
-    })
-
     return (
         <PaperProvider>
             <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -168,35 +131,28 @@ const RidesMap = ({ navigation }) => {
                         {modalDetails && (
                             <ModalOfertaDetails
                                 ride={data[index].ride}
+                                //email={user.email}
+                                //uid={user.uid}
                                 modalDetails={modalDetails}
                                 setModalDetails={setModalDetails}
-                                setModalAlert={setModalAlert}
+                                setModalAlert={setModalDialog}
                             />
                         )}
 
-                        <Portal>
-                            <Modal visible={modalAlert} onDismiss={() => setModalAlert(false)} contentContainerStyle={{ flex: 1 }}>
-                                <View style={styles.centeredView}>
-                                    <View style={[styles.modalView, { padding: 15 }]}>
-                                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                            <Ionicons name="checkmark-circle-outline" style={{ marginRight: 6, fontSize: 70, color: "#81BC12" }}></Ionicons>
-                                            <Text style={[styles.modalText, { fontSize: 18 }]}>SOLICITUD ENVIADA</Text>
-                                            <Text style={[styles.modalText, { fontSize: 16, textAlign: 'center' }]}>Te notificaremos cuando el pasajero confirme el ride</Text>
-                                        </View>
+                        {modalDialog && (
+                            <ModalDialog
+                                icon={'checkmark-circle-outline'}
+                                color={"#81BC12"}
+                                title={'SOLICITUD ENVIADA'}
+                                type={'Te notificaremos cuando el pasajero confirme el ride'}
+                                modalDialog={modalDialog}
+                                setModalDialog={setModalDialog}
+                            />
+                        )}
 
-                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                            <Button mode="contained" buttonColor='#B0B0B0' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
-                                                onPress={() => navigation.navigate('GestionarOfertas')}> Ver Ofertas </Button>
-                                            <Button mode="contained" buttonColor='#B2D474' style={{ width: 135 }} labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
-                                                onPress={() => setModalAlert(false)} > Ok </Button>
-                                        </View>
-                                    </View>
-                                </View>
-                            </Modal>
-                        </Portal>
                     </>
                 ) : (
-                    <View style={styles.centeredView}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 }}>
                         <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
                         <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
                     </View>
