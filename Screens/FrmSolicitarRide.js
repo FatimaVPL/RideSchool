@@ -9,6 +9,7 @@ import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { GeoFirestore } from 'geofirestore';
 import { useTheme } from "../hooks/ThemeContext";
+import { getDriverUsers } from './GestionarScreens/others/Queries';
 
 const FrmSolicitarRide = () => {
 
@@ -81,13 +82,15 @@ const FrmSolicitarRide = () => {
             informationRoute: null
         },
         onSubmit: values => {
-            saveRideToFirestore(values)
+            /* saveRideToFirestore(values)
                 .then(documentId => {
                     //console.log(`Document written with ID: ${documentId}`);
+                    
                 })
                 .catch(error => {
                     console.error(`Error adding document: ${error}`);
-                });
+                }); */
+                getDriverUsers();
         }
     });
 

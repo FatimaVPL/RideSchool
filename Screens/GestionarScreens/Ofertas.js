@@ -2,7 +2,7 @@ import * as React from "react";
 import { useEffect, useState } from 'react'
 import { View, StyleSheet, FlatList } from "react-native";
 import { Button, Card, Text, ActivityIndicator, MD2Colors, PaperProvider } from 'react-native-paper';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { db } from '../../config-firebase';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToOfertas, subscribeToRides } from '../../firebaseSubscriptions';
@@ -13,6 +13,7 @@ import ModalDetails from "./components/ModalDetails";
 import ModalReview from "./components/ModalReview";
 import ModalOptions from "./components/ModalOptions";
 import ModalDialog from "./components/ModalDialog";
+import ModalMoreDetails from "./components/ModalMoreDetails";
 import { cut, formatDate, getInfoByStatus } from "./others/Functions";
 
 const styles = StyleSheet.create({
@@ -33,7 +34,7 @@ const RidesConductor = ({ navigation }) => {
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState([]);
-    const [index, setIndex] = useState(null);
+    const [selectedItem, setselectedItem] = useState(null);
     const [modalDetails, setModalDetails] = useState(false);
     const [modalALert, setModalAlert] = useState(false);
     const [modalPropsALert, setModalPropsALert] = useState({});
@@ -83,75 +84,87 @@ const RidesConductor = ({ navigation }) => {
             setData(resultados);
             setIsLoading(false);
         } catch (error) {
-            console.error('Error al obtener las publicaciones:', error);
+            console.error('Error al obtener las ofertas:', error);
             throw error;
         }
     }
 
     return (
         <PaperProvider>
-            <View style={[styles.container, { alignItems: 'center' }, { backgroundColor: colors.background }]}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
                 {!isLoading ? (
                     <><FlatList
                         data={data}
                         renderItem={({ item, index }) => (
                             <Card
                                 key={index}
-                                style={{ width: 360, borderRadius: 8, margin: 8, backgroundColor: colors.backgroundCard }}
+                                style={{ width: '93%', borderRadius: 8, margin: 8, alignSelf: 'center', backgroundColor: colors.backgroundCard }}
                             >
                                 <Card.Content>
                                     <Text variant="titleLarge" style={[styles.textBorder, { borderBottomColor: getInfoByStatus(item.oferta.estado).color }]}>{item.oferta.estado.toUpperCase()}</Text>
 
                                     <View style={{ flexDirection: 'row' }}>
                                         <Ionicons name="person" style={{ fontSize: 22, paddingTop: 6, marginRight: 6 }} />
-                                        <Text style={styles.text} >{cut(null, `${data[index].pasajero.firstName} ${data[index].pasajero.lastName}`)}</Text>
+                                        <Text style={styles.text} >{cut(`${item.pasajero.firstName} ${item.pasajero.lastName}`)}</Text>
                                     </View>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Ionicons name="calendar" style={{ fontSize: 22, paddingTop: 6, marginRight: 6 }} />
                                         <Text style={styles.text} >{formatDate(item.oferta.fechaSolicitud, 'long')}</Text>
                                     </View>
                                 </Card.Content>
-                                <Card.Actions>
-                                    <Button textColor="black" style={{ width: 160 }} labelStyle={{ fontWeight: 'bold', fontSize: 13 }}
-                                        onPress={() => { setIndex(index); setModalDetails(true); }}>Ver Detalles</Button>
+                                <Card.Actions style={{ width: '100%' }}>
+                                    <Button textColor="black" style={{ width: '49%' }} labelStyle={{ fontWeight: 'bold', fontSize: 13 }}
+                                        onPress={() => { setselectedItem(item); setModalDetails(true); }}>Ver Detalles</Button>
                                     {item.oferta.estado !== "descartada" && item.oferta.estado !== "cancelada" && (
-                                        <Button buttonColor={getInfoByStatus(item.oferta.estado).color} textColor="white" style={{ width: 160 }} labelStyle={{ fontWeight: 'bold', fontSize: 14 }}
+                                        <Button buttonColor={getInfoByStatus(item.oferta.estado).color} textColor="white" style={{ width: '49%' }} labelStyle={{ fontWeight: 'bold', fontSize: 14 }}
                                             onPress={() => {
-                                                setIndex(index);
+                                                //setIndex(index);
+                                                setselectedItem(item);
                                                 {
                                                     switch (item.oferta.estado) {
                                                         case "aceptada":
                                                             navigation.navigate('ChatScreen');
                                                             break;
                                                         case "finalizada":
-                                                            setModalRating(true); setScore(data[index].ride.califC_P?.puntaje); onChangeText(data[index].ride.califC_P?.comentario);
+                                                            setModalRating(true); setScore(item.ride?.califC_P.puntaje); onChangeText(item.ride?.califC_P.comentario);
                                                             break;
                                                         default:
                                                             setModalPropsALert({
                                                                 icon: 'warning',
                                                                 color: '#FFC300',
                                                                 title: 'CANCELAR RIDE',
-                                                                content: '¿Estas seguro de que deseas cancelar tu ride?',
-                                                                type: 1
+                                                                content: '¿Estas seguro de que deseas cancelar tu oferta?',
+                                                                type: 6
                                                             });
                                                             setModalAlert(true);
                                                             break;
                                                     }
                                                 }
-                                            }}> {data[index].ride.califC_P === undefined ? getInfoByStatus(item.oferta.estado).text : `${data[index].ride.califC_P?.puntaje} `}
-                                            {data[index].ride.califC_P !== undefined && <Ionicons name="star" style={{ fontSize: 15 }} />}</Button>
+                                            }}> {item.ride?.califC_P === undefined ? getInfoByStatus(item.oferta.estado).text : `${item.ride?.califC_P.puntaje} `}
+                                            {item.ride?.califC_P !== undefined && <Ionicons name="star" style={{ fontSize: 15 }} />}</Button>
                                     )}
                                 </Card.Actions>
                             </Card>
                         )}
                     />
 
-                        {modalDetails && (
+                        {/* {modalDetails && (
                             <ModalDetails
-                                data={data[index]}
+                                data={selectedItem}
+                                type={2}
                                 modalDetails={modalDetails}
                                 setModalDetails={setModalDetails}
                                 setModalPropsALert={setModalPropsALert}
+                                setModalAlert={setModalAlert}
+                            />
+                        )} */}
+
+                        {modalDetails && (
+                            <ModalMoreDetails
+                                data={selectedItem}
+                                modalDetails={modalDetails}
+                                setModalDetails={setModalDetails}
+                                setModalPropsAlert={setModalPropsALert}
                                 setModalAlert={setModalAlert}
                             />
                         )}
@@ -163,9 +176,7 @@ const RidesConductor = ({ navigation }) => {
                                 title={modalPropsALert.title}
                                 content={modalPropsALert.content}
                                 type={modalPropsALert.type}
-                                ride={data[index].ride}
-                                indexOferta={0}
-                                ofertas={null}
+                                ride={selectedItem.oferta}
                                 rol={"pasajero"}
                                 modalALert={modalALert}
                                 setModalAlert={setModalAlert}
@@ -178,7 +189,7 @@ const RidesConductor = ({ navigation }) => {
 
                         {modalOptions && (
                             <ModalOptions
-                                ride={data[index].ride}
+                                ride={selectedItem.ride}
                                 rol={"conductor"}
                                 modalOptions={modalOptions}
                                 setModalOptions={setModalOptions}
@@ -189,7 +200,7 @@ const RidesConductor = ({ navigation }) => {
 
                         {modalRating && (
                             <ModalRating
-                                ride={data[index].ride}
+                                ride={selectedItem.ride}
                                 rol={"conductor"}
                                 modalRating={modalRating}
                                 setModalRating={setModalRating}
@@ -204,7 +215,7 @@ const RidesConductor = ({ navigation }) => {
                                 userType={"pasajero"}
                                 modalReview={modalReview}
                                 setModalReview={setModalReview}
-                                rideID={data[index].ride.id}
+                                rideID={selectedItem.ride.id}
                             />
                         )}
 
@@ -213,6 +224,7 @@ const RidesConductor = ({ navigation }) => {
                                 icon={modalPropsDialog.icon}
                                 color={modalPropsDialog.color}
                                 title={modalPropsDialog.title}
+                                type={modalPropsALert.type}
                                 modalDialog={modalDialog}
                                 setModalDialog={setModalDialog}
                             />

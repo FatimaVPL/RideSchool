@@ -67,7 +67,7 @@ function ButtonTabScreen() {
           paddingHorizontal: 5,
           paddingTop: 0,
           backgroundColor: colors.background2,
-          position: 'absolute',
+          //position: 'absolute',
           borderTopWidth: 0,
         },
       })}
