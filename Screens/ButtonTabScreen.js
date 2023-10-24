@@ -9,7 +9,7 @@ import ChatScreen from './ChatScreen';
 import RidesSolicitados from './RidesSolicitados/RidesMap';
 import GestionarOfertas from './GestionarScreens/Ofertas';
 import GestionarRides from './GestionarScreens/Rides';
-import FrmSolicitarRide from './FrmSolicitarRide';
+import FrmSolicitarRide from './SolicitarRide/FrmSolicitarRide';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../config-firebase';
 import Animation from '../components/Loader'
@@ -67,7 +67,7 @@ function ButtonTabScreen() {
           paddingHorizontal: 5,
           paddingTop: 0,
           backgroundColor: colors.background2,
-       // position: 'absolute',
+       // //position: 'absolute',
           borderTopWidth: 0,
         },
       })}
@@ -101,6 +101,7 @@ function ButtonTabScreen() {
           headerTitleStyle: {
             color: colors.text
           },
+          headerShown: false,
         }} />
       <Tab.Screen
         name={userData?.role == "Conductor" ? "Mis Ofertas" : "Mis Rides"}

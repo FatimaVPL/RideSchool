@@ -23,21 +23,24 @@ export function getInfoMedal(num) {
     }
 }
 
-export function cut(direction, name) {
-    if (name === null) {
-        if (direction !== "ITSUR") {
-            const arreglo = direction.split(',', 3);
-            return `${arreglo[0]}, ${arreglo[1]}, ${arreglo[2]}`;
-        } else {
-            return direction;
-        }
+export function getInfoMedal2(num) {
+    if (num >= 100) {
+        return { color: "#E6BB3F", text: "Oro" };
+    } else if (num >= 50) {
+        return { color: "#AAA499", text: "Plata" };
+    } else if (num >= 30) {
+        return { color: "#BA9248", text: "Bronce" };
     } else {
-        const arreglo = name.split(' ', 4);
-        if (arreglo[2] === undefined) {
-            return `${arreglo[0]} ${arreglo[1]}`;
-        } else {
-            return `${arreglo[0]} ${arreglo[2]}`;
-        }
+        return false;
+    }
+}
+
+export function cut(name) {
+    const arreglo = name.split(' ', 4);
+    if (arreglo[2] === undefined) {
+        return `${arreglo[0]} ${arreglo[1]}`;
+    } else {
+        return `${arreglo[0]} ${arreglo[2]}`;
     }
 }
 

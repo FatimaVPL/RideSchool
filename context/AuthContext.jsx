@@ -12,6 +12,7 @@ export function useAuth() {
 export function AuthProvider({ children }) {
 
   const [user, setUser] = useState(null)
+  const [dataUser, setDataUser] = useState(null)
   const [firstTime, setFirstTime] = useState(true)
   const [initializing, setInitializing] = useState(true)
 
@@ -23,6 +24,7 @@ export function AuthProvider({ children }) {
         const emailVerified = user.emailVerified
         if (emailVerified) {
           setUser(user)
+          getDataUser(user.email)
         } else {
           // El usuario no ha verificado su correo electrónico
           setUser(null)
@@ -55,7 +57,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-
   const logoutUser = async () => {
     try {
       console.log("Loggin out")
@@ -87,7 +88,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-
   const registerUser = async ({ email, password, role, firstName = "", lastName = "", tipoVehiculo, conductor }) => {
     try {
       // Crear uusario con contraseña
@@ -112,8 +112,7 @@ export function AuthProvider({ children }) {
         numRidesConductor: 0,
         numRidesPasajero: 0,
         califConductor: 0,
-        califPasajero: 0,
-        tarjetaCirculacion: false
+        califPasajero: 0
       });
     } catch (error) {
       // Manejar errores específicos
@@ -133,7 +132,6 @@ export function AuthProvider({ children }) {
       }
     }
   }
-
 
   const clearUsage = async () => {
     try {
@@ -155,10 +153,25 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const getDataUser = async (email) => {
+    var reference = db.collection('users').doc(email);
+    try {
+      const doc = await reference.get();
+
+        if (doc.exists) {
+            //console.log(doc.data())
+            setDataUser(doc.data())
+        }
+    } catch (e) {
+      console.log('Error al obtener los datos del usuario');
+    }
+  }
+
   return (
     <AuthContext.Provider value={{
       setUser,
       user,
+      dataUser,
       initializing,
       logoutUser,
       clearUsage,

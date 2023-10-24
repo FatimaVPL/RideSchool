@@ -37,6 +37,8 @@ export function ThemeProvider({children}){
             colorSelect: isDark? '#2E973A' : '#445D47',
             cardAceptada: isDark? '#528045' : '#BEE27B',
             cardFinalizada: isDark? '#D65656'  : '#EE6464',
+            icon: isDark? '#DFDFDF': 'black',
+            textRide: isDark? '#22c55e' : 'green',
             cardInfo: isDark? '#E1E0E0'  : '#D2CECE',
         },
         setDark: (isDark) => setThemeState(isDark ? 'dark' : 'light'),

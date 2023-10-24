@@ -1,5 +1,5 @@
 import { db } from "../../../config-firebase";
-import { sendNotification } from "../../../hooks/Notifications";
+import { sendNotificationByReference, sendNotificationByEmail } from "../../../hooks/Notifications";
 
 //Enviar calificacion general al ride
 export async function updateRating({ comentario = "", puntaje = 3, id = "", fileName }) {
@@ -14,7 +14,7 @@ export async function updateRating({ comentario = "", puntaje = 3, id = "", file
         }
     } catch (error) {
         console.log('Error al actualizar', error);
-    } 
+    }
 }
 
 //Eliminar documento
@@ -39,7 +39,7 @@ export async function updateRide(ofertas, index, rideID) {
     const referenceRide = oferta.rideID.reference;
     const referenceOferta = db.collection('ofertas').doc(oferta.id);
 
-    sendNotification(
+    sendNotificationByReference(
         referenceConductor,
         'Oferta Aceptada',
         'Dirígete al punto de encuentro',
@@ -188,5 +188,41 @@ export async function sendCancelation(rideID, cause) {
         }
     } catch (error) {
         console.log('Error al actualizar', error);
+    }
+}
+
+//Cambio de rol
+export async function updateRole(email, rol) {
+    var user = db.collection('users').doc(email);
+    const roleConstant = rol === "Conductor" ? "Pasajero" : "Conductor";
+
+    try {
+        const docSnapshot = await user.get();
+
+        if (docSnapshot.exists) {
+            user.update({
+                role: roleConstant
+            });
+        }
+    } catch (error) {
+        console.log('Error al actualizar', error);
+    }
+}
+
+//Enviar notificacion de nuevo a ride a los usuarios que se encuentran en el rol de conductor 
+export async function getDriverUsers(){
+    //console.log('Realizando consulta')
+    const usersSnapshot = await db.collection('users').where('role', '==', 'Conductor').get();
+    const users = [];
+
+    for (const userDoc of usersSnapshot.docs) {
+        const userData = userDoc.data();
+        //users.push(userData.email);
+        sendNotificationByEmail(
+            userData.email,
+            'Nuevo Ride Solicitado',
+            'Realiza tu oferta',
+            'RidesMap'
+        );
     }
 }
