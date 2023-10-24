@@ -15,7 +15,6 @@ import { getInfoMedal2 } from './GestionarScreens/others/Functions';
 import ModalALert from './GestionarScreens/components/ModalAlert';
 import ModalDialog from './GestionarScreens/components/ModalDialog';
 import { Avatar, Icon, LinearProgress } from 'react-native-elements';
-import * as ImagePicker from 'expo-image-picker'
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { Alert } from 'react-native';
 

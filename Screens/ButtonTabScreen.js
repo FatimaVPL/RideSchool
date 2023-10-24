@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import InicioScreen from './Inicio/InicioScreen';
-import PerfilScreen from './PerfilScreen';
+import PerfilScreen from './Perfil/PerfilScreen';
 import ChatScreen from './ChatScreen';
 import RidesSolicitados from './RidesSolicitados/RidesMap';
 import GestionarOfertas from './GestionarScreens/Ofertas';
