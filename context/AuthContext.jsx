@@ -33,7 +33,9 @@ export function AuthProvider({ children }) {
       }
       setInitializing(false);
     })
-    return subscriber;
+    return () => {
+      subscriber();
+    }
   }, [])
 
   // Refrescar estado de usario 

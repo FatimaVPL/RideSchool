@@ -8,7 +8,7 @@ import { useTheme } from '../hooks/ThemeContext';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import ProgressBar from './ProgressBar';
+import { LinearProgress } from 'react-native-elements';
 
 /************************************************************* */
 const SubirDocumentosScreen = ({ navigation }) => {
@@ -20,8 +20,8 @@ const SubirDocumentosScreen = ({ navigation }) => {
     //const [tipoDoc, setTipoDoc] = useState('');
     const [progress, setProgress] = useState(0);
     const [showProgressBar, setShowProgressBar] = useState(false)
-    /********************************************************** */
 
+    /********************************************************** */
     const pickImage = async (tipo) => {
         //setTipoDoc(tipo)
         try {
@@ -74,12 +74,11 @@ const SubirDocumentosScreen = ({ navigation }) => {
                     Alert.alert("No hay imagen", "Por favor selecciona una imagen")
                 }
             }
-            setShowProgressBar(false)
-        } catch (error) {
+          } catch (error) {
             console.error(error)
-        } finally {
-            setProgress(0)
-        }
+          } finally {
+            setShowProgressBar(false)
+          }
     }
 
     /**********************************************************************/
@@ -200,7 +199,7 @@ const SubirDocumentosScreen = ({ navigation }) => {
                         <TouchableOpacity style={styles.button} onPress={() => pickImage('tarjetaCirculacion')}>
                             <Text style={[styles.buttonText, { color: colors.textButton }]}>Subir tarjeta de circulación</Text>
                         </TouchableOpacity>
-                        {showProgressBar && <ProgressBar progress={progress} />}
+                        {showProgressBar && <LinearProgress style={{marginTop:10}} color='#1DBE99'/>}
                         <View>
                             <Button icon="camera" style={styles.buttonPhoto} mode="contained" buttonColor='gray' textColor={colors.text} onPress={() => verImagen('licencia')}>
                                 Ver licencia
@@ -259,7 +258,7 @@ const styles = StyleSheet.create({
     centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22 },
     buttonPhoto: {
         marginTop: 15,
-    }
+    },
 });
 
 export default SubirDocumentosScreen;

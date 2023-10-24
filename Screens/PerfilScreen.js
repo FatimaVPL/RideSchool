@@ -1,22 +1,23 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button } from 'react-native-paper';
 import { firebase, db } from '../config-firebase';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from "../hooks/ThemeContext";
-import { Avatar } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import { Alert } from 'react-native';
 import ProgressBar from './ProgressBar';
 import { subscribeToUsers } from '../firebaseSubscriptions';
 import { getInfoMedal2 } from './GestionarScreens/others/Functions';
 import ModalALert from './GestionarScreens/components/ModalAlert';
 import ModalDialog from './GestionarScreens/components/ModalDialog';
-import ModalMoreDetails from './GestionarScreens/components/ModalMoreDetails';
+import { Avatar, Icon, LinearProgress } from 'react-native-elements';
+import * as ImagePicker from 'expo-image-picker'
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { Alert } from 'react-native';
 
 const PerfilScreen = ({ navigation }) => {
   const { colors } = useTheme()
@@ -28,169 +29,173 @@ const PerfilScreen = ({ navigation }) => {
   const [modalDialog, setModalDialog] = useState(false);
   const [modalPropsDialog, setModalPropsDialog] = useState({});
   const [progress, setProgress] = useState(0);
-  const [showProgressBar, setShowProgressBar] = useState(false)
 
-  const [modalDetails, setModalDetails] = useState(false);
 
-  const pickImage = async () => {
-    setShowProgressBar(true)
-    try {
-      const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (galeriaStatus.status === 'granted') {
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [1, 1],
-          quality: 1,
-        })
-        if (!result.canceled) {
-          const originalImageUri = result.assets[0].uri;
-          const manipulatedImage = await manipulateAsync(
-            originalImageUri,
-            [{ resize: { width: 200, height: 200 } }],
-            { compress: 1, format: SaveFormat.JPEG }
-          )
-          const manipulatedImageUri = manipulatedImage.uri
+  const PerfilScreen = ({ navigation }) => {
+    const { colors } = useTheme()
+    const { user } = useAuth()
+    const [isLoading, setIsLoading] = useState(true)
+    const [userData, setUserData] = useState(null)
+    const [modalALert, setModalAlert] = useState(false)
+    const [modalDialog, setModalDialog] = useState(false)
+    const [showOverlay, setShowOverlay] = useState(false)
+    const [showProgressBar, setShowProgressBar] = useState(false)
 
-          try {
-            const response = await fetch(manipulatedImageUri)
-            const blob = await response.blob()
-            const filename = manipulatedImageUri.substring(manipulatedImageUri.lastIndexOf('/') + 1)
-            const ref = firebase.storage().ref().child("avatars/" + filename)
+    const [modalDetails, setModalDetails] = useState(false);
 
-            ref.put(blob).on(
-              "state_changed",
-              (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                setProgress(progress)
-                console.log("Progreso ", progress)
-              },
-              (error) => {
-                console.error(error)
-                setProgress(0)
-              },
-              async () => {
-                const imageURL = await ref.getDownloadURL()
-                blob.close()
-                updatePhotoURL(imageURL)
-                Alert.alert("Imagen almacenada", "Se subió correctamente tu foto")
-                setProgress(0)
-              }
-            )
-          } catch (error) {
-            console.error(error);
-            setProgress(0);
-          }
-        } else {
-          Alert.alert("No hay imagen", "Por favor selecciona una imagen")
-        }
-      }
-      setShowProgressBar(false)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setProgress(0)
-    }
-  }
-
-  /* *********************** Borrar foto de perfil anterior ************************** */
-  const borrarFoto = async (previousPhotoURL) => {
-    if (previousPhotoURL) {
+    const pickImage = async () => {
       try {
-        const previousImageRef = firebase.storage().refFromURL(previousPhotoURL);
-        const imageExists = await previousImageRef.getDownloadURL().then(() => true).catch(() => false)
+        const galeriaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (galeriaStatus.status === 'granted') {
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+          })
+          if (!result.canceled) {
+            setShowProgressBar(true)
+            const originalImageUri = result.assets[0].uri;
+            const manipulatedImage = await manipulateAsync(
+              originalImageUri,
+              [{ resize: { width: 200, height: 200 } }],
+              { compress: 1, format: SaveFormat.JPEG }
+            )
+            const manipulatedImageUri = manipulatedImage.uri
 
-        if (imageExists) {
-          await previousImageRef.delete()
-        } else {
-          console.warn("La imagen anterior no existe en Firebase Storage.")
+            try {
+              const response = await fetch(manipulatedImageUri)
+              const blob = await response.blob()
+              const filename = manipulatedImageUri.substring(manipulatedImageUri.lastIndexOf('/') + 1)
+              const ref = firebase.storage().ref().child("avatars/" + filename)
+              ref.put(blob).on(
+                "state_changed",
+                (snapshot) => {
+                  //const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                },
+                (error) => {
+                  console.error(error)
+                },
+                async () => {
+                  const imageURL = await ref.getDownloadURL()
+                  blob.close()
+                  updatePhotoURL(imageURL)
+                  Alert.alert("Imagen almacenada", "Se subió correctamente tu foto")
+                  setShowProgressBar(false)
+                }
+              )
+            } catch (error) {
+              console.error(error);
+            }
+          } else {
+            Alert.alert("No hay imagen", "Por favor selecciona una imagen")
+          }
         }
       } catch (error) {
-        console.error("Error al eliminar la imagen anterior", error)
+        console.error(error)
+      } finally {
+        setShowProgressBar(false)
       }
     }
-  }
 
-  /* *********************** Mofificar campo photoURL ******************************** */
-  async function updatePhotoURL(imageURL) {
-    const userRef = db.collection('users').doc(userData.email);
+    /* *********************** Borrar foto de perfil anterior ************************** */
+    const borrarFoto = async (previousPhotoURL) => {
+      if (previousPhotoURL) {
+        try {
+          const previousImageRef = firebase.storage().refFromURL(previousPhotoURL);
+          const imageExists = await previousImageRef.getDownloadURL().then(() => true).catch(() => false)
 
-    try {
-      const docSnapshot = await userRef.get();
-      const urlBorrar = userData?.photoURL
-      borrarFoto(urlBorrar)
-      if (docSnapshot.exists) {
-        await userRef.update({
-          photoURL: imageURL,
-        });
+          if (imageExists) {
+            await previousImageRef.delete()
+          } else {
+            console.warn("La imagen anterior no existe en Firebase Storage.")
+          }
+        } catch (error) {
+          console.error("Error al eliminar la imagen anterior", error)
+        }
       }
-    } catch (error) {
-      console.log('Error al actualizar', error)
     }
-  }
 
-  /*************************** Ver imagen ************************ */
-  const verImagen = () => {
-    if (userData && userData.photoURL) {
-      Linking.openURL(userData?.photoURL)
-        .then(() => {
-          console.log('Enlace abierto correctamente en el navegador.')
-        })
-        .catch((err) => {
-          console.error('Error al abrir el enlace:', err)
-        });
-    } else {
-      Alert.alert("No hay imagen", "Sube tu imagen para poder visualizarla")
-    }
-  }
+    /* *********************** Mofificar campo photoURL ******************************** */
+    async function updatePhotoURL(imageURL) {
+      const userRef = db.collection('users').doc(userData.email);
 
-  /*************************************************************** */
-  useEffect(() => {
-    const unsubscribe = subscribeToUsers(() => { getUser() });
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
+      try {
+        const docSnapshot = await userRef.get();
+        const urlBorrar = userData?.photoURL
+        borrarFoto(urlBorrar)
+        if (docSnapshot.exists) {
+          await userRef.update({
+            photoURL: imageURL,
+          });
+        }
+      } catch (error) {
+        console.log('Error al actualizar', error)
       }
-    };
-  }, []);
+    }
 
-  async function getUser() {
-    var reference = db.collection('users').doc(user.email);
-    try {
-      const doc = await reference.get();
-      if (doc.exists) {
-        setUserData(doc.data());
-        setIsLoading(false);
+    /*************************** Ver imagen ************************ */
+    const verImagen = () => {
+      if (userData && userData.photoURL) {
+        Linking.openURL(userData?.photoURL)
+          .then(() => {
+            console.log('Enlace abierto correctamente en el navegador.')
+          })
+          .catch((err) => {
+            console.error('Error al abrir el enlace:', err)
+          });
       } else {
-        console.log('El documento no existe');
-        return null;
+        Alert.alert("No hay imagen", "Sube tu imagen para poder visualizarla")
       }
-    } catch (error) {
-      console.error('Error al obtener los documentos:', error);
-      throw error;
     }
-  }
 
-  const handleLogout = async () => {
-    try {
-      await firebase.auth().signOut();
+    /*************************************************************** */
+    useEffect(() => {
+      const unsubscribe = subscribeToUsers(() => { getUser() });
 
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error.message);
+      return () => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      };
+    }, []);
+
+    async function getUser() {
+      var reference = db.collection('users').doc(user.email);
+      try {
+        const doc = await reference.get();
+        if (doc.exists) {
+          setUserData(doc.data());
+          setIsLoading(false);
+        } else {
+          console.log('El documento no existe');
+          return null;
+        }
+      } catch (error) {
+        console.error('Error al obtener los documentos:', error);
+        throw error;
+      }
     }
-  }
 
-  const notificaciones = () => {
-    navigation.navigate('Notificaciones');
-  }
+    const handleLogout = async () => {
+      try {
+        await firebase.auth().signOut();
 
-  const ajustesGenerales = () => {
-    navigation.navigate('Ajustes Generales');
-  }
-  const SubirDocumentosScreen = () => {
-    navigation.navigate('Subir documentos');
-  }
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error.message);
+      }
+    }
+
+    const notificaciones = () => {
+      navigation.navigate('Notificaciones');
+    }
+
+    const ajustesGenerales = () => {
+      navigation.navigate('Ajustes Generales');
+    }
+    const SubirDocumentosScreen = () => {
+      navigation.navigate('Subir documentos');
+    }
 
   return (
     <PaperProvider>
@@ -204,7 +209,7 @@ const PerfilScreen = ({ navigation }) => {
                 size="xlarge"
                 source={userData.photoURL ? { uri: userData.photoURL } : require('../assets/default.jpg')}
               />
-              {showProgressBar && <ProgressBar progress={progress} />}
+             {showProgressBar && <ProgressBar progress={progress} />}
               <Text variant='headlineSmall'>{`${userData.firstName} ${userData.lastName}`}</Text>
               <Text variant='titleMedium'>{userData.email}</Text>
               {/* CALIFICACION GENERAL */}
@@ -270,19 +275,19 @@ const PerfilScreen = ({ navigation }) => {
             </View>
             <View style={styles.settingsContainer}>
               <Text variant='headlineMedium'>Configuraciones</Text>
-
+         
               <TouchableOpacity onPress={() => pickImage()}>
                 <View style={styles.settingsItem}>
                   <Ionicons name="person-circle" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Cambiar foto de perfil</Text>
                 </View>
               </TouchableOpacity>
-              {/* <TouchableOpacity onPress={notificaciones}>
+              <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
                   <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Notificaciones</Text>
                 </View>
-              </TouchableOpacity> */}
+              </TouchableOpacity>
               <TouchableOpacity onPress={ajustesGenerales}>
                 <View style={styles.settingsItem}>
                   <Ionicons name="settings" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
@@ -301,7 +306,7 @@ const PerfilScreen = ({ navigation }) => {
               <TouchableOpacity onPress={handleLogout}>
                 <View style={styles.settingsItem}>
                   <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge' style={{ color: "red" }}>Cerrar sesión</Text>
+                  <Text variant='labelLarge' style={{  color:  "red"  }}>Cerrar sesión</Text>
                 </View>
               </TouchableOpacity>
               <Divider />
@@ -349,13 +354,13 @@ const PerfilScreen = ({ navigation }) => {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  profileContainer: { alignItems: 'center', marginBottom: 18 },
-  profileImage: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
-  badgesContainer: { flexDirection: 'row', marginBottom: 10 },
-  settingsContainer: { borderTopWidth: 1, borderTopColor: '#E0E0E0', paddingTop: 20 },
-  settingsItem: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 },
-});
+  const styles = StyleSheet.create({
+    container: { flex: 1, padding: 20 },
+    profileContainer: { alignItems: 'center', marginBottom: 18 },
+    profileImage: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
+    badgesContainer: { flexDirection: 'row', marginBottom: 10 },
+    settingsContainer: { borderTopWidth: 1, borderTopColor: '#E0E0E0', paddingTop: 20 },
+    settingsItem: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 },
+  });
 
-export default PerfilScreen;
+  export default PerfilScreen;

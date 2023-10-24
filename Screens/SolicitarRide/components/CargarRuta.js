@@ -1,15 +1,18 @@
 import * as React from "react";
 import * as Location from "expo-location";
-import MapView, { PROVIDER_GOOGLE, Marker, Polyline } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_MAPS_API_KEY } from "@env"
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, Keyboard } from "react-native";
-import { useAuth } from '../context/AuthContext'
-import { Image } from "react-native";
+import { StyleSheet, TouchableWithoutFeedback, View, Keyboard } from "react-native";
+import { useAuth } from '../../../context/AuthContext'
 import Geocoder from 'react-native-geocoding';
-import { set } from "date-fns";
-import { useTheme } from "../hooks/ThemeContext";
+import { useTheme } from "../../../hooks/ThemeContext";
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { Button, PaperProvider, TextInput, Modal, Portal, Text, HelperText } from 'react-native-paper';
+import { add, set } from "date-fns";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+
 
 /* Styles */
 const styles = StyleSheet.create({
@@ -34,9 +37,12 @@ const ITSUR_PLACE = {
     }
 }
 
-const SolicitarRide = ({ formikk }) => {
+const CargarRuta = ({ formikk }) => {
     const { user } = useAuth();
     const { colors } = useTheme()
+
+    const [alertUbication, setAlertUbication] = React.useState(false);
+
     // Referencias a los componentes
     const mapRef = React.useRef(null);
     const originRef = React.useRef(null);
@@ -44,7 +50,11 @@ const SolicitarRide = ({ formikk }) => {
 
     /* Ruta que se va a solicitar */
     const [route, setRoute] = React.useState({ origin: null, destination: null })
-    const [homePlace, setHomePlace] = React.useState(null);
+    const [homePlace, setHomePlace] = React.useState({
+        description: '',
+        toAutoComplete: '',
+        geometry: {},
+    });
 
 
     /* Obtener permiso de ubicacion */
@@ -53,17 +63,62 @@ const SolicitarRide = ({ formikk }) => {
         getLocationPermission();
     }, []);
 
-    const updateAddressInAutocomplete = async (latitude, longitude, ref, fieldName) => {
+    const getAddressComponents = async (latitude, longitude) => {
         try {
             const json = await Geocoder.from(latitude, longitude);
-            const addressComponent = json.results[0].formatted_address;
-            ref.current?.setAddressText(addressComponent);
-            formikk.setFieldValue(fieldName, addressComponent);
+            const addressComponents = json.results[0].address_components;
+            let street = "", number = "", city = "", state = "";
+            //console.log(addressComponents);
+            for (const component of addressComponents) {
+
+                if (component.types.includes('plus_code')) {
+                    if (component.long_name.includes("4RQX")) {
+                        return "ITSUR";
+                    } else {
+                        return "UNV";
+                    }
+                } else {
+                    if (component.types.includes('route')) {
+                        street = `${component.short_name}`;
+                    }
+                    if (component.types.includes('street_number')) {
+                        number = `${component.long_name}`;
+                    }
+                    if (component.types.includes('locality')) {
+                        city = `${component.long_name}`;
+                    }
+                    if (component.types.includes('administrative_area_level_1')) {
+                        state = `${component.short_name}`;
+                    }
+                }
+            }
+
+            return `${street} ${number}, ${city}, ${state}`.trim();
+
+        } catch (error) {
+            console.warn(error);
+            return "";
+        }
+    };
+    const updateAddressInAutocomplete = async (latitude, longitude, ref, fieldName) => {
+        //console.log(addressComponent);
+        try {
+            const addressComponent = await getAddressComponents(latitude, longitude);
+            if (addressComponent === "UNV") {
+                setAlertUbication(true);
+                ref.current?.setAddressText("");
+                formikk.setFieldValue(fieldName, "");
+                setRoute(prev => ({ ...prev, [fieldName === 'directionOrigin' ? 'origin' : 'destination']: null }));
+            } else {
+                setAlertUbication(false);
+                ref.current?.setAddressText(addressComponent);
+                formikk.setFieldValue(fieldName, (addressComponent));
+            }
+
         } catch (error) {
             console.warn(error);
         }
     };
-
     const handleDragEnd = async (type, e) => {
         const coords = {
             latitude: e.nativeEvent.coordinate.latitude,
@@ -76,7 +131,6 @@ const SolicitarRide = ({ formikk }) => {
     }
 
     /* Obtener la ubicacion actual */
-
     const getLocationPermission = async () => {
         try {
             const { status } = await Location.requestForegroundPermissionsAsync();
@@ -85,21 +139,34 @@ const SolicitarRide = ({ formikk }) => {
                 return;
             }
             const { coords } = await Location.getCurrentPositionAsync({});
-            const currentPlace = {
-                description: 'Ubicación actual',
-                geometry: { location: { lat: coords.latitude, lng: coords.longitude } },
-            };
-            setHomePlace(currentPlace);
+
             if (!formikk.values.origin) {
+                //console.log('entro');
                 setRoute((p) => ({ ...p, origin: { latitude: coords.latitude, longitude: coords.longitude } }));
+                updateAddressInAutocomplete(coords.latitude, coords.longitude, originRef, 'directionOrigin');
+                mapRef.current?.animateCamera({
+                    center: {
+                        latitude: coords.latitude,
+                        longitude: coords.longitude,
+                    },
+                    zoom: 15,
+                    duration: 1,
+                });
+                const addressComponent = await getAddressComponents(coords.latitude, coords.longitude);
+                setHomePlace({
+                    description: 'Ubicación actual',
+                    toAutoComplete: addressComponent,
+                    geometry: { location: { lat: coords.latitude, lng: coords.longitude } },
+                });
+            } else {
+                originRef.current?.setAddressText(formikk.values.directionOrigin);
             }
-            updateAddressInAutocomplete(coords.latitude, coords.longitude, originRef, 'directionOrigin');
+
+
         } catch (error) {
             console.error('Error getting location permission:', error);
         }
     };
-
-
 
 
     //Formik
@@ -107,6 +174,8 @@ const SolicitarRide = ({ formikk }) => {
         if (route.origin !== null && route.destination !== null) {
             formikk.setFieldValue('origin', route.origin);
             formikk.setFieldValue('destination', route.destination);
+            originRef.current?.setAddressText(formikk.values.directionOrigin);
+            destinationRef.current?.setAddressText(formikk.values.directionDestination);
         }
     }, [route])
     React.useEffect(() => {
@@ -115,14 +184,6 @@ const SolicitarRide = ({ formikk }) => {
                 origin: formikk.values.origin,
                 destination: formikk.values.destination,
             })
-            Geocoder.from(formikk.values.destination.latitude, formikk.values.destination.longitude).then(json => {
-                var addressComponent = json.results[0].formatted_address;
-                destinationRef.current?.setAddressText(addressComponent);
-            }).catch(error => console.warn(error));
-            Geocoder.from(formikk.values.origin.latitude, formikk.values.origin.longitude).then(json => {
-                var addressComponent = json.results[0].formatted_address;
-                originRef.current?.setAddressText(addressComponent);
-            }).catch(error => console.warn(error));
         }
     }, [])
 
@@ -136,47 +197,72 @@ const SolicitarRide = ({ formikk }) => {
                     height: '100%',
                 }}>
                 {/* Inputs Origin & Destino */}
-                <View style={{ zIndex: 20, 
-                    width: '100%', 
+                <View style={{
+                    display: 'flex',
+                    zIndex: 20,
+                    width: '96%',
+                    marginStart: '1%',
+                    alignSelf: 'flex-center',
+                    justifyContent: 'center',
                     position: 'absolute',
                     backgroundColor: colors.transparent,
-                     }}>
+                }}>
                     <GooglePlacesAutocomplete
                         styles={
                             {
                                 textInput: {
+                                    position: 'relative',
                                     backgroundColor: '#56565B',
                                     color: '#fff',
                                     fontSize: 16,
                                     height: 50,
-                                    fontWeight: 'normal',
+                                    paddingHorizontal: 16,
+                                    marginTop: 10,
+                                    borderRadius: 10, // bordes redondeados
                                     shadowColor: "#000",
-                                    shadowOffset: {
-                                        width: 0,
-                                        height: 2,
-                                    },
+                                    shadowOffset: { width: 0, height: 2 },
                                     shadowOpacity: 0.25,
                                     shadowRadius: 3.84,
                                     elevation: 5,
-                                    paddingHorizontal: 16,
+                                    flexDirection: 'row', // Para alinear el ícono y el input horizontalmente
+                                    alignItems: 'center', // Para centrar verticalmente el ícono y el texto
+                                },
+                                listView: {
+                                    backgroundColor: colors.background3,
+                                    borderRadius: 10,
                                     marginTop: 10,
                                 },
-                                predefinedPlacesDescription: {
-                                    color: colors.text,
-                                },
-                                listView: {},
                                 row: {
-                                    backgroundColor: colors.input,
+                                    backgroundColor: colors.background3,
+                                    borderRadius: 10,
                                     padding: 13,
-                                    height: 44,
-                                    flexDirection: 'row',
+                                    height: 50,
                                 },
                             }
                         }
+                        renderRightButton={() => (
+                            originRef.current?.getAddressText() ? (
+                                <Icon 
+                                name="times-circle" 
+                                size={20} 
+                                color="#fff" 
+                                style={{width: 20, height: 20, position: 'absolute', right: 10, top: 23}}
+                                onPress={() => {
+                                    originRef.current?.setAddressText('');
+                                    formikk.setFieldValue('directionOrigin', '');
+                                    setRoute(p => ({ ...p, origin: null }));
+                                }} 
+                                />
+                            ) : null
+                        )}
+                        textInputProps={{
+                            placeholderTextColor: '#fff',
+                            placeholder: '¿Dónde estás?',
+                        }}
                         ref={originRef}
                         fetchDetails={true}
-                        placeholder='¿Dónde estás?'
-                        onPress={(data, details = null) => {
+                        onPress={(data, details) => {
+                            console.log(data);
                             setRoute(p => ({
                                 ...p,
                                 origin: {
@@ -184,7 +270,8 @@ const SolicitarRide = ({ formikk }) => {
                                     longitude: details?.geometry?.location.lng,
                                 }
                             }));
-                            formikk.setFieldValue('directionOrigin', data.description);
+                            data.toAutoComplete?formikk.setFieldValue('directionOrigin', data.toAutoComplete):formikk.setFieldValue('directionOrigin', data.description);
+                            originRef.current?.setAddressText(data.description);
                         }}
                         query={{
                             key: GOOGLE_MAPS_API_KEY,
@@ -200,39 +287,39 @@ const SolicitarRide = ({ formikk }) => {
                         styles={
                             {
                                 textInput: {
-                                    backgroundColor: '#56565B', height: 38,
+                                    position: 'relative',
+                                    backgroundColor: '#56565B',
                                     color: '#fff',
                                     fontSize: 16,
-                                    height: 50,
-                                    fontWeight: 'normal',
+                                    height: 70,
+                                    paddingHorizontal: 16,
+                                    marginTop: 10,
+                                    borderRadius: 10, // bordes redondeados
                                     shadowColor: "#000",
-                                    shadowOffset: {
-                                        width: 0,
-                                        height: 2,
-                                    },
+                                    shadowOffset: { width: 0, height: 2 },
                                     shadowOpacity: 0.25,
                                     shadowRadius: 3.84,
                                     elevation: 5,
-                                    paddingHorizontal: 16,
-                                    marginTop: 10,
+                                    flexDirection: 'row', // Para alinear el ícono y el input horizontalmente
+                                    alignItems: 'center', // Para centrar verticalmente el ícono y el texto
                                 },
                                 predefinedPlacesDescription: {
                                     color: colors.text,
                                 },
-                                listView: {},
-                                row: {
-                                    backgroundColor: colors.input,
-                                    padding: 13,
-                                    height: 44,
-                                    flexDirection: 'row',
-                                },
+
                             }
                         }
+                        textInputProps={{
+                            placeholderTextColor: '#fff',
+                            placeholder: '¿A dónde te diriges?',
+                            textAlignVertical: 'top',
+                            multiline: true,
+                        }}
                         ref={destinationRef}
-                        placeholder='¿A dónde te diriges?'
                         autoFocus={false}
                         fetchDetails={true}
-                        onPress={(data, details = null) => {
+                        onPress={(data, details) => {
+                            console.log(data);
                             setRoute(p => ({
                                 ...p,
                                 destination: {
@@ -241,7 +328,7 @@ const SolicitarRide = ({ formikk }) => {
                                 }
                             }));
                             formikk.setFieldValue('directionDestination', data.description);
-
+                            destinationRef.current?.setAddressText(data.description);
                         }}
                         query={{
                             key: GOOGLE_MAPS_API_KEY,
@@ -250,6 +337,21 @@ const SolicitarRide = ({ formikk }) => {
                             radius: '15000', // Radio en metros
                             strictbounds: true,
                         }}
+                        renderRightButton={() => (
+                            destinationRef.current?.getAddressText() ? (
+                                <Icon 
+                                name="times-circle" 
+                                size={20} 
+                                color="#fff" 
+                                style={{width: 20, height: 20, position: 'absolute', right: 10, top: 25}}
+                                onPress={() => {
+                                    destinationRef.current?.setAddressText('');
+                                    formikk.setFieldValue('directionDestination', '');
+                                    setRoute(p => ({ ...p, destination: null }));
+                                }} 
+                                />
+                            ) : null
+                        )}
                         onFail={(error) => console.error(error)}
                         predefinedPlaces={[ITSUR_PLACE]}
                     />
@@ -270,7 +372,7 @@ const SolicitarRide = ({ formikk }) => {
                     >
                         {route.origin !== null &&
                             <Marker
-                                title="origin"
+                                title="Punto de encuentro"
                                 id="origin"
                                 coordinate={route.origin}
                                 draggable={true}
@@ -280,7 +382,7 @@ const SolicitarRide = ({ formikk }) => {
                         }
                         {route.destination !== null &&
                             <Marker
-                                title="destination"
+                                title="Destino"
                                 id="destination"
                                 coordinate={route.destination}
                                 draggable={true}
@@ -289,7 +391,7 @@ const SolicitarRide = ({ formikk }) => {
                             />
                         }
                         {route.origin !== null && route.destination !== null &&
-                            
+
                             <MapViewDirections
                                 origin={route.origin}
                                 destination={route.destination}
@@ -312,9 +414,18 @@ const SolicitarRide = ({ formikk }) => {
                         }
                     </MapView>
                 </TouchableWithoutFeedback>
+
+                {/* Alerta de ubicacion */}
+                <Portal>
+                    <Modal visible={alertUbication} onDismiss={() => setAlertUbication(false)} contentContainerStyle={{ padding: 20, backgroundColor: colors.background3, width: '100%' }}>
+                        <Text style={{ fontSize: 20, color: '#171717' }}>¡Alto ahí loca!</Text>
+                        <Text style={{ marginTop: 10, color: '#171717' }}>Ajusta los marcadores para generar una ubicación válida.</Text>
+                        <Button style={styles.button} textColor='white' mode="contained" onPress={() => { setAlertUbication(false) }}>Obligame prro</Button>
+                    </Modal>
+                </Portal>
             </View>
         </View>
     );
 };
 
-export default SolicitarRide;
+export default CargarRuta;
