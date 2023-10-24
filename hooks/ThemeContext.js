@@ -37,6 +37,7 @@ export function ThemeProvider({children}){
             colorSelect: isDark? '#2E973A' : '#445D47',
             cardAceptada: isDark? '#528045' : '#BEE27B',
             cardFinalizada: isDark? '#D65656'  : '#EE6464',
+            textRide: isDark? '#22c55e' : 'green',
         },
         setDark: (isDark) => setThemeState(isDark ? 'dark' : 'light'),
     };

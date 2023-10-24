@@ -8,7 +8,7 @@ import { useAuth } from './context/AuthContext';
 import Loader from './components/Loader';
 import OnboardingScreen from './Screens/LoginSession/OnboardingScreen';
 import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
-import FrmSolicitarRide from './Screens/FrmSolicitarRide';
+import FrmSolicitarRide from './Screens/SolicitarRide/FrmSolicitarRide';
 import GestionarOfertas from './Screens/GestionarScreens/Ofertas';
 import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
 import ChatScreen from './Screens/ChatScreen';
