@@ -28,20 +28,7 @@ const PerfilScreen = ({ navigation }) => {
   const [modalPropsALert, setModalPropsALert] = useState({});
   const [modalDialog, setModalDialog] = useState(false);
   const [modalPropsDialog, setModalPropsDialog] = useState({});
-  const [progress, setProgress] = useState(0);
-
-
-  const PerfilScreen = ({ navigation }) => {
-    const { colors } = useTheme()
-    const { user } = useAuth()
-    const [isLoading, setIsLoading] = useState(true)
-    const [userData, setUserData] = useState(null)
-    const [modalALert, setModalAlert] = useState(false)
-    const [modalDialog, setModalDialog] = useState(false)
-    const [showOverlay, setShowOverlay] = useState(false)
-    const [showProgressBar, setShowProgressBar] = useState(false)
-
-    const [modalDetails, setModalDetails] = useState(false);
+  const [showProgressBar, setShowProgressBar] = useState(false)
 
     const pickImage = async () => {
       try {
@@ -275,13 +262,6 @@ const PerfilScreen = ({ navigation }) => {
             </View>
             <View style={styles.settingsContainer}>
               <Text variant='headlineMedium'>Configuraciones</Text>
-         
-              <TouchableOpacity onPress={() => pickImage()}>
-                <View style={styles.settingsItem}>
-                  <Ionicons name="person-circle" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge'>Cambiar foto de perfil</Text>
-                </View>
-              </TouchableOpacity>
               <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
                   <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
@@ -361,6 +341,6 @@ const PerfilScreen = ({ navigation }) => {
     badgesContainer: { flexDirection: 'row', marginBottom: 10 },
     settingsContainer: { borderTopWidth: 1, borderTopColor: '#E0E0E0', paddingTop: 20 },
     settingsItem: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 },
-  });
+  })
 
-  export default PerfilScreen;
+  export default PerfilScreen
