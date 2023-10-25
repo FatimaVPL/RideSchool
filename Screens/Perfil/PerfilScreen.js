@@ -5,13 +5,12 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button } from 'react-native-paper';
-import { firebase, db } from '../config-firebase';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from "../hooks/ThemeContext";
-import { subscribeToUsers } from '../firebaseSubscriptions';
-import { getInfoMedal2 } from './GestionarScreens/others/Functions';
-import ModalALert from './GestionarScreens/components/ModalAlert';
-import ModalDialog from './GestionarScreens/components/ModalDialog';
+import { db, firebase } from '../../config-firebase';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from "../../hooks/ThemeContext";
+import { getInfoMedal2 } from '../GestionarScreens/others/Functions';
+import ModalALert from '../GestionarScreens/components/ModalAlert';
+import ModalDialog from '../GestionarScreens/components/ModalDialog';
 import { Avatar, LinearProgress } from 'react-native-elements';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
@@ -188,7 +187,7 @@ const PerfilScreen = ({ navigation }) => {
                 rounded
                 onPress={() => verImagen()}
                 size="xlarge"
-                source={dataUser.photoURL ? { uri: dataUser.photoURL } : require('../assets/default.jpg')}
+                source={dataUser.photoURL ? { uri: dataUser.photoURL } : require('../../assets/default.jpg')}
               >
                 <Avatar.Accessory size={38} underlayColor="#696969" selectionColor="red" onPress={() => pickImage()} />
               </Avatar>

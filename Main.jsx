@@ -1,6 +1,5 @@
 import React from 'react';
 import Navegacion from './Screens/ButtonTabScreen';
-import PerfilScreen from './Screens/PerfilScreen';
 import { createStackNavigator } from '@react-navigation/stack';
 import NotificacionesScreen from './Screens/NotificacionesScreen';
 import AjustesGeneralesScreen from './Screens/AjustesGeneralesScreen';
@@ -14,8 +13,10 @@ import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
 import ChatScreen from './Screens/ChatScreen';
 import GestionarRides from './Screens/GestionarScreens/Rides';
 import InicioScreen from './Screens/Inicio/InicioScreen';
-import SubirDocumentosScreen from './Screens/SubirDocumentosScreen';
 import RidesMap from './Screens/RidesSolicitados/RidesMap';
+import PerfilScreen from './Screens/Perfil/PerfilScreen';
+import SubirDocumentosScreen from './Screens/Perfil/SubirDocumentosScreen';
+//jejeje xd
 
 const Main = () => {
   const Stack = createStackNavigator();

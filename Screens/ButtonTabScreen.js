@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import InicioScreen from './Inicio/InicioScreen';
-import PerfilScreen from './Perfil/PerfilScreen';
 import ChatScreen from './ChatScreen';
 import RidesSolicitados from './RidesSolicitados/RidesMap';
 import GestionarOfertas from './GestionarScreens/Ofertas';
@@ -15,6 +14,7 @@ import { db } from '../config-firebase';
 import Animation from '../components/Loader'
 import { useTheme } from "../hooks/ThemeContext";
 import { subscribeToUsers } from '../firebaseSubscriptions';
+import PerfilScreen from './Perfil/PerfilScreen';
 
 const Tab = createBottomTabNavigator();
 
