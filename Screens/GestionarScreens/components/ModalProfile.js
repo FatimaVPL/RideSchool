@@ -5,12 +5,14 @@ import { Avatar } from 'react-native-elements';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { getInfoMedal } from "../others/Functions";
+import { useTheme } from "../../../hooks/ThemeContext";
 
 const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, setModalAlert }) => {
+    const { colors } = useTheme();
     return (
         <Portal>
-            <Modal visible={modalUser} onDismiss={setModalUser} contentContainerStyle={{ backgroundColor: 'white', padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
-            <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black' }}>Información de la oferta</Text>
+            <Modal visible={modalUser} onDismiss={setModalUser} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+            <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text }}>Información de la oferta</Text>
                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 18 }}>
                             <View>
                                 <Avatar
@@ -54,13 +56,13 @@ const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, se
                         {oferta.comentario !== null && (
                             <View style={{ flexDirection: 'row' }}>
                                 <Ionicons name="chatbubbles" style={{ marginRight: 10, fontSize: 24 }} />
-                                <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: 'black' }}>{oferta.oferta.comentario}</Text>
+                                <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: colors.text }}>{oferta.oferta.comentario}</Text>
                             </View>
                         )}
 
                         <View style={{ flexDirection: 'row' }}>
                             <Ionicons name="cash" style={{ marginRight: 10, fontSize: 24 }} />
-                            <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: 'black' }}>{oferta.oferta.cooperacion}</Text>
+                            <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: colors.text }}>{oferta.oferta.cooperacion}</Text>
                         </View>
 
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

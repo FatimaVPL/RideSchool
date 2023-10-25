@@ -98,7 +98,7 @@ const RidesConductor = ({ navigation }) => {
                         renderItem={({ item, index }) => (
                             <Card
                                 key={index}
-                                style={{ width: '93%', borderRadius: 8, margin: 8, alignSelf: 'center', backgroundColor: colors.backgroundCard }}
+                                style={{ width: '93%', borderRadius: 8, margin: 8, alignSelf: 'center', backgroundColor: colors.background3 }}
                             >
                                 <Card.Content>
                                     <Text variant="titleLarge" style={[styles.textBorder, { borderBottomColor: getInfoByStatus(item.oferta.estado).color }]}>{item.oferta.estado.toUpperCase()}</Text>
@@ -113,7 +113,7 @@ const RidesConductor = ({ navigation }) => {
                                     </View>
                                 </Card.Content>
                                 <Card.Actions style={{ width: '100%' }}>
-                                    <Button textColor="black" style={{ width: '49%' }} labelStyle={{ fontWeight: 'bold', fontSize: 13 }}
+                                    <Button buttonColor={colors.background3} textColor="black" style={{ width: '49%' }} labelStyle={{ fontWeight: 'bold', fontSize: 13 }}
                                         onPress={() => { setselectedItem(item); setModalDetails(true); }}>Ver Detalles</Button>
                                     {item.oferta.estado !== "descartada" && item.oferta.estado !== "cancelada" && (
                                         <Button buttonColor={getInfoByStatus(item.oferta.estado).color} textColor="white" style={{ width: '49%' }} labelStyle={{ fontWeight: 'bold', fontSize: 14 }}

@@ -4,9 +4,10 @@ import { Button, Text, TextInput, Modal, Portal } from 'react-native-paper';
 import { View, Pressable } from "react-native";
 import { AirbnbRating } from 'react-native-elements';
 import { updateRating } from "../others/Queries";
+import { useTheme } from "../../../hooks/ThemeContext";
 
 const ModalRating = ({ ride, rol, modalRating, setModalRating, setModalReview, setModalPropsAlert, setModalAlert }) => {
-    
+    const { colors } = useTheme();
     let fileName = rol === "conductor" ? "califC_P" : "califP_C";
 
     const [text, onChangeText] = useState(ride[fileName]?.comentario);
@@ -14,8 +15,8 @@ const ModalRating = ({ ride, rol, modalRating, setModalRating, setModalReview, s
 
     return (
         <Portal>
-            <Modal visible={modalRating} onDismiss={setModalRating} contentContainerStyle={{ backgroundColor: 'white', padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
-                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black', textAlign: 'center' }}>Califica tu experiencia</Text>
+            <Modal visible={modalRating} onDismiss={setModalRating} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text, textAlign: 'center' }}>Califica tu experiencia</Text>
                 <AirbnbRating
                     count={5}
                     reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}

@@ -6,6 +6,7 @@ import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_MAPS_API_KEY } from "@env";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { cut, formatDate } from "../others/Functions";
+import { useTheme } from "../../../hooks/ThemeContext";
 
 const styles = StyleSheet.create({
     container: {
@@ -22,6 +23,7 @@ const styles = StyleSheet.create({
 // 1 = Ride - Vista pasajero
 // 2 = Oferta - Vista conductor
 const ModalDetails = ({ data, type, modalDetails, setModalDetails, setModalPropsAlert, setModalAlert }) => {
+    const { colors } = useTheme();
     const latitudeOrigin = data.ride.origin.coordinates.latitude;
     const longitudeOrigin = data.ride.origin.coordinates.longitude;
     const latitudeDestination = data.ride.destination.coordinates.latitude;
@@ -30,10 +32,10 @@ const ModalDetails = ({ data, type, modalDetails, setModalDetails, setModalProps
 
     return (
         <Portal>
-            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: 'white', padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View>
-                        <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black', marginRight: 20 }}>Información del Ride</Text>
+                        <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text, marginRight: 20 }}>Información del Ride</Text>
                     </View>
                     <View>
                         <Pressable onPress={() => setModalDetails(false)}>

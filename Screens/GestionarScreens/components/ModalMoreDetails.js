@@ -7,6 +7,7 @@ import { GOOGLE_MAPS_API_KEY } from "@env";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatDate } from "../others/Functions";
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "../../../hooks/ThemeContext";
 
 const styles = StyleSheet.create({
     container: {
@@ -21,6 +22,7 @@ const styles = StyleSheet.create({
 })
 
 const ModalMoreDetails = ({ data, modalDetails, setModalDetails, setModalPropsAlert, setModalAlert }) => {
+    const { colors } = useTheme();
     const { dataUser } = useAuth();
 
     const pasajero = data.pasajero === undefined ? `${dataUser.firstName} ${dataUser.lastName}` : `${data.pasajero.firstName} ${data.pasajero.lastName}`;
@@ -40,11 +42,11 @@ const ModalMoreDetails = ({ data, modalDetails, setModalDetails, setModalPropsAl
 
     return (
         <Portal>
-            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: 'white', padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View>
-                        <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black', marginRight: 15 }}>Información Detallada</Text>
+                        <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text, marginRight: 15 }}>Información Detallada</Text>
                     </View>
                     <View>
                         <Pressable onPress={() => setModalDetails(false)}>
@@ -54,28 +56,28 @@ const ModalMoreDetails = ({ data, modalDetails, setModalDetails, setModalPropsAl
                 </View>
 
                 {data.oferta !== undefined && (
-                    <View style={{ borderWidth: 1.5, borderColor: '#2B8D3A' }}>
-                        <Text style={{ marginTop: -10, fontWeight: 'bold', color: 'black', marginLeft: 10, fontSize: 16, backgroundColor: 'white', width: '30%', textAlign: 'center' }}>OFERTA</Text>
-                        <Text style={{ marginBottom: 15, marginLeft: 8, fontWeight: 'bold', color: 'black', fontSize: 16, marginTop: 6 }}>
-                            Conductor: <Text style={{ fontWeight: 'normal', color: 'black' }}>{'\n'}{conductor}{'\n'}</Text>
+                    <View style={{ borderWidth: 1.5, borderColor: colors.cardText }}>
+                        <Text style={{ marginTop: -10, fontWeight: 'bold', color: colors.text, marginLeft: 10, fontSize: 16, backgroundColor: colors.background, width: '30%', textAlign: 'center' }}>OFERTA</Text>
+                        <Text style={{ marginBottom: 15, marginLeft: 8, fontWeight: 'bold', color: colors.text, fontSize: 16, marginTop: 6 }}>
+                            Conductor: <Text style={{ fontWeight: 'normal', color: colors.text }}>{'\n'}{conductor}{'\n'}</Text>
                             {data.oferta.comentario !== null && (
-                                <><Text style={{ fontWeight: 'bold', color: 'black' }}>Comentario:</Text><Text style={{ fontWeight: 'normal', color: 'black' }}>{'\n'}{data.oferta.comentario}{'\n'}</Text></>
+                                <><Text style={{ fontWeight: 'bold', color: colors.text }}>Comentario:</Text><Text style={{ fontWeight: 'normal', color: colors.text }}>{'\n'}{data.oferta.comentario}{'\n'}</Text></>
                             )}
-                            Coperación: <Text style={{ fontWeight: 'normal', color: 'black' }}>$ {data.oferta.cooperacion}</Text>
+                            Coperación: <Text style={{ fontWeight: 'normal', color: colors.text }}>$ {data.oferta.cooperacion}</Text>
                         </Text>
                     </View>
                 )}
 
-                <View style={{ borderWidth: 1.5, borderColor: '#2B8D3A', marginTop: 12 }}>
-                    <Text style={{ marginTop: -10, fontWeight: 'bold', color: 'black', marginLeft: 10, fontSize: 16, backgroundColor: 'white', width: '30%', textAlign: 'center' }}>RIDE</Text>
-                    <Text style={{ marginBottom: 15, marginLeft: 8, fontWeight: 'bold', color: 'black', fontSize: 16, marginTop: 6 }}>
-                        Pasajero: <Text style={{ fontWeight: 'normal', color: 'black' }}>{'\n'}{pasajero}{'\n'}</Text>
+                <View style={{ borderWidth: 1.5, borderColor: colors.cardText, marginTop: 12 }}>
+                    <Text style={{ marginTop: -10, fontWeight: 'bold', color: colors.text, marginLeft: 10, fontSize: 16, backgroundColor: colors.background, width: '30%', textAlign: 'center' }}>RIDE</Text>
+                    <Text style={{ marginBottom: 15, marginLeft: 8, fontWeight: 'bold', color: colors.text, fontSize: 16, marginTop: 6 }}>
+                        Pasajero: <Text style={{ fontWeight: 'normal', color: colors.text }}>{'\n'}{pasajero}{'\n'}</Text>
                         {data.ride.comentarios !== null && (
-                            <><Text style={{ fontWeight: 'bold', color: 'black' }}>Comentario:</Text><Text style={{ fontWeight: 'normal', color: 'black' }}>{'\n'}{data.ride.comentarios}{'\n'}</Text></>
+                            <><Text style={{ fontWeight: 'bold',  color: colors.text }}>Comentario:</Text><Text style={{ fontWeight: 'normal', color: 'black' }}>{'\n'}{data.ride.comentarios}{'\n'}</Text></>
                         )}
-                        Num. Personas: <Text style={{ fontWeight: 'normal', color: 'black' }}>{data.ride.personas}{'\n'}</Text>
-                        Fecha: <Text style={{ fontWeight: 'normal', color: 'black' }}>{fecha}</Text>  Hora:<Text style={{ fontWeight: 'normal', color: 'black' }}>{hora}{'\n'}</Text>
-                        Ruta: <Text style={{ fontWeight: 'normal', color: 'black' }}>{data.ride.informationRoute.distance}km/{data.ride.informationRoute.duration}min aproximados</Text>
+                        Num. Personas: <Text style={{ fontWeight: 'normal', color: colors.text }}>{data.ride.personas}{'\n'}</Text>
+                        Fecha: <Text style={{ fontWeight: 'normal', color: colors.text }}>{fecha}</Text>  Hora:<Text style={{ fontWeight: 'normal', color: 'black' }}>{hora}{'\n'}</Text>
+                        Ruta: <Text style={{ fontWeight: 'normal', color: colors.text }}>{data.ride.informationRoute.distance}km/{data.ride.informationRoute.duration}min aproximados</Text>
                     </Text>
 
                     <View style={{ width: '95%', height: 180, alignSelf: 'center', marginBottom: 5 }}>
@@ -122,9 +124,9 @@ const ModalMoreDetails = ({ data, modalDetails, setModalDetails, setModalPropsAl
                         <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'center' }}>
                             <Button
                                 textColor="#EE6464"
-                                style={{ width: '80%', borderWidth: 1, borderColor: '#EE6464' }}
+                                style={{ width: '80%', borderWidth: 2, borderColor: '#EE6464' }}
                                 labelStyle={{ fontWeight: 'bold', fontSize: 15 }}
-                                buttonColor='#F8F7F6'
+                                buttonColor= {colors.background}
                                 onPress={() => {
                                     setModalDetails(false);
                                     setModalPropsAlert({
