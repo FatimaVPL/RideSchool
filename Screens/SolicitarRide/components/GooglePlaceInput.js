@@ -45,6 +45,7 @@ const GooglePlaceInput =React.forwardRef (({ placeholder, onPress, predefinedPla
             onFail={(error) => console.error(error)}
             predefinedPlaces={predefinedPlaces}
             ref={ref}
+            placeholderTextColor={colors.text}
         />
     );
 });

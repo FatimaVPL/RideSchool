@@ -11,11 +11,11 @@ const Informacion = ({ titulo, texto, imagen, lugar, link }) => {
             <View style={[styles.imageContainer, { [imageAlignment]: 0 }]}>
                 <Image source={imagen} style={styles.image} />
             </View>
-            <Text style={[styles.title]}>{titulo}</Text>
+            <Text style={[styles.title, {color: colors.cardText}]}>{titulo}</Text>
             <View style={styles.container}>
-                <Text style={styles.textN}>{texto}</Text>
+                <Text style={[styles.textN, {color: colors.text}]}>{texto}</Text>
             </View>
-            <Text style={styles.link}>{link}</Text>
+            <Text style={[styles.link,{color: colors.linkText}]}>{link}</Text>
         </View>
     );
 }
@@ -64,7 +64,6 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     link:{
-        color: '#12A8B4',
         fontSize: 20,
         fontWeight:'bold'
     },

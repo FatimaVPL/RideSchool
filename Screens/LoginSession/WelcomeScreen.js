@@ -99,7 +99,7 @@ export default function WelcomeScreen({ navigation }) {
           {({ handleBlur, handleChange, handleSubmit, touched, errors, values }) => (
             <View style={[styles.container, { backgroundColor: colors.background }]}>
               <Image style={styles.logo} source={isDark ? require('../../assets/ride-school-dark.png') : require('../../assets/ride-school.png')} />
-              <Text style={styles.bienvenida} variant='headlineLarge'>Encuentra el camino seguro a tu educación</Text>
+              <Text style={[styles.bienvenida, {color: colors.text}]} variant='headlineLarge'>Encuentra el camino seguro a tu educación</Text>
               <TextInput
                 placeholder="Correo institucional"
                 style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
@@ -165,10 +165,9 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     marginTop: 15,
     marginBottom: 10,
-    color: "#D6A50C"
   },
   input: {
-    width: 350,
+    width: "90%",
     height: 50,
     borderRadius: 8,
     shadowColor: "#000",
@@ -183,7 +182,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
-    width: 300,
+    width: "80%",
     height: 50,
     backgroundColor: 'green',
     padding: 10,

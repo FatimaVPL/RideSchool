@@ -6,10 +6,12 @@ import * as Yup from 'yup';
 import { db } from "../../../config-firebase";
 import { useAuth } from "../../../context/AuthContext";
 import { sendNotificationByReference } from "../../../hooks/Notifications";
+import { useTheme } from "../../../hooks/ThemeContext";
 
 const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert }) => {
     const { user } = useAuth();
-
+    const { colors } = useTheme();
+    
     const validationSchema = Yup.object().shape({
         cooperacion: Yup.number()
             .typeError('Debe ser un número')
@@ -46,8 +48,8 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
 
     return (
         <Portal>
-            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: 'white', padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
-                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black' }}>Detalles del Ride</Text>
+            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text }}>Detalles del Ride</Text>
 
                 <Formik
                     initialValues={{
@@ -59,7 +61,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                     onSubmit={(values) => { setValues(values) }}
                 >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
-                        <View>
+                        <View style={{backgroundColor: colors.background}}>
                             <TextInput
                                 style={{ margin: 7, height: 60 }}
                                 mode="outlined"
@@ -68,7 +70,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                                 onChangeText={handleChange('cooperacion')}
                                 onBlur={handleBlur('cooperacion')}
                                 keyboardType='numeric'
-                                theme={{ colors: { text: 'green', primary: 'green' } }}
+                                theme={{ colors: { text: colors.cardText , primary: colors.cardText } }}
                             />
                             {touched.cooperacion && errors.cooperacion && <Text style={{ color: 'red' }}>{errors.cooperacion}</Text>}
 
@@ -80,7 +82,8 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                                 multiline={true}
                                 onChangeText={handleChange('comentario')}
                                 onBlur={handleBlur('comentario')}
-                                theme={{ colors: { text: 'green', primary: 'green' } }}
+                                theme={{ colors: { text: colors.cardText, primary: colors.cardText } }}
+                                placeholderTextColor={colors.Text}
                             />
                             {touched.comentario && errors.comentario && <Text style={{ color: 'red' }}>{errors.comentario}</Text>}
 
