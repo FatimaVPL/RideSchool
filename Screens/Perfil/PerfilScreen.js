@@ -244,7 +244,7 @@ const PerfilScreen = ({ navigation }) => {
               </View>
             </View>
 
-        </View>
+        
         <View style={styles.settingsContainer}>
           <Text variant='headlineMedium'>Configuraciones</Text>
           {/* <TouchableOpacity onPress={notificaciones}>
