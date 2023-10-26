@@ -4,7 +4,7 @@ import { View, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Text, Divider, ActivityIndicator, MD2Colors, PaperProvider, Button } from 'react-native-paper';
+import { Text, Divider, PaperProvider, Button } from 'react-native-paper';
 import { db, firebase } from '../../config-firebase';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from "../../hooks/ThemeContext";
@@ -13,17 +13,28 @@ import ModalALert from '../GestionarScreens/components/ModalAlert';
 import ModalDialog from '../GestionarScreens/components/ModalDialog';
 import { Avatar, LinearProgress } from 'react-native-elements';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { subscribeToUsers } from '../../firebaseSubscriptions';
 
 const PerfilScreen = ({ navigation }) => {
   const { colors } = useTheme()
-  const { dataUser } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
+  const { dataUser, getDataUser } = useAuth();
+  //const [isLoading, setIsLoading] = useState(true);
   //const [userData, setUserData] = useState(null);
   const [modalALert, setModalAlert] = useState(false);
   const [modalPropsALert, setModalPropsALert] = useState({});
   const [modalDialog, setModalDialog] = useState(false);
   const [modalPropsDialog, setModalPropsDialog] = useState({});
-  const [showProgressBar, setShowProgressBar] = useState(false)
+  const [showProgressBar, setShowProgressBar] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToUsers(() => { getDataUser(dataUser.email) });
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   const pickImage = async () => {
     try {
@@ -131,34 +142,6 @@ const PerfilScreen = ({ navigation }) => {
     }
   }
 
-  /*************************************************************** 
-  useEffect(() => {
-    const unsubscribe = subscribeToUsers(() => { getUser() });
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, []);
-
-  async function getUser() {
-    var reference = db.collection('users').doc(user.email);
-    try {
-      const doc = await reference.get();
-      if (doc.exists) {
-        setUserData(doc.data());
-        setIsLoading(false);
-      } else {
-        console.log('El documento no existe');
-        return null;
-      }
-    } catch (error) {
-      console.error('Error al obtener los documentos:', error);
-      throw error;
-    }
-  } */
-
   const handleLogout = async () => {
     try {
       await firebase.auth().signOut();
@@ -185,78 +168,82 @@ const PerfilScreen = ({ navigation }) => {
   return (
     <PaperProvider>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.profileContainer, { backgroundColor: colors.background }]}>
-          <Avatar
-            rounded
-            onPress={() => verImagen()}
-            size="xlarge"
-            source={dataUser.photoURL ? { uri: dataUser.photoURL } : require('../../assets/default.jpg')}
-          >
-            <Avatar.Accessory size={38} underlayColor="#696969" selectionColor="red" onPress={() => pickImage()} />
-          </Avatar>
-          {showProgressBar && <LinearProgress style={{ marginTop: 10 }} color='#1DBE99' />}
-          <Text variant='headlineSmall'>{`${dataUser.firstName} ${dataUser.lastName}`}</Text>
-          <Text variant='titleMedium'>{dataUser.email}</Text>
-          {/* CALIFICACION GENERAL */}
-          <View style={styles.badgesContainer}>
-            {Array.from({ length: dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor }).map((_, index) => (
-              <Ionicons key={index} name="star" size={24} color="#FFC107" />
-            ))}
-            {Array.from({ length: 5 - (dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor) }).map((_, index) => (
-              <Ionicons key={index} name="star" size={24} color="#8C8A82" />
-            ))}
-          </View>
-          <Text variant='titleMedium'>{dataUser.role}</Text>
-          <Button onPress={() => {
-            let content = dataUser.role === "Conductor" ? "PASAJERO" : "CONDUCTOR";
-            setModalPropsALert({
-              icon: 'retweet',
-              color: '#FFC300',
-              title: 'Cambiar la app a modo:',
-              content: content,
-              type: 5
-            });
-            setModalAlert(true);
-          }}>
-            Usar en modo {dataUser.role === "Conductor" ? "Pasajero" : "Conductor"}</Button>
-        </View>
-        {/* INSIGNIAS */}
-        <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15, marginBottom: 10 }}>
-          <Text variant='titleLarge' style={{ textAlign: 'center', marginBottom: 10 }}>Insignias</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            {dataUser.role === "Conductor" && (
-              <>
-                {dataUser.licencia?.validado && (
-                  <View style={{ flex: 1, alignItems: 'center' }}>
-                    <MaterialCommunityIcons name="card-account-details-star" style={{ fontSize: 38, color: colors.icon }} />
-                    <Text style={{ textAlign: 'center' }}>Licencia</Text>
-                  </View>
+            <View style={[styles.profileContainer, { backgroundColor: colors.background }]}>
+              <Avatar
+                rounded
+                onPress={() => verImagen()}
+                size="xlarge"
+                source={dataUser.photoURL ? { uri: dataUser.photoURL } : require('../../assets/default.jpg')}
+              >
+                <Avatar.Accessory size={38} underlayColor="#696969" selectionColor="red" onPress={() => pickImage()} />
+              </Avatar>
+              {showProgressBar && <LinearProgress style={{ marginTop: 10 }} color='#1DBE99' />}
+              <Text variant='headlineSmall'>{`${dataUser.firstName} ${dataUser.lastName}`}</Text>
+              <Text variant='titleMedium'>{dataUser.email}</Text>
+
+              {/* CALIFICACION GENERAL */}
+              <View style={[styles.badgesContainer, {marginTop: 5}]}>
+                {Array.from({ length: dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor }).map((_, index) => (
+                  <Ionicons key={index} name="star" size={24} color="#FFC107" style={{marginRight: 5}}/>
+                ))}
+                {Array.from({ length: 5 - (dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor) }).map((_, index) => (
+                  <Ionicons key={index} name="star" size={24} color="#8C8A82" style={{marginRight: 5}}/>
+                ))}
+              </View>
+              
+              <Text variant='titleMedium'>{dataUser.role}</Text>
+              <Button onPress={() => {
+                let content = dataUser.role === "Conductor" ? "PASAJERO" : "CONDUCTOR";
+                setModalPropsALert({
+                  icon: 'retweet',
+                  color: '#FFC300',
+                  title: 'Cambiar la app a modo:',
+                  content: content,
+                  type: 5
+                });
+                setModalAlert(true);
+              }}>
+                Usar en modo {dataUser.role === "Conductor" ? "Pasajero" : "Conductor"}</Button>
+            </View>
+            {/* INSIGNIAS */}
+            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15, marginBottom: 10 }}>
+              <Text variant='titleLarge' style={{ textAlign: 'center', marginBottom: 10 }}>Insignias</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                {dataUser.role === "Conductor" && (
+                  <>
+                    {dataUser.licencia?.validado && (
+                      <View style={{alignItems: 'center' }}>
+                        <MaterialCommunityIcons name="card-account-details-star" style={{ fontSize: 38, color: colors.icon }} />
+                        <Text style={{ textAlign: 'center' }}>Licencia</Text>
+                      </View>
+                    )}
+                    {dataUser.tarjetaCirculacion?.validado && (
+                      <View style={{alignItems: 'center' }}>
+                        <MaterialCommunityIcons name="credit-card-check" style={{ fontSize: 38, color: colors.icon }} />
+                        <Text style={{ textAlign: 'center' }}>{"Tarjeta \n Circulación"}</Text>
+                      </View>
+                    )}
+                    {getInfoMedal2(dataUser.numRidesConductor) !== false && (
+                      <View style={{ alignItems: 'center' }}>
+                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesConductor).color} />
+                        <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal2(dataUser.numRidesConductor).text}`}</Text>
+                      </View>
+                    )}
+                  </>
                 )}
-                {dataUser.tarjetaCirculacion?.validado && (
-                  <View style={{ flex: 1, alignItems: 'center' }}>
-                    <MaterialCommunityIcons name="credit-card-check" style={{ fontSize: 38, color: colors.icon }} />
-                    <Text style={{ textAlign: 'center' }}>{"Tarjeta \n Circulación"}</Text>
-                  </View>
+                {dataUser.role === "Pasajero" && (
+                  <>
+                    {getInfoMedal2(dataUser.numRidesPasajero) !== false && (
+                      <View style={{ flex: 1, alignItems: 'center' }}>
+                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesPasajero).color} />
+                        <Text style={{ textAlign: 'center' }}>{`Pasajero \n ${getInfoMedal2(dataUser.numRidesPasajero).text}`}</Text>
+                      </View>
+                    )}
+                  </>
                 )}
-                {getInfoMedal2(dataUser.numRidesConductor) !== false && (
-                  <View style={{ flex: 1, alignItems: 'center' }}>
-                    <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesConductor).color} />
-                    <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal2(dataUser.numRidesConductor).text}`}</Text>
-                  </View>
-                )}
-              </>
-            )}
-            {dataUser.role === "Pasajero" && (
-              <>
-                {getInfoMedal2(dataUser.numRidesPasajero) !== false && (
-                  <View style={{ flex: 1, alignItems: 'center' }}>
-                    <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesPasajero).color} />
-                    <Text style={{ textAlign: 'center' }}>{`Pasajero \n ${getInfoMedal2(dataUser.numRidesPasajero).text}`}</Text>
-                  </View>
-                )}
-              </>
-            )}
-          </View>
+              </View>
+            </View>
+
         </View>
         <View style={styles.settingsContainer}>
           <Text variant='headlineMedium'>Configuraciones</Text>

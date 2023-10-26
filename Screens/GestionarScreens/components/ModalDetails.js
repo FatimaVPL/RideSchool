@@ -50,7 +50,7 @@ const ModalDetails = ({ data, type, modalDetails, setModalDetails, setModalProps
                             style={{ margin: 6, height: 45 }}
                             mode="outlined"
                             label={type === 2 ? "Pasajero" : "Conductor"}
-                            value={type === 2 ? cut(`${data.pasajero.firstName} ${data.pasajero.lastName}`) : cut(`${data.conductor.firstName} ${data.conductor.lastName}`)}
+                            value={type === 2 ? cut(data.pasajero.firstName, data.pasajero.lastName) : cut(data.conductor.firstName, data.conductor.lastName)}
                             editable={false}
                             left={<TextInput.Icon icon="account" style={{ marginTop: 15 }} />}
                         />

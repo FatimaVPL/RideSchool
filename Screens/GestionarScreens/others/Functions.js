@@ -5,9 +5,11 @@ export function getInfoByStatus(status) {
         case "aceptada":
             return { color: "#B2D474", text: "Ir al chat" };
         case "finalizado":
-            return { color: "#EEBF55", text: "Calificar" };
+            return { color: "#EEBF55", text: "Nadota" };
         case "finalizada":
-            return { color: "#EEBF55", text: "Calificar" };
+            return { color: "#EEBF55", text: "Nadota" };
+        case "llego al destino":
+            return { color: "#E88A1F", text: "Calificar" };
         default:
             return { color: "#EE6464", text: "Cancelar" };
     }
@@ -35,13 +37,11 @@ export function getInfoMedal2(num) {
     }
 }
 
-export function cut(name) {
-    const arreglo = name.split(' ', 4);
-    if (arreglo[2] === undefined) {
-        return `${arreglo[0]} ${arreglo[1]}`;
-    } else {
-        return `${arreglo[0]} ${arreglo[2]}`;
-    }
+export function cut(name, lastName) {
+    const arregloName = name.split(' ', 2);
+    const arregloLastName = lastName.split(' ', 2);
+    
+    return `${arregloName[0]} ${arregloLastName[0]}`;
 }
 
 export function formatDate(timestamp, monthType) {

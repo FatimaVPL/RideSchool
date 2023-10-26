@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { Button, Text, TextInput, Modal, Portal } from 'react-native-paper';
 import { View, Pressable } from "react-native";
 import { AirbnbRating } from 'react-native-elements';
-import { updateRating } from "../others/Queries";
+import { updateRating, updateStatus } from "../others/Queries";
+import { db } from "../../../config-firebase";
 import { useTheme } from "../../../hooks/ThemeContext";
 
 const ModalRating = ({ ride, rol, modalRating, setModalRating, setModalReview, setModalPropsAlert, setModalAlert }) => {
@@ -50,7 +51,9 @@ const ModalRating = ({ ride, rol, modalRating, setModalRating, setModalReview, s
                         <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
                             <Button mode="contained" buttonColor='#B2D474' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: 135 }}
                                 onPress={() => {
-                                    updateRating({ puntaje: score, comentario: text, id: ride.id, fileName }); setModalRating(false);
+                                    const reference = db.collection('rides').doc(ride.id);
+                                    updateStatus(reference, "finalizado")
+                                    updateRating({ puntaje: score, comentario: text, id: ride.id, fileName }); 
                                     setModalPropsAlert({
                                         icon: 'form',
                                         color: 'green',
@@ -59,6 +62,7 @@ const ModalRating = ({ ride, rol, modalRating, setModalRating, setModalReview, s
                                         type: 4
                                     });
                                     setModalAlert(true);
+                                    setModalRating(false);
                                 }}> Guardar </Button>
                             <Button mode="contained" buttonColor='#B0B0B0' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: 135 }}
                                 onPress={() => setModalRating(false)} > Cancelar </Button>

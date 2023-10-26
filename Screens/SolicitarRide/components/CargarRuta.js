@@ -63,14 +63,6 @@ const CargarRuta = ({ formikk }) => {
         getLocationPermission();
     }, []);
 
-    //Cambiar altura en los inputs
-    const [text, setText] = React.useState(''); // Estado para el contenido del TextInput
-    const [inputHeight, setInputHeight] = React.useState(40); // Estado para la altura del TextInput
-
-    const handleContentSizeChange = (contentWidth, contentHeight) => {
-        setInputHeight(contentHeight); // Actualiza la altura del TextInput según su contenido
-    };
-
     const getAddressComponents = async (latitude, longitude) => {
         try {
             const json = await Geocoder.from(latitude, longitude);
