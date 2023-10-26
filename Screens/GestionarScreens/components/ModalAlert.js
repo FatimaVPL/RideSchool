@@ -6,6 +6,7 @@ import { deleteDoc, updateRide, updateStatus, updateRole, addRide, deleteField }
 import { db } from "../../../config-firebase";
 import { sendNotificationByReference, sendNotificationWithTimer } from "../../../hooks/Notifications";
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "../../../hooks/ThemeContext";
 
 // 1 = Cancelar en ride en estado pendiente -- Eliminar ride la BD y las ofertas asociadas
 // 2 = Cancelar en estado en curso/aceptada -- Cambiar estado del ride y oferta a cancelado, enviar notificacion 
@@ -16,19 +17,17 @@ import { useAuth } from "../../../context/AuthContext";
 // 7 = Dialogo ride completado -- Cambiar estado de ride/oferta a llego al destino
 const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol, email, conductor,
     modalALert, setModalAlert, setModalReview, setModalOptions, setModalDialog, setModalPropsDialog, setModalRating }) => {
-
     const { dataUser } = useAuth();
-
     return (
         <Portal>
-            <Modal visible={modalALert} onDismiss={setModalAlert} contentContainerStyle={{ backgroundColor: 'white', padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+            <Modal visible={modalALert} onDismiss={setModalAlert} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                     <AntDesign name={icon} style={{ fontSize: 50 }} color={color} />
-                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: 'black', fontSize: 18, marginTop: 6 }}>{title}</Text>
-                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: 'black', fontSize: 16, textAlign: 'center' }}>{content}</Text>
+                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: colors.text, fontSize: 18, marginTop: 6 }}>{title}</Text>
+                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: colors.text, fontSize: 16, textAlign: 'center' }}>{content}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Button mode="contained" buttonColor={type === 3 || type === 4 || type === 7 ? '#A9CA6D' : '#EE6464'} textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: "48%" }}
+                    <Button mode="contained" buttonColor={type === 3 || type === 4 || type === 7 ? '#A9CA6D' : '#EE6464'} textColor={colors.text} labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: "48%" }}
                         onPress={() => {
                             switch (type) {
                                 case 1:

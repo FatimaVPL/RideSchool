@@ -130,7 +130,7 @@ const FrmSolicitarRide = () => {
         <PaperProvider>
             <FormikProvider value={formik}>
 
-                <View style={[styles.container, { backgroundColor: colors.background2 }]}>
+                <View style={[styles.container, { backgroundColor: colors.background }]}>
 
                     <Text
                         style={{
@@ -148,7 +148,6 @@ const FrmSolicitarRide = () => {
                         height: 160,
                         width: '100%',
                         marginBottom: 25,
-                        backgroundColor: colors.background2
                     }}>
                         <Lottie source={require('../../assets/LottieFiles/passagerOrCar.json')} />
                     </View>
@@ -242,6 +241,7 @@ const FrmSolicitarRide = () => {
                             onChangeText={formik.handleChange('personas')}
                             keyboardType='numeric'
                             theme={{ colors: { text: 'green', primary: 'green' } }}
+                            placeholderTextColor={colors.text}
                         />
                         {formik.errors.personas ? (<HelperText type="error" visible={true}>{formik.errors.personas}</HelperText>) : null}
                     </View>
@@ -258,6 +258,7 @@ const FrmSolicitarRide = () => {
                             theme={{ colors: { text: 'green', primary: 'green' } }}
                             multiline={true}
                             numberOfLines={4}
+                            placeholderTextColor={colors.text}
                         />
                     </View>
                     <Button

@@ -6,12 +6,14 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatDate } from "../../GestionarScreens/others/Functions";
 import { getInfoMedal } from "../../GestionarScreens/others/Functions";
+import { useTheme } from "../../../hooks/ThemeContext";
 
 const ModalInfoRide = ({ data, modalInfoRide, setModalInfoRide, setModalDetails }) => {
+    const { colors } = useTheme();
     return (
         <Portal>
-            <Modal visible={modalInfoRide} onDismiss={setModalInfoRide} contentContainerStyle={{ backgroundColor: 'white', padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
-                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black' }}>Información del Ride</Text>
+            <Modal visible={modalInfoRide} onDismiss={setModalInfoRide} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text }}>Información del Ride</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 18 }}>
                     <View>
                         <Avatar
@@ -26,7 +28,7 @@ const ModalInfoRide = ({ data, modalInfoRide, setModalInfoRide, setModalDetails 
                             {data.pasajero.numRidesPasajero >= 30 && (
                                 <MaterialCommunityIcons name="medal" style={{ fontSize: 30 }} color={getInfoMedal(data.pasajero.numRidesPasajero)} />
                             )}
-                            <Text style={{ marginBottom: 15, fontSize: 20, textAlign: 'center', color: 'black' }}>{`${data.pasajero.firstName} \n ${data.pasajero.lastName}`}</Text>
+                            <Text style={{ marginBottom: 15, fontSize: 20, textAlign: 'center', color: colors.text }}>{`${data.pasajero.firstName} \n ${data.pasajero.lastName}`}</Text>
                         </View>
                         {/* CALIFICACION GENERAL */}
                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: -10 }}>
@@ -42,28 +44,28 @@ const ModalInfoRide = ({ data, modalInfoRide, setModalInfoRide, setModalDetails 
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row' }}>
-                        <Ionicons name="time" style={{ marginRight: 10, fontSize: 24 }} />
-                        <Text style={{ marginBottom: 15, fontSize: 20, color: 'black' }}>{formatDate(data.ride.date, "numeric")}</Text>
+                        <Ionicons name="time" style={{ marginRight: 10, fontSize: 24, color: colors.icon }} />
+                        <Text style={{ marginBottom: 15, fontSize: 20, color: colors.text }}>{formatDate(data.ride.date, "numeric")}</Text>
                     </View>
                     <View style={{ flexDirection: 'row' }}>
-                        <Ionicons name="person" style={{ marginRight: 10, fontSize: 24 }} />
-                        <Text style={{ marginBottom: 15, fontSize: 20, color: 'black' }}>{data.ride.personas}</Text>
+                        <Ionicons name="person" style={{ marginRight: 10, fontSize: 24, color: colors.icon }} />
+                        <Text style={{ marginBottom: 15, fontSize: 20, color: colors.text }}>{data.ride.personas}</Text>
                     </View>
                 </View>
 
                 {data.ride.comentarios !== null && (
                     <View style={{ flexDirection: 'row' }}>
-                        <Ionicons name="chatbubbles" style={{ marginRight: 10, fontSize: 24 }} />
-                        <Text style={{ marginBottom: 15, fontSize: 20, color: 'black' }}>{data.ride.comentarios}</Text>
+                        <Ionicons name="chatbubbles" style={{ marginRight: 10, fontSize: 24, color: colors.icon }} />
+                        <Text style={{ marginBottom: 15, fontSize: 20, color: colors.text }}>{data.ride.comentarios}</Text>
                     </View>
                 )}
 
                 <View style={{ flexDirection: 'row', width: 210 }}>
-                    <Ionicons name="location-sharp" style={{ marginRight: 10, fontSize: 24 }} />
-                    <Text style={{ marginBottom: 15, fontSize: 20, color: 'black' }}>
+                    <Ionicons name="location-sharp" style={{ marginRight: 10, fontSize: 24, color: colors.icon }} />
+                    <Text style={{ marginBottom: 15, fontSize: 20, color: colors.text }}>
                         Ruta {'\n'}
-                        <Text style={{ fontWeight: 'bold', color: 'black' }}>Inicio:</Text> {data.ride.origin.direction} {'\n'}
-                        <Text style={{ fontWeight: 'bold', color: 'black' }}>Destino:</Text> {data.ride.destination.direction}
+                        <Text style={{ fontWeight: 'bold', color: colors.text }}>Inicio:</Text> {data.ride.origin.direction} {'\n'}
+                        <Text style={{ fontWeight: 'bold', color: colors.text }}>Destino:</Text> {data.ride.destination.direction}
                     </Text>
                 </View>
 

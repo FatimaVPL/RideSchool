@@ -2,16 +2,18 @@ import * as React from "react";
 import { Modal, Portal, Text, Button } from 'react-native-paper';
 import { View } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useTheme } from "../../../hooks/ThemeContext";
 
 // 1 = Ride Cancelado
 // 2 = Completar info
 const ModalDialog = ({ icon, color, title, type, modalDialog, setModalDialog }) => {
+    const { colors } = useTheme();
     return (
         <Portal>
-            <Modal visible={modalDialog} onDismiss={setModalDialog} contentContainerStyle={{ backgroundColor: 'white', padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center' }}>
+            <Modal visible={modalDialog} onDismiss={setModalDialog} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center' }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name={icon} style={{ fontSize: 70, color: color }}></Ionicons>
-                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: 'black', fontSize: 18, textAlign:'center' }}>{title}</Text>
+                    <Ionicons name={icon} style={{ fontSize: 70, color: colors.text }}></Ionicons>
+                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: colors.text, fontSize: 18, textAlign:'center' }}>{title}</Text>
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>

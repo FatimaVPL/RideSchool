@@ -3,6 +3,7 @@ import { Card, Text } from 'react-native-paper';
 import { View } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { cut } from "../others/Functions";
+import { useTheme } from "../../../hooks/ThemeContext";
 
 const CardOferta = ({ item, index, parentItem, setselectedRide, setModalUser, setselectedOferta, setIndexOferta }) => {
     return (
@@ -18,8 +19,8 @@ const CardOferta = ({ item, index, parentItem, setselectedRide, setModalUser, se
                         <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 15, color: 'black' }}>{cut(item.conductor.firstName, item.conductor.lastName)}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginLeft: 80 }}>
-                        <Text style={{ color: 'black', marginRight: 5, fontSize: 22, fontWeight: 'bold' }}>$</Text>
-                        <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: 'black' }}>{item.oferta.cooperacion}</Text>
+                        <Text style={{ color: colors.text, marginRight: 5, fontSize: 22, fontWeight: 'bold' }}>$</Text>
+                        <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: colors.text }}>{item.oferta.cooperacion}</Text>
                     </View>
                 </View>
             </Card.Content>

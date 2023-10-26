@@ -161,6 +161,9 @@ const PerfilScreen = ({ navigation }) => {
   const SubirDocumentosScreen = () => {
     navigation.navigate('Subir documentos');
   }
+  const CompletarInfoConductor = () => {
+    navigation.navigate('Completar informacion conductor');
+  }
 
   return (
     <PaperProvider>
@@ -240,70 +243,76 @@ const PerfilScreen = ({ navigation }) => {
                 )}
               </View>
             </View>
-            <View style={styles.settingsContainer}>
-              <Text variant='headlineMedium'>Configuraciones</Text>
-              
-              {/* <TouchableOpacity onPress={notificaciones}>
+
+        </View>
+        <View style={styles.settingsContainer}>
+          <Text variant='headlineMedium'>Configuraciones</Text>
+          {/* <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
                   <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Notificaciones</Text>
                 </View>
               </TouchableOpacity> */}
-              
-              <TouchableOpacity onPress={ajustesGenerales}>
-                <View style={styles.settingsItem}>
-                  <Ionicons name="settings" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge'>Ajustes generales</Text>
-                </View>
-              </TouchableOpacity>
-              
-              {dataUser.role === "Conductor" && (
-                <TouchableOpacity onPress={SubirDocumentosScreen}>
-                  <View style={styles.settingsItem}>
-                    <Ionicons name="image" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-                    <Text variant='labelLarge'>Subir licencia/tarjeta de circulación</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-              
-              <TouchableOpacity onPress={handleLogout}>
-                <View style={styles.settingsItem}>
-                  <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge' style={{ color: "red" }}>Cerrar sesión</Text>
-                </View>
-              </TouchableOpacity>
-              <Divider />
+          <TouchableOpacity onPress={ajustesGenerales}>
+            <View style={styles.settingsItem}>
+              <Ionicons name="settings" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+              <Text variant='labelLarge'>Ajustes generales</Text>
             </View>
+          </TouchableOpacity>
+          {dataUser.role === "Conductor" && (
+            <TouchableOpacity onPress={SubirDocumentosScreen}>
+              <View style={styles.settingsItem}>
+                <Ionicons name="image" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+                <Text variant='labelLarge'>Subir licencia/tarjeta de circulación</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          {dataUser.role === "Pasajero" && dataUser.conductor === false && (
+            <TouchableOpacity onPress={CompletarInfoConductor}>
+              <View style={styles.settingsItem}>
+                <Ionicons name="car" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+                <Text variant='labelLarge'>¿Quieres ser conductor?</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={handleLogout}>
+            <View style={styles.settingsItem}>
+              <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
+              <Text variant='labelLarge' style={{ color: "red" }}>Cerrar sesión</Text>
+            </View>
+          </TouchableOpacity>
+          <Divider />
+        </View>
 
-            {modalALert && (
-              <ModalALert
-                icon={modalPropsALert.icon}
-                color={modalPropsALert.color}
-                title={modalPropsALert.title}
-                content={modalPropsALert.content}
-                type={modalPropsALert.type}
-                rol={dataUser.role}
-                email={dataUser.email}
-                conductor={dataUser.conductor}
-                modalALert={modalALert}
-                setModalAlert={setModalAlert}
-                modalDialog={modalDialog}
-                setModalDialog={setModalDialog}
-                setModalPropsDialog={setModalPropsDialog}
-              />
-            )}
+        {modalALert && (
+          <ModalALert
+            icon={modalPropsALert.icon}
+            color={modalPropsALert.color}
+            title={modalPropsALert.title}
+            content={modalPropsALert.content}
+            type={modalPropsALert.type}
+            rol={dataUser.role}
+            email={dataUser.email}
+            conductor={dataUser.conductor}
+            modalALert={modalALert}
+            setModalAlert={setModalAlert}
+            modalDialog={modalDialog}
+            setModalDialog={setModalDialog}
+            setModalPropsDialog={setModalPropsDialog}
+          />
+        )}
 
-            {modalDialog && (
-              <ModalDialog
-                icon={modalPropsDialog.icon}
-                color={modalPropsDialog.color}
-                title={modalPropsDialog.title}
-                type={modalPropsALert.type}
-                modalDialog={modalDialog}
-                setModalDialog={setModalDialog}
-              />
-            )}
-        
+        {modalDialog && (
+          <ModalDialog
+            icon={modalPropsDialog.icon}
+            color={modalPropsDialog.color}
+            title={modalPropsDialog.title}
+            type={modalPropsALert.type}
+            modalDialog={modalDialog}
+            setModalDialog={setModalDialog}
+          />
+        )}
+
       </View>
     </PaperProvider >
 

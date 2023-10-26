@@ -6,12 +6,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { getInfoMedal } from "../others/Functions";
+import { useTheme } from "../../../hooks/ThemeContext";
 
 const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, setModalAlert }) => {
+    const { colors } = useTheme();
     return (
         <Portal>
-            <Modal visible={modalUser} onDismiss={setModalUser} contentContainerStyle={{ backgroundColor: 'white', padding: 18, borderRadius: 15, width: '73%', alignSelf: 'center', justifyContent: 'center', }}>
-                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: 'black' }}>Información de la oferta</Text>
+            <Modal visible={modalUser} onDismiss={setModalUser} contentContainerStyle={{ backgroundColor: colors.background, padding: 18, borderRadius: 15, width: '73%', alignSelf: 'center', justifyContent: 'center', }}>
+                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text }}>Información de la oferta</Text>
                 <View style={{ flexDirection: 'row', marginBottom: 18, width: '95%' }}>
                     <View style={{ justifyContent: 'center' }}>
                         <Avatar

@@ -11,7 +11,7 @@ const ReestablecerPassword = ({ navigation }) => {
   const [spiner, setSpiner] = useState(false);
   const [email, setEmail] = useState('');
   const { colors } = useTheme();
-
+  
   const validationSchema = object().shape({
     email: string()
       .required("Campo obligatorio")
@@ -58,7 +58,7 @@ const ReestablecerPassword = ({ navigation }) => {
            
             <View style={styles.container} >
              
-              <Text style={styles.bienvenida} variant='headlineLarge'>Ingresa tu correo institucional</Text>
+              <Text style={[styles.bienvenida,{color:colors.text}]} variant='headlineLarge'>Ingresa tu correo institucional</Text>
               <TextInput
                 placeholder="Correo institucional"
                 style={[styles.input, {backgroundColor: colors.input, color:colors.text}]}
@@ -121,7 +121,6 @@ const styles = StyleSheet.create({
     fontSize: 27,
     fontWeight: '900',
     marginBottom: 10,
-    color: '#D6A50C'
   },
   input: {
     color: 'black',
@@ -141,7 +140,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
-    width: 300,
+    width: '90%',
     height: 50,
     backgroundColor: 'green',
     padding: 10,
