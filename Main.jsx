@@ -16,6 +16,7 @@ import InicioScreen from './Screens/Inicio/InicioScreen';
 import RidesMap from './Screens/RidesSolicitados/RidesMap';
 import PerfilScreen from './Screens/Perfil/PerfilScreen';
 import SubirDocumentosScreen from './Screens/Perfil/SubirDocumentosScreen';
+import CompletarInfoConductor from './Screens/Perfil/CompletarInfoConductor';
 //jejeje xd
 
 const Main = () => {
@@ -84,6 +85,7 @@ const Main = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="Perfil" component={PerfilScreen} />
+          <Stack.Screen name="Completar informacion conductor" component={CompletarInfoConductor} options={{ presentation: "modal" }}/>
           <Stack.Screen name="Subir documentos" component={SubirDocumentosScreen} options={{ presentation: "modal" }}/>
           <Stack.Screen name="Notificaciones" component={NotificacionesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Ajustes Generales" component={AjustesGeneralesScreen} options={{ presentation: "modal" }} />

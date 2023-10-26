@@ -178,144 +178,154 @@ const PerfilScreen = ({ navigation }) => {
   const SubirDocumentosScreen = () => {
     navigation.navigate('Subir documentos');
   }
+  const CompletarInfoConductor = () => {
+    navigation.navigate('Completar informacion conductor');
+  }
 
   return (
     <PaperProvider>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <View style={[styles.profileContainer, { backgroundColor: colors.background }]}>
-              <Avatar
-                rounded
-                onPress={() => verImagen()}
-                size="xlarge"
-                source={dataUser.photoURL ? { uri: dataUser.photoURL } : require('../../assets/default.jpg')}
-              >
-                <Avatar.Accessory size={38} underlayColor="#696969" selectionColor="red" onPress={() => pickImage()} />
-              </Avatar>
-              {showProgressBar && <LinearProgress style={{ marginTop: 10 }} color='#1DBE99' />}
-              <Text variant='headlineSmall'>{`${dataUser.firstName} ${dataUser.lastName}`}</Text>
-              <Text variant='titleMedium'>{dataUser.email}</Text>
-              {/* CALIFICACION GENERAL */}
-              <View style={styles.badgesContainer}>
-                {Array.from({ length: dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor }).map((_, index) => (
-                  <Ionicons key={index} name="star" size={24} color="#FFC107" />
-                ))}
-                {Array.from({ length: 5 - (dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor) }).map((_, index) => (
-                  <Ionicons key={index} name="star" size={24} color="#8C8A82" />
-                ))}
-              </View>
-              <Text variant='titleMedium'>{dataUser.role}</Text>
-              <Button onPress={() => {
-                let content = dataUser.role === "Conductor" ? "PASAJERO" : "CONDUCTOR";
-                setModalPropsALert({
-                  icon: 'retweet',
-                  color: '#FFC300',
-                  title: 'Cambiar la app a modo:',
-                  content: content,
-                  type: 5
-                });
-                setModalAlert(true);
-              }}>
-                Usar en modo {dataUser.role === "Conductor" ? "Pasajero" : "Conductor"}</Button>
-            </View>
-            {/* INSIGNIAS */}
-            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15, marginBottom: 10 }}>
-              <Text variant='titleLarge' style={{ textAlign: 'center', marginBottom: 10 }}>Insignias</Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                {dataUser.role === "Conductor" && (
-                  <>
-                    {dataUser.licencia?.validado && (
-                      <View style={{ flex: 1, alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="card-account-details-star" style={{ fontSize: 38, color: colors.icon }} />
-                        <Text style={{ textAlign: 'center' }}>Licencia</Text>
-                      </View>
-                    )}
-                    {dataUser.tarjetaCirculacion?.validado && (
-                      <View style={{ flex: 1, alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="credit-card-check" style={{ fontSize: 38, color: colors.icon }} />
-                        <Text style={{ textAlign: 'center' }}>{"Tarjeta \n Circulación"}</Text>
-                      </View>
-                    )}
-                    {getInfoMedal2(dataUser.numRidesConductor) !== false && (
-                      <View style={{ flex: 1, alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesConductor).color} />
-                        <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal2(dataUser.numRidesConductor).text}`}</Text>
-                      </View>
-                    )}
-                  </>
+        <View style={[styles.profileContainer, { backgroundColor: colors.background }]}>
+          <Avatar
+            rounded
+            onPress={() => verImagen()}
+            size="xlarge"
+            source={dataUser.photoURL ? { uri: dataUser.photoURL } : require('../../assets/default.jpg')}
+          >
+            <Avatar.Accessory size={38} underlayColor="#696969" selectionColor="red" onPress={() => pickImage()} />
+          </Avatar>
+          {showProgressBar && <LinearProgress style={{ marginTop: 10 }} color='#1DBE99' />}
+          <Text variant='headlineSmall'>{`${dataUser.firstName} ${dataUser.lastName}`}</Text>
+          <Text variant='titleMedium'>{dataUser.email}</Text>
+          {/* CALIFICACION GENERAL */}
+          <View style={styles.badgesContainer}>
+            {Array.from({ length: dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor }).map((_, index) => (
+              <Ionicons key={index} name="star" size={24} color="#FFC107" />
+            ))}
+            {Array.from({ length: 5 - (dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor) }).map((_, index) => (
+              <Ionicons key={index} name="star" size={24} color="#8C8A82" />
+            ))}
+          </View>
+          <Text variant='titleMedium'>{dataUser.role}</Text>
+          <Button onPress={() => {
+            let content = dataUser.role === "Conductor" ? "PASAJERO" : "CONDUCTOR";
+            setModalPropsALert({
+              icon: 'retweet',
+              color: '#FFC300',
+              title: 'Cambiar la app a modo:',
+              content: content,
+              type: 5
+            });
+            setModalAlert(true);
+          }}>
+            Usar en modo {dataUser.role === "Conductor" ? "Pasajero" : "Conductor"}</Button>
+        </View>
+        {/* INSIGNIAS */}
+        <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15, marginBottom: 10 }}>
+          <Text variant='titleLarge' style={{ textAlign: 'center', marginBottom: 10 }}>Insignias</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {dataUser.role === "Conductor" && (
+              <>
+                {dataUser.licencia?.validado && (
+                  <View style={{ flex: 1, alignItems: 'center' }}>
+                    <MaterialCommunityIcons name="card-account-details-star" style={{ fontSize: 38, color: colors.icon }} />
+                    <Text style={{ textAlign: 'center' }}>Licencia</Text>
+                  </View>
                 )}
-                {dataUser.role === "Pasajero" && (
-                  <>
-                    {getInfoMedal2(dataUser.numRidesPasajero) !== false && (
-                      <View style={{ flex: 1, alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesPasajero).color} />
-                        <Text style={{ textAlign: 'center' }}>{`Pasajero \n ${getInfoMedal2(dataUser.numRidesPasajero).text}`}</Text>
-                      </View>
-                    )}
-                  </>
+                {dataUser.tarjetaCirculacion?.validado && (
+                  <View style={{ flex: 1, alignItems: 'center' }}>
+                    <MaterialCommunityIcons name="credit-card-check" style={{ fontSize: 38, color: colors.icon }} />
+                    <Text style={{ textAlign: 'center' }}>{"Tarjeta \n Circulación"}</Text>
+                  </View>
                 )}
-              </View>
-            </View>
-            <View style={styles.settingsContainer}>
-              <Text variant='headlineMedium'>Configuraciones</Text>
-              {/* <TouchableOpacity onPress={notificaciones}>
+                {getInfoMedal2(dataUser.numRidesConductor) !== false && (
+                  <View style={{ flex: 1, alignItems: 'center' }}>
+                    <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesConductor).color} />
+                    <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal2(dataUser.numRidesConductor).text}`}</Text>
+                  </View>
+                )}
+              </>
+            )}
+            {dataUser.role === "Pasajero" && (
+              <>
+                {getInfoMedal2(dataUser.numRidesPasajero) !== false && (
+                  <View style={{ flex: 1, alignItems: 'center' }}>
+                    <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesPasajero).color} />
+                    <Text style={{ textAlign: 'center' }}>{`Pasajero \n ${getInfoMedal2(dataUser.numRidesPasajero).text}`}</Text>
+                  </View>
+                )}
+              </>
+            )}
+          </View>
+        </View>
+        <View style={styles.settingsContainer}>
+          <Text variant='headlineMedium'>Configuraciones</Text>
+          {/* <TouchableOpacity onPress={notificaciones}>
                 <View style={styles.settingsItem}>
                   <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
                   <Text variant='labelLarge'>Notificaciones</Text>
                 </View>
               </TouchableOpacity> */}
-              <TouchableOpacity onPress={ajustesGenerales}>
-                <View style={styles.settingsItem}>
-                  <Ionicons name="settings" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge'>Ajustes generales</Text>
-                </View>
-              </TouchableOpacity>
-              {/** Cambiar a === "Conductor" nomas es para pruebas */}
-              {dataUser.role === "Conductor" && (
-                <TouchableOpacity onPress={SubirDocumentosScreen}>
-                  <View style={styles.settingsItem}>
-                    <Ionicons name="image" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-                    <Text variant='labelLarge'>Subir licencia/tarjeta de circulación</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity onPress={handleLogout}>
-                <View style={styles.settingsItem}>
-                  <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge' style={{ color: "red" }}>Cerrar sesión</Text>
-                </View>
-              </TouchableOpacity>
-              <Divider />
+          <TouchableOpacity onPress={ajustesGenerales}>
+            <View style={styles.settingsItem}>
+              <Ionicons name="settings" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+              <Text variant='labelLarge'>Ajustes generales</Text>
             </View>
+          </TouchableOpacity>
+          {dataUser.role === "Conductor" && (
+            <TouchableOpacity onPress={SubirDocumentosScreen}>
+              <View style={styles.settingsItem}>
+                <Ionicons name="image" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+                <Text variant='labelLarge'>Subir licencia/tarjeta de circulación</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          {dataUser.role === "Pasajero" && dataUser.conductor === false && (
+            <TouchableOpacity onPress={CompletarInfoConductor}>
+              <View style={styles.settingsItem}>
+                <Ionicons name="car" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
+                <Text variant='labelLarge'>¿Quieres ser conductor?</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={handleLogout}>
+            <View style={styles.settingsItem}>
+              <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
+              <Text variant='labelLarge' style={{ color: "red" }}>Cerrar sesión</Text>
+            </View>
+          </TouchableOpacity>
+          <Divider />
+        </View>
 
-            {modalALert && (
-              <ModalALert
-                icon={modalPropsALert.icon}
-                color={modalPropsALert.color}
-                title={modalPropsALert.title}
-                content={modalPropsALert.content}
-                type={modalPropsALert.type}
-                rol={dataUser.role}
-                email={dataUser.email}
-                conductor={dataUser.conductor}
-                modalALert={modalALert}
-                setModalAlert={setModalAlert}
-                modalDialog={modalDialog}
-                setModalDialog={setModalDialog}
-                setModalPropsDialog={setModalPropsDialog}
-              />
-            )}
+        {modalALert && (
+          <ModalALert
+            icon={modalPropsALert.icon}
+            color={modalPropsALert.color}
+            title={modalPropsALert.title}
+            content={modalPropsALert.content}
+            type={modalPropsALert.type}
+            rol={dataUser.role}
+            email={dataUser.email}
+            conductor={dataUser.conductor}
+            modalALert={modalALert}
+            setModalAlert={setModalAlert}
+            modalDialog={modalDialog}
+            setModalDialog={setModalDialog}
+            setModalPropsDialog={setModalPropsDialog}
+          />
+        )}
 
-            {modalDialog && (
-              <ModalDialog
-                icon={modalPropsDialog.icon}
-                color={modalPropsDialog.color}
-                title={modalPropsDialog.title}
-                type={modalPropsALert.type}
-                modalDialog={modalDialog}
-                setModalDialog={setModalDialog}
-              />
-            )}
-        
+        {modalDialog && (
+          <ModalDialog
+            icon={modalPropsDialog.icon}
+            color={modalPropsDialog.color}
+            title={modalPropsDialog.title}
+            type={modalPropsALert.type}
+            modalDialog={modalDialog}
+            setModalDialog={setModalDialog}
+          />
+        )}
+
       </View>
     </PaperProvider >
 

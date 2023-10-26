@@ -11,7 +11,7 @@ const ReestablecerPassword = ({ navigation }) => {
   const [spiner, setSpiner] = useState(false);
   const [email, setEmail] = useState('');
   const { colors } = useTheme();
-
+  
   const validationSchema = object().shape({
     email: string()
       .required("Campo obligatorio")

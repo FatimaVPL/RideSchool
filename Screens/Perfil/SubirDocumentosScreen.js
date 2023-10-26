@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
         marginTop: '20%',
     },
     button: {
-        width: 300,
+        width: '90%',
         backgroundColor: 'green',
         padding: 10,
         marginTop: 20,
