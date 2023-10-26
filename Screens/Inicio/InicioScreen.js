@@ -18,7 +18,7 @@ const InicioScreen = () => {
 
     if (granted) {
       const token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token); 
+      //console.log(token); 
     }
   }
 

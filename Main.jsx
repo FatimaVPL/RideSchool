@@ -22,36 +22,6 @@ const Main = () => {
   const Stack = createStackNavigator();
   const { user, initializing, firstTime } = useAuth()
 
-  /* useEffect(() => {
-    const unsubscribeOfertas = subscribeToOfertasAdd((data) => {
-      
-        if (data.pasajeroID.uid === user.uid) {
-          console.log('Nueva oferta para el usuario', user.uid)
-          sendNotification();
-        }
-      
-    })
-
-    return () => {
-      unsubscribeOfertas();
-    }
-  }, []);
-
-  const sendNotification = () => {
-    axios.post(`https://app.nativenotify.com/api/indie/notification`, {
-      subID: user.email,
-      appId: 13000,
-      appToken: 'Dke2V9YbViRt26fTH2Mv7q',
-      title: 'Nueva Oferta',
-      message: 'Tienes una nueva oferta de Ride!',
-      icon: '../assets/rideSchoolS.png',
-      color: '#2B6451',
-      data: {
-        screenToOpen: 'GestionarRides'
-      }
-    })
-  } */
-
   return (
     <>
       {initializing ? <Loader /> : !user ?

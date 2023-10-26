@@ -9,7 +9,6 @@ import { subscribeToOfertas, subscribeToRides } from '../../firebaseSubscription
 import { useTheme } from "../../hooks/ThemeContext";
 import ModalALert from "./components/ModalAlert";
 import ModalRating from "./components/ModalRating";
-import ModalDetails from "./components/ModalDetails";
 import ModalReview from "./components/ModalReview";
 import ModalOptions from "./components/ModalOptions";
 import ModalDialog from "./components/ModalDialog";
@@ -37,7 +36,7 @@ const RidesConductor = ({ navigation }) => {
     const [selectedItem, setselectedItem] = useState(null);
     const [modalDetails, setModalDetails] = useState(false);
     const [modalALert, setModalAlert] = useState(false);
-    const [modalPropsALert, setModalPropsALert] = useState({});
+    const [modalPropsALert, setModalPropsAlert] = useState({});
     const [modalDialog, setModalDialog] = useState(false);
     const [modalPropsDialog, setModalPropsDialog] = useState({});
     const [modalRating, setModalRating] = useState(false);
@@ -105,7 +104,7 @@ const RidesConductor = ({ navigation }) => {
 
                                     <View style={{ flexDirection: 'row' }}>
                                         <Ionicons name="person" style={{ fontSize: 22, paddingTop: 6, marginRight: 6 }} />
-                                        <Text style={styles.text} >{cut(`${item.pasajero.firstName} ${item.pasajero.lastName}`)}</Text>
+                                        <Text style={styles.text} >{cut(item.pasajero.firstName, item.pasajero.lastName)}</Text>
                                     </View>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Ionicons name="calendar" style={{ fontSize: 22, paddingTop: 6, marginRight: 6 }} />
@@ -125,11 +124,14 @@ const RidesConductor = ({ navigation }) => {
                                                         case "aceptada":
                                                             navigation.navigate('ChatScreen');
                                                             break;
-                                                        case "finalizada":
-                                                            setModalRating(true); setScore(item.ride?.califC_P.puntaje); onChangeText(item.ride?.califC_P.comentario);
+                                                        case "llego al destino":
+                                                            setModalRating(true); 
+                                                            break;
+                                                        case "finalizado":
+                                                            setModalRating(true);
                                                             break;
                                                         default:
-                                                            setModalPropsALert({
+                                                            setModalPropsAlert({
                                                                 icon: 'warning',
                                                                 color: '#FFC300',
                                                                 title: 'CANCELAR RIDE',
@@ -144,27 +146,35 @@ const RidesConductor = ({ navigation }) => {
                                             {item.ride?.califC_P !== undefined && <Ionicons name="star" style={{ fontSize: 15 }} />}</Button>
                                     )}
                                 </Card.Actions>
+                                {item.oferta.estado === "aceptada" && (
+                                    <Button
+                                        textColor="white"
+                                        buttonColor="#B0B0B0"
+                                        style={{ width: '95%', alignSelf: 'center', marginBottom: 10 }}
+                                        labelStyle={{ fontWeight: 'bold', fontSize: 13 }}
+                                        onPress={() => {
+                                            setselectedItem(item);
+                                            setModalPropsAlert({
+                                                icon: 'checkcircleo',
+                                                color: '#A9CA6D',
+                                                title: 'RIDE COMPLETADO',
+                                                content: '¿Llegaste a tu destino?',
+                                                type: 7
+                                            });
+                                            setModalAlert(true);
+                                        }}
+                                    >¿Llegaste a tu destino?</Button>
+                                )}
                             </Card>
                         )}
                     />
-
-                        {/* {modalDetails && (
-                            <ModalDetails
-                                data={selectedItem}
-                                type={2}
-                                modalDetails={modalDetails}
-                                setModalDetails={setModalDetails}
-                                setModalPropsALert={setModalPropsALert}
-                                setModalAlert={setModalAlert}
-                            />
-                        )} */}
 
                         {modalDetails && (
                             <ModalMoreDetails
                                 data={selectedItem}
                                 modalDetails={modalDetails}
                                 setModalDetails={setModalDetails}
-                                setModalPropsAlert={setModalPropsALert}
+                                setModalPropsAlert={setModalPropsAlert}
                                 setModalAlert={setModalAlert}
                             />
                         )}
@@ -176,7 +186,7 @@ const RidesConductor = ({ navigation }) => {
                                 title={modalPropsALert.title}
                                 content={modalPropsALert.content}
                                 type={modalPropsALert.type}
-                                ride={selectedItem.oferta}
+                                data={selectedItem}
                                 rol={"pasajero"}
                                 modalALert={modalALert}
                                 setModalAlert={setModalAlert}
@@ -184,6 +194,7 @@ const RidesConductor = ({ navigation }) => {
                                 setModalOptions={setModalOptions}
                                 setModalDialog={setModalDialog}
                                 setModalPropsDialog={setModalPropsDialog}
+                                setModalRating={setModalRating}
                             />
                         )}
 
@@ -205,7 +216,7 @@ const RidesConductor = ({ navigation }) => {
                                 modalRating={modalRating}
                                 setModalRating={setModalRating}
                                 setModalReview={setModalReview}
-                                setModalPropsALert={setModalPropsALert}
+                                setModalPropsAlert={setModalPropsAlert}
                                 setModalAlert={setModalAlert}
                             />
                         )}

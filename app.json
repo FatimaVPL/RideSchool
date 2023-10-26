@@ -22,9 +22,15 @@
           "savePhotosPermission": "Permitir $(PRODUCT_NAME) guardar fotos.",
           "isAccessMediaLocationEnabled": true
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/rideSchoolS.png",
+          "color": "#ffffff"
+        }
       ]
-    ]
-    ,
+    ],
     "ios": {
       "supportsTablet": true,
       "userInterfaceStyle": "automatic",
@@ -43,7 +49,7 @@
           "apiKey": "AIzaSyAbCSaSarqD9__N9pXiV32flrOPgSURSRg"
         }
       },
-      "package": "com.fatiwi.AwesomeProject"
+      "package": "com.wiwiriskis.RSProject"
     },
     "web": {
       "userInterfaceStyle": "automatic",

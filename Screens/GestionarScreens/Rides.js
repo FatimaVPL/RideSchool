@@ -137,6 +137,7 @@ const GestionarRides = ({ navigation }) => {
                         <FlatList
                             data={data}
                             renderItem={({ item, index }) => {
+                                const parentItem = item;
                                 return (
                                     <Card
                                         key={index}
@@ -146,7 +147,7 @@ const GestionarRides = ({ navigation }) => {
 
                                             <View style={{ flexDirection: 'row' }}>
                                                 <Ionicons name="location-sharp" style={{ fontSize: 22, paddingTop: 6, marginRight: 6 }} />
-                                                <Text style={[styles.text, {width: '94%'}]}>
+                                                <Text style={[styles.text, { width: '94%' }]}>
                                                     Ruta {'\n'}
                                                     <Text style={{ fontWeight: 'bold', color: '#171717' }}>Inicio:</Text> {item.ride.origin.direction} {'\n'}
                                                     <Text style={{ fontWeight: 'bold', color: '#171717' }}>Destino:</Text> {item.ride.destination.direction}
@@ -174,6 +175,8 @@ const GestionarRides = ({ navigation }) => {
                                                             <CardOferta
                                                                 item={item}
                                                                 index={index}
+                                                                parentItem={parentItem}
+                                                                setselectedRide={setselectedRide}
                                                                 setselectedOferta={setselectedOferta}
                                                                 setModalUser={setModalUser}
                                                                 setIndexOferta={setIndexOferta}
@@ -197,7 +200,10 @@ const GestionarRides = ({ navigation }) => {
                                                                     navigation.navigate('ChatScreen');
                                                                     break;
                                                                 case "finalizado":
-                                                                    setModalRating(true); setScore(item.ride.califP_C?.puntaje); onChangeText(item.ride.califP_C?.comentario);
+                                                                    setModalRating(true);
+                                                                    break;
+                                                                case "llego al destino":
+                                                                    setModalRating(true);
                                                                     break;
                                                                 default:
                                                                     setModalPropsAlert({
@@ -215,6 +221,25 @@ const GestionarRides = ({ navigation }) => {
                                                     {item.ride?.califP_C !== undefined && <Ionicons name="star" style={{ fontSize: 15 }} />} </Button>
                                             )}
                                         </Card.Actions>
+                                        {item.ride.estado === "en curso" && (
+                                            <Button
+                                                textColor="white"
+                                                buttonColor="#B0B0B0"
+                                                style={{ width: '95%', alignSelf: 'center', marginBottom: 10 }}
+                                                labelStyle={{ fontWeight: 'bold', fontSize: 13 }}
+                                                onPress={() => {
+                                                    setselectedRide(item);
+                                                    setModalPropsAlert({
+                                                        icon: 'checkcircleo',
+                                                        color: '#A9CA6D',
+                                                        title: 'RIDE COMPLETADO',
+                                                        content: '¿Llegaste a tu destino?',
+                                                        type: 7
+                                                    });
+                                                    setModalAlert(true);
+                                                }}
+                                            >¿Llegaste a tu destino?</Button>
+                                        )}
                                     </Card>
                                 );
                             }}
@@ -227,8 +252,7 @@ const GestionarRides = ({ navigation }) => {
                                 title={modalPropsAlert.title}
                                 content={modalPropsAlert.content}
                                 type={modalPropsAlert.type}
-                                ride={selectedRide.ride}
-                                ofertas={selectedRide.ofertas}
+                                data={selectedRide}
                                 indexOferta={indexOferta}
                                 rol={"pasajero"}
                                 modalALert={modalALert}
@@ -237,6 +261,7 @@ const GestionarRides = ({ navigation }) => {
                                 setModalOptions={setModalOptions}
                                 setModalDialog={setModalDialog}
                                 setModalPropsDialog={setModalPropsDialog}
+                                setModalRating={setModalRating}
                             />
                         )}
 

@@ -2,8 +2,10 @@ import * as React from "react";
 import { Modal, Portal, Text, Button } from 'react-native-paper';
 import { View } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { deleteDoc, updateRide, updateStatus, updateRole } from "../others/Queries";
+import { deleteDoc, updateRide, updateStatus, updateRole, addRide, deleteField } from "../others/Queries";
 import { db } from "../../../config-firebase";
+import { sendNotificationByReference, sendNotificationWithTimer } from "../../../hooks/Notifications";
+import { useAuth } from "../../../context/AuthContext";
 
 // 1 = Cancelar en ride en estado pendiente -- Eliminar ride la BD y las ofertas asociadas
 // 2 = Cancelar en estado en curso/aceptada -- Cambiar estado del ride y oferta a cancelado, enviar notificacion 
@@ -11,8 +13,11 @@ import { db } from "../../../config-firebase";
 // 4 = Dialogo para evaluacion detallada -- Mostrar modal evaluacion detallada
 // 5 = Cambio de rol -- Actualizar el rol
 // 6 = Cancelar la oferta en estado pendiente -- Eliminar oferta de la BD
-const ModalALert = ({ icon, color, title, content, type, ride, ofertas, indexOferta, rol, email, conductor,
-    modalALert, setModalAlert, setModalReview, setModalOptions, setModalDialog, setModalPropsDialog }) => {
+// 7 = Dialogo ride completado -- Cambiar estado de ride/oferta a llego al destino
+const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol, email, conductor,
+    modalALert, setModalAlert, setModalReview, setModalOptions, setModalDialog, setModalPropsDialog, setModalRating }) => {
+
+    const { dataUser } = useAuth();
 
     return (
         <Portal>
@@ -23,16 +28,19 @@ const ModalALert = ({ icon, color, title, content, type, ride, ofertas, indexOfe
                     <Text style={{ marginBottom: 15, fontWeight: 'bold', color: 'black', fontSize: 16, textAlign: 'center' }}>{content}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Button mode="contained" buttonColor={type === 3 || type === 4 ? '#A9CA6D' : '#EE6464'} textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: "48%" }}
+                    <Button mode="contained" buttonColor={type === 3 || type === 4 || type === 7 ? '#A9CA6D' : '#EE6464'} textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: "48%" }}
                         onPress={() => {
                             switch (type) {
                                 case 1:
                                     //Eliminar ride
-                                    deleteDoc(ride.id, "rides");
+                                    deleteDoc(data.ride.id, "rides");
                                     //Eliminar ofertas
-                                    for (const oferta of ofertas) {
-                                        deleteDoc(oferta.oferta.id, "ofertas");
+                                    if (ofertas !== null) {
+                                        for (const oferta of data.ofertas) {
+                                            deleteDoc(oferta.oferta.id, "ofertas");
+                                        }
                                     }
+
                                     setModalPropsDialog({
                                         icon: 'checkmark-circle-outline',
                                         color: '#EE6464',
@@ -42,13 +50,25 @@ const ModalALert = ({ icon, color, title, content, type, ride, ofertas, indexOfe
                                     setModalDialog(true);
                                     break;
                                 case 2:
-                                    const referenceRide = db.collection('rides').doc(ride.id);
+                                    const referenceRide = db.collection('rides').doc(data.ride.id);
                                     updateStatus(referenceRide, "cancelado");
-                                    updateStatus(ride.ofertaID, "cancelada");
+                                    updateStatus(data.ride.ofertaID, "cancelada");
                                     setModalOptions(true);
                                     break;
                                 case 3:
-                                    updateRide(ofertas, indexOferta, ride.id);
+                                    //RIDE EN CURSO
+                                    //updateRide(data.ofertas, indexOferta, data.ride.id);
+
+                                    //Enivar notificacion para recordar marcar que llego al destino
+                                    sendNotificationWithTimer(
+                                        data.ride.conductorID.reference,
+                                        data.ride.pasajeroID.reference,
+                                        0.5,//data.ride.informationRoute.duration,
+                                        data.ride.estado,
+                                        '¿Llegaste a tu destino?',
+                                        'Confirmalo en la app',
+                                        "GestionarOfertas",
+                                    );
                                     break;
                                 case 4:
                                     setModalReview(true);
@@ -67,7 +87,7 @@ const ModalALert = ({ icon, color, title, content, type, ride, ofertas, indexOfe
                                     }
                                     break;
                                 case 6:
-                                    deleteDoc(ride.id, "ofertas");
+                                    deleteDoc(data.oferta.id, "ofertas");
                                     setModalPropsDialog({
                                         icon: 'checkmark-circle-outline',
                                         color: '#EE6464',
@@ -75,6 +95,31 @@ const ModalALert = ({ icon, color, title, content, type, ride, ofertas, indexOfe
                                         type: 1
                                     });
                                     setModalDialog(true);
+                                    break;
+                                case 7:
+                                    //Actualizar estado oferta/ride
+                                    updateStatus(data.ride.ofertaID, "llego al destino");
+                                    updateStatus(data.oferta.rideID.reference, "llego al destino");
+
+                                    //Sumar ride pasajero/conductor
+                                    addRide(data.oferta.conductorID.reference, "numRidesConductor");
+                                    addRide(data.oferta.pasajeroID.reference, "numRidesPasajero");
+
+                                    //Elimar campo de chat para pasajero y conductor
+                                    deleteField(data.oferta.conductorID.reference);
+                                    deleteField(data.oferta.pasajeroID.reference);
+
+                                    //Enviar notificacion
+                                    sendNotificationByReference(
+                                        dataUser.rol === "pasajero" ? data.oferta.conductorID.reference : data.oferta.pasajeroID.reference,
+                                        'Llegaste a tu destino',
+                                        'Recuerda calificar tu experiencia',
+                                        dataUser.rol === "pasajero" ? "GestionarOfertas" : "GestionarRides",
+                                    );
+
+                                    //Calificar experiencia
+                                    setModalRating(true);
+
                                     break;
                             }
                             setModalAlert(false);

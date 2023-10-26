@@ -48,8 +48,11 @@ export default function WelcomeScreen({ navigation }) {
       // El usuario ha iniciado sesión con éxito
       const userCredential = await firebase.auth().signInWithEmailAndPassword(email.toLowerCase(), password);
       const user = userCredential.user;
+
       //Notificaciones
       registerIndieID(email.toLowerCase(), 13000, 'Dke2V9YbViRt26fTH2Mv7q');
+      //registerIndieID(email.toLowerCase(), 14050, 'teVYjQw7P4lRK3FcQSIuzV');
+      
       // Verificar si el correo electrónico ha sido verificado
       if (!user.emailVerified) {
         // El correo electrónico no ha sido verificado

@@ -25,6 +25,7 @@ const ModalMoreDetails = ({ data, modalDetails, setModalDetails, setModalPropsAl
 
     const pasajero = data.pasajero === undefined ? `${dataUser.firstName} ${dataUser.lastName}` : `${data.pasajero.firstName} ${data.pasajero.lastName}`;
     const conductor = data.conductor === undefined ? `${dataUser.firstName} ${dataUser.lastName}` : `${data.conductor.firstName} ${data.conductor.lastName}`;
+    const vehiculo = data.conductor === undefined ? dataUser.tipoVehiculo : data.conductor.tipoVehiculo;
 
     const fechaHora = formatDate(data.ride.date, 'numeric');
     const arreglo = fechaHora.split(',', 2);
@@ -61,7 +62,8 @@ const ModalMoreDetails = ({ data, modalDetails, setModalDetails, setModalPropsAl
                             {data.oferta.comentario !== null && (
                                 <><Text style={{ fontWeight: 'bold', color: 'black' }}>Comentario:</Text><Text style={{ fontWeight: 'normal', color: 'black' }}>{'\n'}{data.oferta.comentario}{'\n'}</Text></>
                             )}
-                            Coperación: <Text style={{ fontWeight: 'normal', color: 'black' }}>$ {data.oferta.cooperacion}</Text>
+                            Coperación: <Text style={{ fontWeight: 'normal', color: 'black' }}>$ {data.oferta.cooperacion}{'\n'}</Text>
+                            Vehiculo: <Text style={{ fontWeight: 'normal', color: 'black' }}>{vehiculo.charAt(0).toUpperCase() + vehiculo.slice(1)}</Text>
                         </Text>
                     </View>
                 )}

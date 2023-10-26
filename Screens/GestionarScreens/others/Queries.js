@@ -1,4 +1,4 @@
-import { db } from "../../../config-firebase";
+import { db, firebase } from "../../../config-firebase";
 import { sendNotificationByReference, sendNotificationByEmail } from "../../../hooks/Notifications";
 
 //Enviar calificacion general al ride
@@ -224,5 +224,34 @@ export async function getDriverUsers(){
             'Realiza tu oferta',
             'RidesMap'
         );
+    }
+}
+
+//Sumar un ride en el perfil
+export async function addRide(reference, fileName) {
+    try {
+        const doc = await reference.get();
+        if (doc.exists) {
+            const cont = doc.data()[fileName] + 1;
+            reference.update({
+                [fileName]: cont
+            }); 
+        }
+    } catch (error) {
+        console.log('Error al actualizar', error);
+    }
+}
+
+//Elimar el campo de chat del perfil
+export async function deleteField(reference) {
+    try {
+        const doc = await reference.get();
+        if (doc.exists) {
+            reference.update({
+                chat: firebase.firestore.FieldValue.delete()
+            }); 
+        }
+    } catch (error) {
+        console.log('Error al actualizar', error);
     }
 }
