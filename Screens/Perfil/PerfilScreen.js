@@ -18,7 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 const PerfilScreen = ({ navigation }) => {
   const { colors } = useTheme()
-  const { dataUser, getDataUser } = useAuth();
+  const { dataUser, getDataUser, logoutUser } = useAuth();
   //const [isLoading, setIsLoading] = useState(true);
   //const [userData, setUserData] = useState(null);
   const [modalALert, setModalAlert] = useState(false);
@@ -143,6 +143,7 @@ const PerfilScreen = ({ navigation }) => {
     }
   }
 
+  /*
   const handleLogout = async () => {
     try {
       await firebase.auth().signOut();
@@ -150,11 +151,12 @@ const PerfilScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Error al cerrar sesión:', error.message);
     }
-  }
+  }*/
 
+  /*
   const notificaciones = () => {
     navigation.navigate('Notificaciones');
-  }
+  }*/
 
   const ajustesGenerales = () => {
     navigation.navigate('Ajustes Generales');
@@ -276,7 +278,7 @@ const PerfilScreen = ({ navigation }) => {
               </View>
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={handleLogout}>
+          <TouchableOpacity onPress={() =>logoutUser()}>
             <View style={styles.settingsItem}>
               <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
               <Text variant='labelLarge' style={{ color: "red" }}>Cerrar sesión</Text>

@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from "firebase/auth";
 
 const AuthContext = createContext();
-
+let subscriber = null;
 export function useAuth() {
   return useContext(AuthContext);
 }
@@ -17,8 +17,7 @@ export function AuthProvider({ children }) {
   const [initializing, setInitializing] = useState(true)
 
   useEffect(() => {
-    const subscriber = firebase.auth().onAuthStateChanged(async (user) => {
-      console.log("cambio de sesion:", user ? "logeado" : "no log")
+    subscriber = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // Obtener el estado de verificación del correo electrónico
         const emailVerified = user.emailVerified
@@ -37,10 +36,7 @@ export function AuthProvider({ children }) {
 
     //const unsubscribe = subscribeToUsers(() => { console.log('Cambio en USERS'); {user !== null && getDataUser(user.email)} });
 
-    return () => {
-      subscriber();
-      //unsubscribe();
-    }
+    return () => subscriber();
 
   }, [])
 
@@ -142,10 +138,7 @@ export function AuthProvider({ children }) {
 
   const clearUsage = async () => {
     try {
-      //await AsyncStorage.removeItem('usage');
-      await AsyncStorage.setItem("usage", "")
-      const valor = await AsyncStorage.getItem('usage');
-      console.log("Usage es:", valor)
+      await AsyncStorage.removeItem('usage');
     } catch (e) {
       // saving error
     }
@@ -153,13 +146,11 @@ export function AuthProvider({ children }) {
 
   const setUsage = async () => {
     try {
-      //const value = await AsyncStorage.getItem('usage')
-      //if (value !== null) {
+      const value = await AsyncStorage.getItem('usage')
+      if (value !== null) {
         setFirstTime(false)
         await AsyncStorage.setItem('usage', 'true');
-        const valor = await AsyncStorage.getItem('usage');
-        console.log("Usage es:", valor)
-     // }
+      }
     } catch (e) {
       // saving error
     }

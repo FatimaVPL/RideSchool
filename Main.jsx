@@ -28,7 +28,7 @@ const Main = () => {
       {initializing ? <Loader /> : !user ?
         <Stack.Navigator>
           {
-            firstTime && <>
+             <>
               <Stack.Screen
                 name="Welcome"
                 component={WelcomeScreen}
