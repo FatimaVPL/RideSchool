@@ -14,6 +14,7 @@ import ModalDialog from '../GestionarScreens/components/ModalDialog';
 import { Avatar, LinearProgress } from 'react-native-elements';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { subscribeToUsers } from '../../firebaseSubscriptions';
+import * as ImagePicker from 'expo-image-picker';
 
 const PerfilScreen = ({ navigation }) => {
   const { colors } = useTheme()

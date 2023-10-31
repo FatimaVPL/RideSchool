@@ -17,7 +17,8 @@ import { useTheme } from "../../../hooks/ThemeContext";
 // 7 = Dialogo ride completado -- Cambiar estado de ride/oferta a llego al destino
 const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol, email, conductor,
     modalALert, setModalAlert, setModalReview, setModalOptions, setModalDialog, setModalPropsDialog, setModalRating }) => {
-    const { dataUser } = useAuth();
+        const { colors } = useTheme();
+        const { dataUser } = useAuth();
     return (
         <Portal>
             <Modal visible={modalALert} onDismiss={setModalAlert} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>

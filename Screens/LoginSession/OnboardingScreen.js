@@ -366,7 +366,7 @@ const OnboardingScreen = ({ navigation }) => {
                                     <View key={`${field.atr}-${indx}`}>
                                        <TextInput
                                           style={{
-                                             width: '90%',
+                                             width: 350,
                                              height: 50,
                                              borderRadius: 8,
                                              backgroundColor: colors.input,
@@ -410,7 +410,7 @@ const OnboardingScreen = ({ navigation }) => {
                                     <View key={`${field.atr}-${indx}`}>
                                        <TextInput
                                           style={{
-                                             width: '90%',
+                                             width: 350,
                                              height: 50,
                                              borderRadius: 8,
                                              backgroundColor: colors.input,

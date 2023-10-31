@@ -34,24 +34,32 @@ const InicioScreen = () => {
       titulo= "Tu seguridad"
       texto="Recuerda usar casco si vas en motocicleta o si es automóvil usa el cinturón de seguridad"
       imagen={require('../../assets/cinturon.png')}
+      link=""
+      linkInsta = ""
     />
      <Informacion
       titulo= "Respeto"
       texto="Para un mejor ambiente, debe existir el respeto"
       imagen={require('../../assets/respeto.png')}
       lugar="izquierda"
+      link=""
+      linkInsta = ""
     />
      <Informacion
       titulo= "Calificar"
       texto="Recuerda que calificar qué tal estuvo tu ride es importante, para que los demás tengan una mejor referencia del pasajero o conductor"
       imagen={require('../../assets/calificar.png')}
+      link=""
+      linkInsta = ""
     />
      <Informacion
       titulo= "Dudas"
-      texto="¿Tienes alguna duda sobre la app? nos puedes escribir al correo:"
+      texto="¿Tienes alguna duda sobre la app?"
+      texto2 ="Nos puedes escribir:"
       imagen={require('../../assets/dudas.png')}
-      link="rideschool8@gmail.com"
       lugar="izquierda"
+      link="rideschool8@gmail.com"
+      linkInsta = "@rideschool2023"
     />
       </ScrollView>
     </View>

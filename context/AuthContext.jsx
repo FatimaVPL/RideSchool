@@ -118,7 +118,8 @@ export function AuthProvider({ children }) {
         numRidesConductor: 0,
         numRidesPasajero: 0,
         califConductor: 0,
-        califPasajero: 0
+        califPasajero: 0,
+        photoURL : ""
       });
     } catch (error) {
       // Manejar errores específicos
@@ -141,7 +142,10 @@ export function AuthProvider({ children }) {
 
   const clearUsage = async () => {
     try {
-      await AsyncStorage.removeItem('usage');
+      //await AsyncStorage.removeItem('usage');
+      await AsyncStorage.setItem("usage", "")
+      const valor = await AsyncStorage.getItem('usage');
+      console.log("Usage es:", valor)
     } catch (e) {
       // saving error
     }
@@ -149,11 +153,13 @@ export function AuthProvider({ children }) {
 
   const setUsage = async () => {
     try {
-      const value = await AsyncStorage.getItem('usage')
-      if (value !== null) {
+      //const value = await AsyncStorage.getItem('usage')
+      //if (value !== null) {
         setFirstTime(false)
         await AsyncStorage.setItem('usage', 'true');
-      }
+        const valor = await AsyncStorage.getItem('usage');
+        console.log("Usage es:", valor)
+     // }
     } catch (e) {
       // saving error
     }
