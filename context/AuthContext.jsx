@@ -23,7 +23,6 @@ export function AuthProvider({ children }) {
         if (emailVerified) {
           setUser(user);
           getDataUser(user.email);
-          // Store the user token in AsyncStorage for persistence
           await AsyncStorage.setItem('userData', JSON.stringify(user))
         } else {
           setUser(null);
