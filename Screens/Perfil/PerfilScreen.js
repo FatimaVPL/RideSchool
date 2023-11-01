@@ -196,7 +196,7 @@ const PerfilScreen = ({ navigation }) => {
         <Divider style={{ backgroundColor: colors.divider }} />
 
         {/* INSIGNIAS */}
-        <View style={{ margin: 10 }}>
+        <View style={{ margin: 10, marginTop: 20 }}>
           <Text style={{ fontSize: 20, textAlign: 'center', marginBottom: 10, marginTop: 10 }}>Mis Insignias</Text>
 
           {dataUser.role === "Conductor" && (
@@ -240,17 +240,7 @@ const PerfilScreen = ({ navigation }) => {
           )}
         </View>
 
-        <View style={{marginTop: -30}}>
-          <Informacion
-            titulo="¿Tienes alguna duda?"
-            texto="Escríbenos al correo:"
-            //imagen={require('../../assets/dudas.png')}
-            link="rideschool8@gmail.com"
-          //lugar="izquierda"
-          />
-        </View>
-
-        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <View style={{marginTop: 40}}>
           <Divider style={{ backgroundColor: colors.divider }} />
           <TouchableOpacity onPress={() => {
             let content = dataUser.role === "Conductor" ? "PASAJERO" : "CONDUCTOR";
@@ -293,6 +283,16 @@ const PerfilScreen = ({ navigation }) => {
               <Text variant='titleMedium' style={{ color: "red" }}>Cerrar sesión</Text>
             </View>
           </TouchableOpacity>
+        </View>
+
+        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <View style={{ backgroundColor: 'gray', borderRadius: 15 }}>
+            <Text style={{fontSize: 20, fontWeight: 'bold', color: 'green', textAlign: 'center', color: colors.cardText }}>¿Tienes alguna duda?</Text>
+            <View style={{margin: 5, marginTop: 10}}>
+                <Text style={{ color: colors.text, fontSize: 18, textAlign: 'center' }}>Escribenos al correo:</Text>
+                <Text style={{ color: colors.linkText, fontSize: 18, fontWeight: 'bold', textAlign: 'center'  }}>rideschool8@gmail.com</Text>
+            </View>
+        </View>
         </View>
 
         {modalALert && (
