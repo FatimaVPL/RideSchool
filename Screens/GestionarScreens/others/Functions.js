@@ -27,13 +27,13 @@ export function getInfoMedal(num) {
 
 export function getInfoMedal2(num) {
     if (num >= 100) {
-        return { color: "#E6BB3F", text: "Oro" };
+        return { uri: require('../../../assets/Insignias/medalla-de-Oro.png'), text: "Oro", opacity: 1 };
     } else if (num >= 50) {
-        return { color: "#AAA499", text: "Plata" };
+        return { uri: require('../../../assets/Insignias/medalla-de-Plata.png'), text: "Plata", opacity: 1 };
     } else if (num >= 30) {
-        return { color: "#BA9248", text: "Bronce" };
+        return { uri: require('../../../assets/Insignias/medalla-de-Bronce.png'), text: "Bronce", opacity: 1 };
     } else {
-        return false;
+        return { uri: require('../../../assets/Insignias/medalla-de-Bronce.png'), text: "Bronce", opacity: 0.4 };
     }
 }
 
@@ -46,12 +46,21 @@ export function cut(name, lastName) {
 
 export function formatDate(timestamp, monthType) {
     var fecha = new Date(timestamp?.seconds * 1000);
-    var opcionesFormato = {
-        year: 'numeric',
-        month: monthType,
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
+    if (monthType === null) {
+        var opcionesFormato = {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        }
+    } else {
+        var opcionesFormato = {
+            year: 'numeric',
+            month: monthType,
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        }
     }
     return fecha.toLocaleString('es-ES', opcionesFormato);
 }

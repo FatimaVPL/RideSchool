@@ -32,9 +32,9 @@ const ModalOptions = ({ ride, rol, modalOptions, setModalOptions, setModalDialog
 
     return (
         <Portal>
-            <Modal visible={modalOptions} onDismiss={setModalOptions} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+            <Modal visible={modalOptions} onDismiss={setModalOptions} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
-                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: colors.text, fontSize: 18 }}>¿Por qué cancelaste tu ride?</Text>
+                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: colors.textModal, fontSize: 18 }}>¿Por qué cancelaste tu ride?</Text>
                 </View>
 
                 <FlatList

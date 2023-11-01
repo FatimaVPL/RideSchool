@@ -49,7 +49,8 @@
           "apiKey": "AIzaSyAbCSaSarqD9__N9pXiV32flrOPgSURSRg"
         }
       },
-      "package": "com.wiwiriskis.RSProject"
+      "package": "com.wiwiriskis.RSProject",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "userInterfaceStyle": "automatic",

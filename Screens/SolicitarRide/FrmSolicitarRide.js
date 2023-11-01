@@ -259,6 +259,7 @@ const FrmSolicitarRide = () => {
                             multiline={true}
                             numberOfLines={4}
                             placeholderTextColor={colors.text}
+                            placeholder="Deja un comentario que ayude al conductor a identificarte"
                         />
                     </View>
                     <Button

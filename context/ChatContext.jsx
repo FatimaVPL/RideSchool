@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
-import { db } from '../config-firebase'
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { db } from '../config-firebase';
+import { useAuth } from './AuthContext';
 
 const ChatContext = createContext();
 
@@ -9,30 +10,37 @@ export const useChat = () => {
 
 export const ChatProvider = ({ children }) => {
 
-    const [messages, setMessages] = useState([])
+    const { dataUser, user } = useAuth()
+    const [dataMessages, setDataMessages] = useState([])
 
-    // obtener Id de la oferta actual 
-
-    const ofertaId = ""; 
+    const rideID = user !== null ? dataUser?.chat : undefined;
 
     useEffect(() => {
-        const unsubscribe = db.collection("ofertas").doc(ofertaId).collection("messages")
-            .orderBy("timestamp")
-            .onSnapshot(snapshot => {
-                const messagesData = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setMessages(messagesData);
+        if (rideID === undefined) return
+
+        const unsubscribe = db.collection("rides").doc(rideID).collection("messages")
+            .orderBy("date")
+            .onSnapshot((querySnapshot) => {
+                const messagesData = [];
+                querySnapshot.forEach((doc) => {
+                    let own = user.uid === doc.data().userID ? true : false;
+                    const message = {
+                        rideID, 
+                        own,
+                        ...doc.data()
+                    };
+                    messagesData.push(message);
+                });
+                setDataMessages(messagesData);
             });
 
         return () => unsubscribe(); // Cleanup listener on component unmount
-    }, [ofertaId]);
+    }, [rideID]);
 
     return (
         <ChatContext.Provider
             value={{
-                messages
+                dataMessages
             }}>
             {children}
         </ChatContext.Provider>

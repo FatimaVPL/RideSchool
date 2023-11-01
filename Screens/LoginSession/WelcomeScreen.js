@@ -82,13 +82,16 @@ export default function WelcomeScreen({ navigation }) {
     }
   }
 
+  if (spiner) {
+    return (
+      <View style={{ backgroundColor: colors.background }}>
+        <Animation></Animation>
+      </View>
+    );
+  }
+
   return (
     <>
-      {spiner ? (
-        <View style={[styles.spiner, { backgroundColor: colors.background }]}>
-          <Animation></Animation>
-        </View>
-      ) : (
         <Formik
           enableReinitialize={true}
           initialValues={{ email: email, password: password }}
@@ -143,8 +146,6 @@ export default function WelcomeScreen({ navigation }) {
             </View >
           )}
         </Formik>
-      )
-      }
     </>
   );
 }
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    width: "90%",
+    width: "95%",
     height: 50,
     borderRadius: 8,
     shadowColor: "#000",
