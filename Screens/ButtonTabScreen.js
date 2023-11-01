@@ -20,11 +20,10 @@ const Tab = createBottomTabNavigator();
 
 function ButtonTabScreen() {
   const { colors } = useTheme()
-  const { user, setUsage } = useAuth();
+  const { user} = useAuth();
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    setUsage();
 
     const unsubscribeUsers = subscribeToUsers(() => { getUser() });
 

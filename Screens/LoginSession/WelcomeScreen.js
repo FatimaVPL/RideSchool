@@ -12,7 +12,7 @@ import { registerIndieID } from 'native-notify';
 
 export default function WelcomeScreen({ navigation }) {
   const { colors, isDark } = useTheme()
-  const { refreshUser, setUsage, registerUser, firstTime, user, setUser } = useAuth();
+  const { refreshUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(true)

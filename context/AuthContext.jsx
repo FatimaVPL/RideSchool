@@ -19,26 +19,36 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     subscriber = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Obtener el estado de verificación del correo electrónico
-        const emailVerified = user.emailVerified
+        const emailVerified = user.emailVerified;
         if (emailVerified) {
-          setUser(user)
-          getDataUser(user.email)
+          setUser(user);
+          getDataUser(user.email);
+          // Store the user token in AsyncStorage for persistence
+          await AsyncStorage.setItem('userData', JSON.stringify(user))
         } else {
-          // El usuario no ha verificado su correo electrónico
-          setUser(null)
+          setUser(null);
         }
       } else {
         setUser(null);
       }
       setInitializing(false);
-    })
-
-    //const unsubscribe = subscribeToUsers(() => { console.log('Cambio en USERS'); {user !== null && getDataUser(user.email)} });
-
+    });
+  
+    const checkUserToken = async () => {
+      const userData = await AsyncStorage.getItem('userData');
+      if (userData) {
+        const user = JSON.parse(userData)
+        setUser(user)
+        getDataUser(user.email)
+      }
+      setInitializing(false)
+    }
+  
+    checkUserToken();
+  
     return () => subscriber();
-
-  }, [])
+  }, []);
+  
 
   // Refrescar estado de usario 
   const refreshUser = async () => {
@@ -64,6 +74,7 @@ export function AuthProvider({ children }) {
       console.log("Loggin out")
       await firebase.auth().signOut();
       setUser(null);
+      clearUsage()
     } catch (error) {
       // Manejo de errores específicos
       switch (error.code) {
@@ -138,23 +149,25 @@ export function AuthProvider({ children }) {
 
   const clearUsage = async () => {
     try {
-      await AsyncStorage.removeItem('usage');
+      await AsyncStorage.removeItem('userData')
     } catch (e) {
       // saving error
     }
   }
-
+/*
   const setUsage = async () => {
     try {
-      const value = await AsyncStorage.getItem('usage')
-      if (value !== null) {
+      //const value = await AsyncStorage.getItem('usage')
+     // if (value !== null) {
         setFirstTime(false)
         await AsyncStorage.setItem('usage', 'true');
-      }
+        const value = await AsyncStorage.getItem('usage')
+        console.log("Valor setUsage: ", value)
+     // }
     } catch (e) {
       // saving error
     }
-  }
+  }*/
 
   const getDataUser = async (email) => {
     var reference = db.collection('users').doc(email);
@@ -180,7 +193,6 @@ export function AuthProvider({ children }) {
       logoutUser,
       clearUsage,
       firstTime,
-      setUsage,
       registerUser,
       refreshUser,
       reestablecerPassword,
