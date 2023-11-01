@@ -1,9 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Linking, Alert, Image } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Text, Divider, PaperProvider, Button } from 'react-native-paper';
 import { db, firebase } from '../../config-firebase';
 import { useAuth } from '../../context/AuthContext';
@@ -14,12 +12,12 @@ import ModalDialog from '../GestionarScreens/components/ModalDialog';
 import { Avatar, LinearProgress } from 'react-native-elements';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { subscribeToUsers } from '../../firebaseSubscriptions';
+import * as ImagePicker from 'expo-image-picker';
+import Informacion from '../Inicio/Informacion';
 
 const PerfilScreen = ({ navigation }) => {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   const { dataUser, getDataUser } = useAuth();
-  //const [isLoading, setIsLoading] = useState(true);
-  //const [userData, setUserData] = useState(null);
   const [modalALert, setModalAlert] = useState(false);
   const [modalPropsALert, setModalPropsALert] = useState({});
   const [modalDialog, setModalDialog] = useState(false);
@@ -151,13 +149,6 @@ const PerfilScreen = ({ navigation }) => {
     }
   }
 
-  const notificaciones = () => {
-    navigation.navigate('Notificaciones');
-  }
-
-  const ajustesGenerales = () => {
-    navigation.navigate('Ajustes Generales');
-  }
   const SubirDocumentosScreen = () => {
     navigation.navigate('Subir documentos');
   }
@@ -168,31 +159,37 @@ const PerfilScreen = ({ navigation }) => {
   return (
     <PaperProvider>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <View style={[styles.profileContainer, { backgroundColor: colors.background }]}>
-              <Avatar
-                rounded
-                onPress={() => verImagen()}
-                size="xlarge"
-                source={dataUser.photoURL ? { uri: dataUser.photoURL } : require('../../assets/default.jpg')}
-              >
-                <Avatar.Accessory size={38} underlayColor="#696969" selectionColor="red" onPress={() => pickImage()} />
-              </Avatar>
-              {showProgressBar && <LinearProgress style={{ marginTop: 10 }} color='#1DBE99' />}
-              <Text variant='headlineSmall'>{`${dataUser.firstName} ${dataUser.lastName}`}</Text>
-              <Text variant='titleMedium'>{dataUser.email}</Text>
 
-              {/* CALIFICACION GENERAL */}
-              <View style={[styles.badgesContainer, {marginTop: 5}]}>
-                {Array.from({ length: dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor }).map((_, index) => (
-                  <Ionicons key={index} name="star" size={24} color="#FFC107" style={{marginRight: 5}}/>
-                ))}
-                {Array.from({ length: 5 - (dataUser.role === "Pasajero" ? dataUser.califPasajero : dataUser.califConductor) }).map((_, index) => (
-                  <Ionicons key={index} name="star" size={24} color="#8C8A82" style={{marginRight: 5}}/>
-                ))}
-              </View>
-              
-              <Text variant='titleMedium'>{dataUser.role}</Text>
-              <Button onPress={() => {
+        <View style={{ flexDirection: 'row', marginBottom: 15 }}>
+          <View style={{ justifyContent: 'center' }}>
+            <Avatar
+              rounded
+              onPress={() => verImagen()}
+              size={125}
+              source={dataUser.photoURL ? { uri: dataUser.photoURL } : require('../../assets/default.jpg')}
+            >
+              <Avatar.Accessory size={38} underlayColor="#696969" selectionColor="red" onPress={() => pickImage()} />
+            </Avatar>
+            {showProgressBar && <LinearProgress style={{ marginTop: 10 }} color='#1DBE99' />}
+          </View>
+
+          <View style={{ marginStart: 12, justifyContent: 'center' }}>
+            <Text style={{ fontSize: 20, textAlign: 'center' }}>{`${dataUser.firstName} \n${dataUser.lastName}`}</Text>
+            <Text variant='bodySmall' style={{ textAlign: 'center' }}>{dataUser.email}</Text>
+
+            {/* CALIFICACION GENERAL */}
+            <View style={{ flexDirection: 'row', marginTop: 10, alignSelf: 'center' }}>
+              {Array.from({ length: dataUser.role === "Pasajero" ? dataUser.califPasajero.promedio : dataUser.califConductor.promedio }).map((_, index) => (
+                <Ionicons key={index} name="star" style={{ marginRight: 6, fontSize: 22, color: "#FFC107" }} />
+              ))}
+              {Array.from({ length: 5 - (dataUser.role === "Pasajero" ? dataUser.califPasajero.promedio: dataUser.califConductor.promedio) }).map((_, index) => (
+                <Ionicons key={index} name="star" style={{ marginRight: 6, fontSize: 22, color: "#8C8A82" }} />
+              ))}
+            </View>
+
+            <Button icon="repeat" mode="contained" buttonColor='gray' style={{ width: '75%', alignSelf: 'center', marginTop: 10 }}
+              labelStyle={{ fontWeight: 'bold', fontSize: 15, color: 'white' }}
+              onPress={() => {
                 let content = dataUser.role === "Conductor" ? "PASAJERO" : "CONDUCTOR";
                 setModalPropsALert({
                   icon: 'retweet',
@@ -202,86 +199,109 @@ const PerfilScreen = ({ navigation }) => {
                   type: 5
                 });
                 setModalAlert(true);
-              }}>
-                Usar en modo {dataUser.role === "Conductor" ? "Pasajero" : "Conductor"}</Button>
-            </View>
-            {/* INSIGNIAS */}
-            <View style={{ borderRadius: 12, borderWidth: 2, borderColor: '#45B39D', padding: 15, marginBottom: 10 }}>
-              <Text variant='titleLarge' style={{ textAlign: 'center', marginBottom: 10 }}>Insignias</Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                {dataUser.role === "Conductor" && (
-                  <>
-                    {dataUser.licencia?.validado && (
-                      <View style={{alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="card-account-details-star" style={{ fontSize: 38, color: colors.icon }} />
-                        <Text style={{ textAlign: 'center' }}>Licencia</Text>
-                      </View>
-                    )}
-                    {dataUser.tarjetaCirculacion?.validado && (
-                      <View style={{alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="credit-card-check" style={{ fontSize: 38, color: colors.icon }} />
-                        <Text style={{ textAlign: 'center' }}>{"Tarjeta \n Circulación"}</Text>
-                      </View>
-                    )}
-                    {getInfoMedal2(dataUser.numRidesConductor) !== false && (
-                      <View style={{ alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesConductor).color} />
-                        <Text style={{ textAlign: 'center' }}>{`Conductor \n ${getInfoMedal2(dataUser.numRidesConductor).text}`}</Text>
-                      </View>
-                    )}
-                  </>
-                )}
-                {dataUser.role === "Pasajero" && (
-                  <>
-                    {getInfoMedal2(dataUser.numRidesPasajero) !== false && (
-                      <View style={{ flex: 1, alignItems: 'center' }}>
-                        <MaterialCommunityIcons name="medal" style={{ fontSize: 38 }} color={getInfoMedal2(dataUser.numRidesPasajero).color} />
-                        <Text style={{ textAlign: 'center' }}>{`Pasajero \n ${getInfoMedal2(dataUser.numRidesPasajero).text}`}</Text>
-                      </View>
-                    )}
-                  </>
-                )}
+              }}>{dataUser.role === "Conductor" ? "Conductor" : "Pasajero"}</Button>
+          </View>
+        </View>
+        <Divider style={{ backgroundColor: colors.divider }} />
+
+        {/* INSIGNIAS */}
+        <View style={{ margin: 10 }}>
+          <Text style={{ fontSize: 20, textAlign: 'center', marginBottom: 10, marginTop: 10 }}>Mis Insignias</Text>
+
+          {dataUser.role === "Conductor" && (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <View style={{ width: '30%', height: 102, justifyContent: 'space-between' }}>
+                <Image source={isDark ? require('../../assets/Insignias/candado-white.png') : require('../../assets/Insignias/candado-black.png')} style={styles.lockIcon} />
+                <View style={{ backgroundColor: '#e2e8f0', opacity: getInfoMedal2(dataUser.numRidesConductor).opacity, borderRadius: 10, justifyContent: 'center' }}>
+                  <Image source={getInfoMedal2(dataUser.numRidesConductor).uri} style={{ width: '60%', height: '60%', alignSelf: 'center', opacity: getInfoMedal2(dataUser.numRidesConductor).opacity }} />
+                  <Text style={{ textAlign: 'center', fontSize: 15, color: 'black', opacity: getInfoMedal2(dataUser.numRidesConductor).opacity }}>Conductor {'\n'}{getInfoMedal2(dataUser.numRidesConductor).text}</Text>
+                </View>
+              </View>
+
+              <View style={{ width: '30%', height: 102, justifyContent: 'space-between' }}>
+                <Image source={isDark ? require('../../assets/Insignias/candado-white.png') : require('../../assets/Insignias/candado-black.png')} style={styles.lockIcon} />
+                <View style={{ backgroundColor: '#e2e8f0', opacity: dataUser.licencia.validado ? 1 : 0.4, borderRadius: 10, justifyContent: 'center' }}>
+                  <Image source={require('../../assets/Insignias/licencia-de-conducir.png')} style={{ width: '60%', height: '60%', alignSelf: 'center', opacity: dataUser.licencia.validado ? 1 : 0.4 }} />
+                  <Text style={{ textAlign: 'center', fontSize: 15, color: 'black', opacity: dataUser.licencia.validado ? 1 : 0.4, }}>Licencia {'\n'}Conducir</Text>
+                </View>
+              </View>
+
+              <View style={{ width: '30%', height: 102, justifyContent: 'space-between' }}>
+                <Image source={isDark ? require('../../assets/Insignias/candado-white.png') : require('../../assets/Insignias/candado-black.png')} style={styles.lockIcon} />
+                <View style={{ backgroundColor: '#e2e8f0', opacity: dataUser.tarjetaCirculacion.validado ? 1 : 0.4, borderRadius: 10, justifyContent: 'center' }}>
+                  <Image source={require('../../assets/Insignias/tarjeta-circulacion.png')} style={{ width: '60%', height: '60%', alignSelf: 'center', opacity: dataUser.tarjetaCirculacion.validado ? 1 : 0.4 }} />
+                  <Text style={{ textAlign: 'center', fontSize: 15, color: 'black', opacity: dataUser.tarjetaCirculacion.validado ? 1 : 0.4 }}>Tarjeta {'\n'}Circulación</Text>
+                </View>
               </View>
             </View>
+          )}
 
-        
-        <View style={styles.settingsContainer}>
-          <Text variant='headlineMedium'>Configuraciones</Text>
-          {/* <TouchableOpacity onPress={notificaciones}>
-                <View style={styles.settingsItem}>
-                  <MaterialIcons name="notifications" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-                  <Text variant='labelLarge'>Notificaciones</Text>
+          {dataUser.role === "Pasajero" && (
+            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+              <View style={{ width: '30%', height: 102, justifyContent: 'center' }}>
+                <Image source={isDark ? require('../../assets/Insignias/candado-white.png') : require('../../assets/Insignias/candado-black.png')} style={styles.lockIcon} />
+                <View style={{ backgroundColor: '#e2e8f0', opacity: getInfoMedal2(dataUser.numRidesPasajero).opacity, borderRadius: 10, justifyContent: 'center' }}>
+                  <Image source={getInfoMedal2(dataUser.numRidesPasajero).uri} style={{ width: '60%', height: '60%', alignSelf: 'center', opacity: getInfoMedal2(dataUser.numRidesPasajero).opacity }} />
+                  <Text style={{ textAlign: 'center', fontSize: 15, color: 'black', opacity: getInfoMedal2(dataUser.numRidesPasajero).opacity }}>Pasajero {'\n'}{getInfoMedal2(dataUser.numRidesPasajero).text}</Text>
                 </View>
-              </TouchableOpacity> */}
-          <TouchableOpacity onPress={ajustesGenerales}>
+              </View>
+            </View>
+          )}
+        </View>
+
+        <View style={{marginTop: -30}}>
+          <Informacion
+            titulo="¿Tienes alguna duda?"
+            texto="Escríbenos al correo:"
+            //imagen={require('../../assets/dudas.png')}
+            link="rideschool8@gmail.com"
+          //lugar="izquierda"
+          />
+        </View>
+
+        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+          <Divider style={{ backgroundColor: colors.divider }} />
+          <TouchableOpacity onPress={() => {
+            let content = dataUser.role === "Conductor" ? "PASAJERO" : "CONDUCTOR";
+            setModalPropsALert({
+              icon: 'retweet',
+              color: '#FFC300',
+              title: 'Cambiar la app a modo:',
+              content: content,
+              type: 5
+            });
+            setModalAlert(true);
+          }}>
             <View style={styles.settingsItem}>
-              <Ionicons name="settings" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-              <Text variant='labelLarge'>Ajustes generales</Text>
+              <Ionicons name="repeat" size={25} color={colors.iconTab} style={{ marginRight: 5 }} />
+              <Text variant='titleMedium'>Cambiar a modo {dataUser.role === "Conductor" ? "pasajero" : "conductor"}</Text>
             </View>
           </TouchableOpacity>
+
           {dataUser.role === "Conductor" && (
             <TouchableOpacity onPress={SubirDocumentosScreen}>
               <View style={styles.settingsItem}>
-                <Ionicons name="image" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-                <Text variant='labelLarge'>Subir licencia/tarjeta de circulación</Text>
+                <Ionicons name="image" size={25} color={colors.iconTab} style={{ marginRight: 5 }} />
+                <Text variant='titleMedium'>Subir licencia/tarjeta de circulación</Text>
               </View>
             </TouchableOpacity>
           )}
+
           {dataUser.role === "Pasajero" && dataUser.conductor === false && (
             <TouchableOpacity onPress={CompletarInfoConductor}>
               <View style={styles.settingsItem}>
-                <Ionicons name="car" size={24} color={colors.iconTab} style={{ marginRight: 5 }} />
-                <Text variant='labelLarge'>¿Quieres ser conductor?</Text>
+                <Ionicons name="car" size={25} color={colors.iconTab} style={{ marginRight: 5 }} />
+                <Text variant='titleMedium'>¿Quieres ser conductor?</Text>
               </View>
             </TouchableOpacity>
           )}
+
           <TouchableOpacity onPress={handleLogout}>
             <View style={styles.settingsItem}>
-              <Ionicons name="log-out" size={24} color="#DC3803" style={{ marginRight: 5 }} />
-              <Text variant='labelLarge' style={{ color: "red" }}>Cerrar sesión</Text>
+              <Ionicons name="log-out" size={25} color="#DC3803" style={{ marginRight: 5 }} />
+              <Text variant='titleMedium' style={{ color: "red" }}>Cerrar sesión</Text>
             </View>
           </TouchableOpacity>
-          <Divider />
         </View>
 
         {modalALert && (
@@ -323,9 +343,16 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   profileContainer: { alignItems: 'center', marginBottom: 18 },
   profileImage: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
-  badgesContainer: { flexDirection: 'row', marginBottom: 10 },
+  badgesContainer: { flexDirection: 'row', marginBottom: 10, alignSelf: 'center' },
   settingsContainer: { borderTopWidth: 1, borderTopColor: '#E0E0E0', paddingTop: 20 },
   settingsItem: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 },
+  lockIcon: {
+    position: 'absolute',
+    top: 16,
+    left: 20,
+    width: '62%',
+    height: '62%',
+  },
 })
 
 export default PerfilScreen

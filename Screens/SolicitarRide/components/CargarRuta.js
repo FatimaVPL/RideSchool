@@ -263,7 +263,7 @@ const CargarRuta = ({ formikk }) => {
                         ref={originRef}
                         fetchDetails={true}
                         onPress={(data, details) => {
-                            console.log(data);
+                            //console.log(data);
                             setRoute(p => ({
                                 ...p,
                                 origin: {
@@ -320,7 +320,7 @@ const CargarRuta = ({ formikk }) => {
                         autoFocus={false}
                         fetchDetails={true}
                         onPress={(data, details) => {
-                            console.log(data);
+                            //console.log(data);
                             setRoute(p => ({
                                 ...p,
                                 destination: {

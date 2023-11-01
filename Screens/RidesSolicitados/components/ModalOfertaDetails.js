@@ -24,12 +24,12 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
 
     async function setValues(values) {
         try {
-            /* sendNotificationByReference(
+            sendNotificationByReference(
                 ride.pasajeroID.reference,
                 'Nueva Oferta',
                 'Tienes una nueva oferta de Ride!',
                 'GestionarRides'
-            ); */
+            );
             
             const docRef = db.collection('ofertas').doc();
             return await docRef.set({
@@ -48,7 +48,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
 
     return (
         <Portal>
-            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
                 <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text }}>Detalles del Ride</Text>
 
                 <Formik
@@ -61,7 +61,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                     onSubmit={(values) => { setValues(values) }}
                 >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
-                        <View style={{backgroundColor: colors.background}}>
+                        <View style={{backgroundColor: colors.grayModal}}>
                             <TextInput
                                 style={{ margin: 7, height: 60 }}
                                 mode="outlined"
@@ -77,13 +77,14 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                             <TextInput
                                 style={{ margin: 7, height: 100 }}
                                 mode="outlined"
-                                label="Comentarios"
                                 value={values.comentario}
                                 multiline={true}
                                 onChangeText={handleChange('comentario')}
                                 onBlur={handleBlur('comentario')}
                                 theme={{ colors: { text: colors.cardText, primary: colors.cardText } }}
                                 placeholderTextColor={colors.Text}
+                                placeholder="Deja un comentario que ayude al pasajero a identificarte"
+                                label="Comentarios"
                             />
                             {touched.comentario && errors.comentario && <Text style={{ color: 'red' }}>{errors.comentario}</Text>}
 

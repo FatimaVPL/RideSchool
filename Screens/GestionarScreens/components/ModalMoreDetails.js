@@ -43,11 +43,11 @@ const ModalMoreDetails = ({ data, modalDetails, setModalDetails, setModalPropsAl
 
     return (
         <Portal>
-            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View>
-                        <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text, marginRight: 15 }}>Información Detallada</Text>
+                        <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.textModal2Modal, marginRight: 15 }}>Información Detallada</Text>
                     </View>
                     <View>
                         <Pressable onPress={() => setModalDetails(false)}>
@@ -58,28 +58,28 @@ const ModalMoreDetails = ({ data, modalDetails, setModalDetails, setModalPropsAl
 
                 {data.oferta !== undefined && (
                     <View style={{ borderWidth: 1.5, borderColor: colors.cardText }}>
-                        <Text style={{ marginTop: -10, fontWeight: 'bold', color: colors.text, marginLeft: 10, fontSize: 16, backgroundColor: colors.background, width: '30%', textAlign: 'center' }}>OFERTA</Text>
-                        <Text style={{ marginBottom: 15, marginLeft: 8, fontWeight: 'bold', color: colors.text, fontSize: 16, marginTop: 6 }}>
-                            Conductor: <Text style={{ fontWeight: 'normal', color: colors.text }}>{'\n'}{conductor}{'\n'}</Text>
+                        <Text style={{ marginTop: -10, fontWeight: 'bold', color: colors.textModal2, marginLeft: 10, fontSize: 16, backgroundColor: colors.background, width: '30%', textAlign: 'center' }}>OFERTA</Text>
+                        <Text style={{ marginBottom: 15, marginLeft: 8, fontWeight: 'bold', color: colors.textModal2, fontSize: 16, marginTop: 6 }}>
+                            Conductor: <Text style={{ fontWeight: 'normal', color: colors.textModal2 }}>{'\n'}{conductor}{'\n'}</Text>
                             {data.oferta.comentario !== null && (
-                                <><Text style={{ fontWeight: 'bold', color: colors.text }}>Comentario:</Text><Text style={{ fontWeight: 'normal', color: colors.text }}>{'\n'}{data.oferta.comentario}{'\n'}</Text></>
+                                <><Text style={{ fontWeight: 'bold', color: colors.textModal2 }}>Comentario:</Text><Text style={{ fontWeight: 'normal', color: colors.textModal2 }}>{'\n'}{data.oferta.comentario}{'\n'}</Text></>
                             )}
-                            Coperación: <Text style={{ fontWeight: 'normal', color: colors.text }}>$ {data.oferta.cooperacion}{'\n'}</Text>
-                            Vehículo: <Text style={{ fontWeight: 'normal', color: colors.text }}>{vehiculo.charAt(0).toUpperCase() + vehiculo.slice(1)}</Text>
+                            Coperación: <Text style={{ fontWeight: 'normal', color: colors.textModal2 }}>$ {data.oferta.cooperacion}{'\n'}</Text>
+                            Vehículo: <Text style={{ fontWeight: 'normal', color: colors.textModal2 }}>{vehiculo.charAt(0).toUpperCase() + vehiculo.slice(1)}</Text>
                         </Text>
                     </View>
                 )}
 
                 <View style={{ borderWidth: 1.5, borderColor: colors.cardText, marginTop: 12 }}>
-                    <Text style={{ marginTop: -10, fontWeight: 'bold', color: colors.text, marginLeft: 10, fontSize: 16, backgroundColor: colors.background, width: '30%', textAlign: 'center' }}>RIDE</Text>
-                    <Text style={{ marginBottom: 15, marginLeft: 8, fontWeight: 'bold', color: colors.text, fontSize: 16, marginTop: 6 }}>
-                        Pasajero: <Text style={{ fontWeight: 'normal', color: colors.text }}>{'\n'}{pasajero}{'\n'}</Text>
+                    <Text style={{ marginTop: -10, fontWeight: 'bold', color: colors.textModal2, marginLeft: 10, fontSize: 16, backgroundColor: colors.background, width: '30%', textAlign: 'center' }}>RIDE</Text>
+                    <Text style={{ marginBottom: 15, marginLeft: 8, fontWeight: 'bold', color: colors.textModal2, fontSize: 16, marginTop: 6 }}>
+                        Pasajero: <Text style={{ fontWeight: 'normal', color: colors.textModal2 }}>{'\n'}{pasajero}{'\n'}</Text>
                         {data.ride.comentarios !== null && (
-                            <><Text style={{ fontWeight: 'bold',  color: colors.text }}>Comentario:</Text><Text style={{ fontWeight: 'normal', color: 'black' }}>{'\n'}{data.ride.comentarios}{'\n'}</Text></>
+                            <><Text style={{ fontWeight: 'bold',  color: colors.textModal2 }}>Comentario:</Text><Text style={{ fontWeight: 'normal', color: 'black' }}>{'\n'}{data.ride.comentarios}{'\n'}</Text></>
                         )}
-                        Num. Personas: <Text style={{ fontWeight: 'normal', color: colors.text }}>{data.ride.personas}{'\n'}</Text>
-                        Fecha: <Text style={{ fontWeight: 'normal', color: colors.text }}>{fecha}</Text>  Hora:<Text style={{ fontWeight: 'normal', color: 'black' }}>{hora}{'\n'}</Text>
-                        Ruta: <Text style={{ fontWeight: 'normal', color: colors.text }}>{data.ride.informationRoute.distance}km/{data.ride.informationRoute.duration}min aproximados</Text>
+                        Num. Personas: <Text style={{ fontWeight: 'normal', color: colors.textModal2 }}>{data.ride.personas}{'\n'}</Text>
+                        Fecha: <Text style={{ fontWeight: 'normal', color: colors.textModal2 }}>{fecha}</Text>  Hora:<Text style={{ fontWeight: 'normal', color: 'black' }}>{hora}{'\n'}</Text>
+                        Ruta: <Text style={{ fontWeight: 'normal', color: colors.textModal2 }}>{data.ride.informationRoute.distance}km/{data.ride.informationRoute.duration}min aproximados</Text>
                     </Text>
 
                     <View style={{ width: '95%', height: 180, alignSelf: 'center', marginBottom: 5 }}>

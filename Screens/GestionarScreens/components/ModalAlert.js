@@ -2,7 +2,7 @@ import * as React from "react";
 import { Modal, Portal, Text, Button } from 'react-native-paper';
 import { View } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { deleteDoc, updateRide, updateStatus, updateRole, addRide, deleteField } from "../others/Queries";
+import { deleteDoc, updateRide, updateStatus, updateRole, deleteField } from "../others/Queries";
 import { db } from "../../../config-firebase";
 import { sendNotificationByReference, sendNotificationWithTimer } from "../../../hooks/Notifications";
 import { useAuth } from "../../../context/AuthContext";
@@ -17,17 +17,19 @@ import { useTheme } from "../../../hooks/ThemeContext";
 // 7 = Dialogo ride completado -- Cambiar estado de ride/oferta a llego al destino
 const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol, email, conductor,
     modalALert, setModalAlert, setModalReview, setModalOptions, setModalDialog, setModalPropsDialog, setModalRating }) => {
+    const { colors } = useTheme()
     const { dataUser } = useAuth();
+
     return (
         <Portal>
-            <Modal visible={modalALert} onDismiss={setModalAlert} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+            <Modal visible={modalALert} onDismiss={setModalAlert} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                     <AntDesign name={icon} style={{ fontSize: 50 }} color={color} />
-                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: colors.text, fontSize: 18, marginTop: 6 }}>{title}</Text>
-                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: colors.text, fontSize: 16, textAlign: 'center' }}>{content}</Text>
+                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: colors.textModal2, fontSize: 18, marginTop: 6 }}>{title}</Text>
+                    <Text style={{ marginBottom: 15, fontWeight: 'bold', color: colors.textModal2, fontSize: 16, textAlign: 'center' }}>{content}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Button mode="contained" buttonColor={type === 3 || type === 4 || type === 7 ? '#A9CA6D' : '#EE6464'} textColor={colors.text} labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: "48%" }}
+                    <Button mode="contained" buttonColor={type === 3 || type === 4 || type === 7 || type === 5 ? '#A9CA6D' : '#EE6464'} textColor={colors.textModal2} labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: "48%" }}
                         onPress={() => {
                             switch (type) {
                                 case 1:
@@ -56,7 +58,7 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
                                     break;
                                 case 3:
                                     //RIDE EN CURSO
-                                    //updateRide(data.ofertas, indexOferta, data.ride.id);
+                                    updateRide(data.ofertas, indexOferta, data.ride.id);
 
                                     //Enivar notificacion para recordar marcar que llego al destino
                                     sendNotificationWithTimer(
@@ -99,10 +101,6 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
                                     //Actualizar estado oferta/ride
                                     updateStatus(data.ride.ofertaID, "llego al destino");
                                     updateStatus(data.oferta.rideID.reference, "llego al destino");
-
-                                    //Sumar ride pasajero/conductor
-                                    addRide(data.oferta.conductorID.reference, "numRidesConductor");
-                                    addRide(data.oferta.pasajeroID.reference, "numRidesPasajero");
 
                                     //Elimar campo de chat para pasajero y conductor
                                     deleteField(data.oferta.conductorID.reference);

@@ -10,7 +10,7 @@ import WelcomeScreen from './Screens/LoginSession/WelcomeScreen';
 import FrmSolicitarRide from './Screens/SolicitarRide/FrmSolicitarRide';
 import GestionarOfertas from './Screens/GestionarScreens/Ofertas';
 import ReestablecerPassword from './Screens/LoginSession/ReestablecerPassword';
-import ChatScreen from './Screens/ChatScreen';
+import ChatScreen from './Screens/Chat/ChatScreen';
 import GestionarRides from './Screens/GestionarScreens/Rides';
 import InicioScreen from './Screens/Inicio/InicioScreen';
 import RidesMap from './Screens/RidesSolicitados/RidesMap';

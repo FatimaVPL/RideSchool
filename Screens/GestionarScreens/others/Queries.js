@@ -1,15 +1,47 @@
 import { db, firebase } from "../../../config-firebase";
 import { sendNotificationByReference, sendNotificationByEmail } from "../../../hooks/Notifications";
 
-//Enviar calificacion general al ride
-export async function updateRating({ comentario = "", puntaje = 3, id = "", fileName }) {
+//Enviar calificacion general al ride y al perfil
+export async function updateRating({ comentario = "", puntaje = 3, id = "", fileName, userReference }) {
+    //Agregamos la calificacion y comentario al ride
     const reference = db.collection('rides').doc(id);
-
     try {
         const doc = await reference.get();
         if (doc.exists) {
             reference.update({
                 [fileName]: { comentario, puntaje }
+            });
+        }
+    } catch (error) {
+        console.log('Error al actualizar', error);
+    }
+
+    //Agregamos la calificacion y sumar un ride al perfil del usuario calificado
+    try {
+        const doc = await userReference.get();
+        if (doc.exists) {
+            let numRides;
+            let total;
+            let califFileName;
+            let numRidesFileName;
+
+            if (fileName === "califP_C") {
+                numRides = doc.data().numRidesConductor + 1;
+                total = doc.data().califConductor.total + puntaje;
+                califFileName = "califConductor";
+                numRidesFileName = "numRidesConductor";
+            } else {
+                numRides = doc.data().numRidesPasajero + 1;
+                total = doc.data().califPasajero.total + puntaje;
+                califFileName = "califPasajero";
+                numRidesFileName = "numRidesPasajero";
+            }
+
+            let promedio = total / numRides;
+
+            userReference.update({
+                [califFileName]: { total: total, promedio: promedio },
+                [numRidesFileName]: numRides
             });
         }
     } catch (error) {
@@ -82,7 +114,7 @@ export async function updateRide(ofertas, index, rideID) {
 }
 
 //Enviar el ID del ride al perfil del usuario para poder usar el chat
-async function updateChat(referenceUser, rideID) {
+export async function updateChat(referenceUser, rideID) {
     try {
         const doc = await referenceUser.get();
         if (doc.exists) {
@@ -210,7 +242,7 @@ export async function updateRole(email, rol) {
 }
 
 //Enviar notificacion de nuevo a ride a los usuarios que se encuentran en el rol de conductor 
-export async function getDriverUsers(){
+export async function getDriverUsers() {
     //console.log('Realizando consulta')
     const usersSnapshot = await db.collection('users').where('role', '==', 'Conductor').get();
     const users = [];
@@ -227,21 +259,6 @@ export async function getDriverUsers(){
     }
 }
 
-//Sumar un ride en el perfil
-export async function addRide(reference, fileName) {
-    try {
-        const doc = await reference.get();
-        if (doc.exists) {
-            const cont = doc.data()[fileName] + 1;
-            reference.update({
-                [fileName]: cont
-            }); 
-        }
-    } catch (error) {
-        console.log('Error al actualizar', error);
-    }
-}
-
 //Elimar el campo de chat del perfil
 export async function deleteField(reference) {
     try {
@@ -249,9 +266,41 @@ export async function deleteField(reference) {
         if (doc.exists) {
             reference.update({
                 chat: firebase.firestore.FieldValue.delete()
-            }); 
+            });
         }
     } catch (error) {
         console.log('Error al actualizar', error);
     }
+}
+
+//Enviar mensaje en el chat y notificacion
+export async function sendMessage(message, rideID, userID, rol) {
+    const docRef = db.collection('rides').doc(rideID);
+    let userReference;
+
+    try {
+        const doc = await docRef.get();
+        if (doc.exists) {
+            if (rol === "Pasajero") {
+                userReference = doc.data().conductorID.reference;
+            } else {
+                userReference = doc.data().pasajeroID.reference;
+            }
+        }
+    } catch (error) {
+        console.log('Error al obtener los datos', error);
+    }
+
+    sendNotificationByReference(
+        userReference,
+        'Tienes un nuevo mensaje',
+        'Entra a la app y revisa tus chats',
+        'ChatScreen'
+    );
+
+    return await docRef.collection('messages').doc().set({
+        date: new Date(),
+        text: message,
+        userID: userID
+    })
 }

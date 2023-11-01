@@ -117,8 +117,8 @@ export function AuthProvider({ children }) {
         conductor,
         numRidesConductor: 0,
         numRidesPasajero: 0,
-        califConductor: 0,
-        califPasajero: 0
+        califConductor: {total:0, promedio: 0},
+        califPasajero: {total:0, promedio: 0}
       });
     } catch (error) {
       // Manejar errores específicos

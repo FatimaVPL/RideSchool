@@ -41,7 +41,12 @@ export function ThemeProvider({children}){
             textRide: isDark? '#22c55e' : 'green',
             cardInfo: isDark? '#878787'  : '#D2CECE',
             cardText: isDark? '#79D17B' : '#0D920F',
-            linkText: isDark? '#7DDEDB' : '#2EA7A4'
+            linkText: isDark? '#7DDEDB' : '#2EA7A4',
+            grayModal: isDark? '#334155' : '#F2F2F2',
+            textModal: isDark ? '#e5e7eb' : '#171717',
+            textModal2: isDark ? '#d1d5db' : '#171717',
+            divider: isDark ? 'white' : 'black',
+            cardOferta: isDark ? '#d1d5db' : '#e5e7eb'
         },
         setDark: (isDark) => setThemeState(isDark ? 'dark' : 'light'),
     };

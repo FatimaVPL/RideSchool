@@ -12,20 +12,30 @@ const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, se
     const { colors } = useTheme();
     return (
         <Portal>
-            <Modal visible={modalUser} onDismiss={setModalUser} contentContainerStyle={{ backgroundColor: colors.background, padding: 18, borderRadius: 15, width: '73%', alignSelf: 'center', justifyContent: 'center', }}>
-                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text }}>Información de la oferta</Text>
+            <Modal visible={modalUser} onDismiss={setModalUser} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '73%', alignSelf: 'center', justifyContent: 'center', }}>
+                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.textModal }}>Información de la oferta</Text>
                 <View style={{ flexDirection: 'row', marginBottom: 18, width: '95%' }}>
                     <View style={{ justifyContent: 'center' }}>
                         <Avatar
                             rounded
-                            size={90}
+                            size={70}
                             source={user.photoURL ? { uri: user.photoURL } : require('../../../assets/default.jpg')}
                         />
                     </View>
                     <View style={{ marginStart: 12 }}>
-                        <Text style={{ paddingTop: 6, fontSize: 18, color: 'black' }}>{`${user.firstName} \n${user.lastName}`}</Text>
+                        <Text style={{ paddingTop: 6, fontSize: 18, color: colors.textModal2 }}>{`${user.firstName} \n${user.lastName}`}</Text>
 
-                        {/* CALIFICACION GENERAL */}
+                        <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                            {user.califConductor.promedio !== 0 && (
+                                <><Text style={{ fontSize: 15, color: colors.textModal2 }}>{user.califConductor.promedio}
+                                </Text><Ionicons name="star" style={{ marginLeft: 5, fontSize: 20, color: "#FFC107" }} /></>
+                            )}
+                            {user.numRidesConductor !== 0 && (
+                                <Text style={{ fontSize: 15, color: colors.textModal2, marginLeft: 15 }}>{user.numRidesConductor} viajes</Text>
+                            )}
+                        </View>
+
+                        {/* CALIFICACION GENERAL 
                         <View style={{ flexDirection: 'row', marginTop: 5 }}>
                             {Array.from({ length: user.califConductor }).map((_, index) => (
                                 <Ionicons key={index} name="star" style={{ marginRight: 6, fontSize: 20, color: "#FFC107" }} />
@@ -33,37 +43,54 @@ const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, se
                             {Array.from({ length: 5 - user.califConductor }).map((_, index) => (
                                 <Ionicons key={index} name="star" style={{ marginRight: 6, fontSize: 20, color: "#8C8A82" }} />
                             ))}
-                        </View>
+                        </View> */}
 
-                        {/* INSIGNIAS */}
+                        {/* INSIGNIAS 
                         <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '65%' }}>
                             {user.numRidesConductor >= 30 && (<MaterialCommunityIcons name="medal" style={{ fontSize: 29 }} color={getInfoMedal(user.numRidesConductor)} />)}
                             {user.licencia && (<MaterialCommunityIcons name="card-account-details-star" style={{ fontSize: 28 }} />)}
                             {user.tarjetaCirculacion && (<MaterialCommunityIcons name="credit-card-check" style={{ fontSize: 30 }} />)}
-                        </View>
+                        </View>*/}
                     </View>
                 </View>
 
-                {oferta.comentario !== null && (
-                    <View style={{ flexDirection: 'row' }}>
-                        <Ionicons name="chatbubbles" style={{ marginRight: 10, fontSize: 24 }} />
-                        <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 17, color: 'black' }}>{oferta.oferta.comentario}</Text>
+                {(user.licencia.validado || user.tarjetaCirculacion.validado) && (
+                    <View style={{ backgroundColor: '#e2e8f0', borderRadius: 8, padding: 8, marginBottom: 15 }}>
+                        {user.licencia.validado && (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 14, color: 'black' }}>Licencia de Conducir</Text>
+                                <Ionicons name="checkmark-circle" style={{ marginLeft: 10, fontSize: 22, color: 'green' }} />
+                            </View>
+                        )}
+                        {user.tarjetaCirculacion.validado && (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 14, color: 'black' }}>Tarjeta de Circulación</Text>
+                                <Ionicons name="checkmark-circle" style={{ marginLeft: 8, fontSize: 22, color: 'green' }} />
+                            </View>
+                        )}
                     </View>
                 )}
 
-                <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                {oferta.comentario !== null && (
                     <View style={{ flexDirection: 'row' }}>
-                        <FontAwesome5 name="coins" style={{ marginRight: 10, fontSize: 24, alignSelf: 'center' }} />
-                        <Text style={{ paddingTop: 6, fontSize: 17, color: 'black' }}>{oferta.oferta.cooperacion}</Text>
+                        <Ionicons name="chatbubbles" style={{ marginRight: 10, fontSize: 24, color: colors.icon }} />
+                        <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 17, color: colors.textModal2 }}>{oferta.oferta.comentario}</Text>
+                    </View>
+                )}
+
+                <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+                    <View style={{ flexDirection: 'row' }}>
+                        <FontAwesome5 name="coins" style={{ marginRight: 10, fontSize: 24, alignSelf: 'center', color: colors.icon }} />
+                        <Text style={{ paddingTop: 6, fontSize: 17, color: colors.textModal2 }}>{oferta.oferta.cooperacion}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginLeft: 30 }}>
-                        <Text style={{ paddingTop: 6, fontSize: 17, color: 'black' }}>Vehículo</Text>
-                        <FontAwesome5 name={user.tipoVehiculo === "motocicleta" ? "motorcycle" : "car"} style={{ marginLeft: 10, fontSize: 24, alignSelf: 'center' }} />
+                        <Text style={{ paddingTop: 6, fontSize: 17, color: colors.textModal2 }}>Vehículo:</Text>
+                        <FontAwesome5 name={user.tipoVehiculo === "motocicleta" ? "motorcycle" : "car"} style={{ marginLeft: 10, fontSize: 24, alignSelf: 'center', color: colors.icon }} />
                     </View>
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    <Button icon="check" mode="contained" buttonColor='#B2D474' textColor='white' style={{ width: '100%' }} labelStyle={{ fontWeight: 'bold', fontSize: 16 }}
+                    <Button icon="check" mode="contained" buttonColor='#A9CA6D' textColor='white' style={{ width: '100%' }} labelStyle={{ fontWeight: 'bold', fontSize: 16 }}
                         onPress={() => {
                             setModalUser(false);
                             setModalPropsAlert({
