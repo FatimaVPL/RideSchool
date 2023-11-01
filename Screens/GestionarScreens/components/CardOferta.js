@@ -6,10 +6,12 @@ import { cut } from "../others/Functions";
 import { useTheme } from "../../../hooks/ThemeContext";
 
 const CardOferta = ({ item, index, parentItem, setselectedRide, setModalUser, setselectedOferta, setIndexOferta }) => {
+    const { colors } = useTheme();
+
     return (
         <Card
             key={item.id}
-            style={{ width: '94%', borderRadius: 18, margin: 6, backgroundColor: '#EDEDED', borderWidth: 1, borderColor: "green", height: 70, marginLeft: 20 }}
+            style={{ width: '94%', borderRadius: 18, margin: 5, backgroundColor: colors.cardOferta, height: 65, marginLeft: 20 }}
             onPress={() => { setselectedRide(parentItem); setselectedOferta(item); setModalUser(true); setIndexOferta(index);}}
         >
             <Card.Content>
@@ -19,8 +21,8 @@ const CardOferta = ({ item, index, parentItem, setselectedRide, setModalUser, se
                         <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 15, color: 'black' }}>{cut(item.conductor.firstName, item.conductor.lastName)}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginLeft: 80 }}>
-                        <Text style={{ color: colors.text, marginRight: 5, fontSize: 22, fontWeight: 'bold' }}>$</Text>
-                        <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: colors.text }}>{item.oferta.cooperacion}</Text>
+                        <Text style={{ color: 'black', marginRight: 5, fontSize: 22, fontWeight: 'bold' }}>$</Text>
+                        <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: 'black' }}>{item.oferta.cooperacion}</Text>
                     </View>
                 </View>
             </Card.Content>

@@ -32,10 +32,10 @@ const ModalReview = ({ userType, modalReview, setModalReview, rideID }) => {
 
     return (
         <Portal>
-            <Modal visible={modalReview} onDismiss={setModalReview} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
-                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text, textAlign: 'center' }}>Califica a tu {userType}</Text>
+            <Modal visible={modalReview} onDismiss={setModalReview} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.textModal, textAlign: 'center' }}>Califica a tu {userType}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.text }}>{values.title[0]}</Text>
+                    <Text style={{ marginBottom: 15, fontSize: 18, color: textModal2 }}>{values.title[0]}</Text>
                     <AirbnbRating
                         count={5}
                         defaultRating={0}
@@ -45,7 +45,7 @@ const ModalReview = ({ userType, modalReview, setModalReview, rideID }) => {
                     />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.text }}>{values.title[1]}</Text>
+                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.textModal2 }}>{values.title[1]}</Text>
                     <AirbnbRating
                         count={5}
                         defaultRating={0}
@@ -55,7 +55,7 @@ const ModalReview = ({ userType, modalReview, setModalReview, rideID }) => {
                     />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.text }}>{values.title[2]}</Text>
+                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.textModal2 }}>{values.title[2]}</Text>
                     <AirbnbRating
                         count={5}
                         defaultRating={0}
@@ -65,7 +65,7 @@ const ModalReview = ({ userType, modalReview, setModalReview, rideID }) => {
                     />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.text }}>{values.title[3]}</Text>
+                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.textModal2 }}>{values.title[3]}</Text>
                     <AirbnbRating
                         count={5}
                         defaultRating={0}
@@ -75,7 +75,7 @@ const ModalReview = ({ userType, modalReview, setModalReview, rideID }) => {
                     />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.text }}>{values.title[4]}</Text>
+                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.textModal2 }}>{values.title[4]}</Text>
                     <AirbnbRating
                         count={5}
                         defaultRating={0}

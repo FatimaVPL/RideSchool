@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "952558206161",
+    "project_id": "rs-pushnotifications",
+    "storage_bucket": "rs-pushnotifications.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952558206161:android:b93342b7c39da70f8b99f0",
+        "android_client_info": {
+          "package_name": "com.wiwiriskis.RSProject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPKMniamAWakOBetQZzvgJuKzXAls-l1U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

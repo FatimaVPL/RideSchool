@@ -32,10 +32,10 @@ const ModalDetails = ({ data, type, modalDetails, setModalDetails, setModalProps
 
     return (
         <Portal>
-            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+            <Modal visible={modalDetails} onDismiss={setModalDetails} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View>
-                        <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text, marginRight: 20 }}>Información del Ride</Text>
+                        <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.textModal, marginRight: 20 }}>Información del Ride</Text>
                     </View>
                     <View>
                         <Pressable onPress={() => setModalDetails(false)}>

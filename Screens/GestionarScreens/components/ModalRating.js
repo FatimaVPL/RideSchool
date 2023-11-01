@@ -10,14 +10,15 @@ import { useTheme } from "../../../hooks/ThemeContext";
 const ModalRating = ({ ride, rol, modalRating, setModalRating, setModalReview, setModalPropsAlert, setModalAlert }) => {
     const { colors } = useTheme();
     let fileName = rol === "conductor" ? "califC_P" : "califP_C";
+    let userReference = rol === "conductor" ? ride.pasajeroID.reference: ride.conductorID.reference;
 
     const [text, onChangeText] = useState(ride[fileName]?.comentario);
     const [score, setScore] = useState(ride[fileName]?.puntaje);
 
     return (
         <Portal>
-            <Modal visible={modalRating} onDismiss={setModalRating} contentContainerStyle={{ backgroundColor: colors.background, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
-                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.text, textAlign: 'center' }}>Califica tu experiencia</Text>
+            <Modal visible={modalRating} onDismiss={setModalRating} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
+                <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.textModal, textAlign: 'center' }}>Califica tu experiencia</Text>
                 <AirbnbRating
                     count={5}
                     reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}
@@ -53,7 +54,7 @@ const ModalRating = ({ ride, rol, modalRating, setModalRating, setModalReview, s
                                 onPress={() => {
                                     const reference = db.collection('rides').doc(ride.id);
                                     updateStatus(reference, "finalizado")
-                                    updateRating({ puntaje: score, comentario: text, id: ride.id, fileName }); 
+                                    updateRating({ puntaje: score, comentario: text, id: ride.id, fileName, userReference }); 
                                     setModalPropsAlert({
                                         icon: 'form',
                                         color: 'green',

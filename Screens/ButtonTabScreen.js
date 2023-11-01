@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import InicioScreen from './Inicio/InicioScreen';
-import ChatScreen from './ChatScreen';
+import ChatScreen from './Chat/ChatScreen';
 import RidesSolicitados from './RidesSolicitados/RidesMap';
 import GestionarOfertas from './GestionarScreens/Ofertas';
 import GestionarRides from './GestionarScreens/Rides';
@@ -84,6 +84,7 @@ function ButtonTabScreen() {
           headerTitleStyle: {
             color: colors.text
           },
+          headerShown: false
         }}
 
       />
@@ -123,7 +124,7 @@ function ButtonTabScreen() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubble-ellipses" size={size} color={colors.iconTab} />
           ),
-          tabBarBadge: 5,
+          //tabBarBadge: 1,
           headerStyle: {
             backgroundColor: colors.background2,
           },
