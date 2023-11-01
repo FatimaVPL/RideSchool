@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TouchableOpacity, StatusBar, FlatList, useWindowDimensions, StyleSheet, KeyboardAvoidingView, Platform, Animated, Image, Alert, Keyboard } from "react-native"
 import { TextInput, RadioButton, ActivityIndicator, MD2Colors, Checkbox } from 'react-native-paper'
 import Lottie from 'lottie-react-native';
@@ -78,7 +78,7 @@ const OnboardingScreen = ({ navigation }) => {
             .min(8, "Debe ser mayor o igual a 8")
             .max(16, "Debe ser menor a 17")
    })
-   
+
    /**********************************  Slides *******************************************/
    const slides = [
       {
@@ -183,47 +183,49 @@ const OnboardingScreen = ({ navigation }) => {
                      // slidesRef.current.scrollToIndex({ index: selectedScreen + 1 });
                      // setSelectedScreen(selectedScreen + 1);
                      // Crear Un Registro
-                     setSpiner(true);
+                    
                      if (formData.role !== "") {
+                        setSpiner(true);
                         CorreosActivos({ correo: formData.email })
                            .then((result) => {
                               if (result) {
                                  crearUsuario()
                               } else {
-                                 Alert.alert("Correo no vigente","Tu correo no está en nuestros registros")
+                                 Alert.alert("Correo no vigente", "Tu correo no está en nuestros registros")
                                  navigation.navigate('Welcome')
                               }
                            }).catch((error) => {
-                              Alert.alert("Error de verificación","Ocurrio un error al verificar tu email")
+                              Alert.alert("Error de verificación", "Ocurrio un error al verificar tu email")
                               navigation.navigate('Welcome')
                            })
-                     } 
-                     setSpiner(false)
+                     }
+                  //   setSpiner(false)
                      break;
                }
             } else {
                // Crear registro
-               setSpiner(true)
+              
                if (formData.role !== "") {
+                  setSpiner(true)
                   CorreosActivos({ correo: formData.email })
                      .then((result) => {
                         if (result) {
                            // Hacer algo si el correo existe en la base de datos
                            crearUsuario()
                         } else {
-                           Alert.alert("Correo no vigente","Tu correo no está en nuestros registros")
+                           Alert.alert("Correo no vigente", "Tu correo no está en nuestros registros")
                            navigation.navigate('Welcome')
                         }
                      }).catch((error) => {
-                        Alert.alert("Error de verificación","Ocurrio un error al verificar tu email")
+                        Alert.alert("Error de verificación", "Ocurrio un error al verificar tu email")
                         navigation.navigate('Welcome')
                      })
                }
-               setSpiner(false)
+              // setSpiner(false)
             }
          }
       } catch (err) {
-         Alert.alert("Error",err)
+         Alert.alert("Error", err)
       } finally {
          setLoading(false)
       }
@@ -232,7 +234,7 @@ const OnboardingScreen = ({ navigation }) => {
    const crearUsuario = async () => {
       if (formData.role !== "Conductor") {
          formData.tipoVehiculo = "";
-      }else{
+      } else {
          formData.conductor = true
       }
 
@@ -249,7 +251,7 @@ const OnboardingScreen = ({ navigation }) => {
          })
          navigation.navigate('Welcome')
       } catch (error) {
-       areIntervalsOverlappingWithOptions("Error al registrar el usuario", error)
+         areIntervalsOverlappingWithOptions("Error al registrar el usuario", error)
       }
    }
 
@@ -313,7 +315,7 @@ const OnboardingScreen = ({ navigation }) => {
                            <Text
                               style={{
                                  textAlign: 'center',
-                                 fontSize: 27,
+                                 fontSize: 27, 
                                  fontWeight: '900',
                                  marginBottom: 15,
                                  color: colors.primary
@@ -341,23 +343,23 @@ const OnboardingScreen = ({ navigation }) => {
                                  )}
                               </View>
                            }
-                              {
+                           {
                               options &&
                               <View style={{ display: 'flex' }}>
-                              {options.map((option, indx) => (
-                                <Checkbox.Item
-                                  key={`${option.value}-${indx}`}
-                                  label={option.label}
-                                  status={formData?.role === option.value ? 'checked' : 'unchecked'}
-                                  onPress={() => {
-                                    handleSelectRole(option.value)
-                                  }}
-                                  labelStyle={{ color: colors.text, fontWeight: 'bold', fontSize:20 }}
-                                  uncheckedColor="#E1A43B" 
-                                  color="#E1A43B" 
-                                />
-                              ))}
-                            </View>
+                                 {options.map((option, indx) => (
+                                    <Checkbox.Item
+                                       key={`${option.value}-${indx}`}
+                                       label={option.label}
+                                       status={formData?.role === option.value ? 'checked' : 'unchecked'}
+                                       onPress={() => {
+                                          handleSelectRole(option.value)
+                                       }}
+                                       labelStyle={{ color: colors.text, fontWeight: 'bold', fontSize: 20 }}
+                                       uncheckedColor="#E1A43B"
+                                       color="#E1A43B"
+                                    />
+                                 ))}
+                              </View>
                            }
                            {
                               inputPassword &&
@@ -366,11 +368,11 @@ const OnboardingScreen = ({ navigation }) => {
                                     <View key={`${field.atr}-${indx}`}>
                                        <TextInput
                                           style={{
-                                             width: '90%',
+                                             width: 350,
                                              height: 50,
                                              borderRadius: 8,
                                              backgroundColor: colors.input,
-                                             color:colors.text,
+                                             color: colors.text,
                                              shadowColor: '#000',
                                              shadowOffset: {
                                                 width: 0,
@@ -410,11 +412,11 @@ const OnboardingScreen = ({ navigation }) => {
                                     <View key={`${field.atr}-${indx}`}>
                                        <TextInput
                                           style={{
-                                             width: '90%',
+                                             width: 350,
                                              height: 50,
                                              borderRadius: 8,
                                              backgroundColor: colors.input,
-                                             color:colors.text,
+                                             color: colors.text,
                                              shadowColor: '#000',
                                              shadowOffset: {
                                                 width: 0,
@@ -431,7 +433,8 @@ const OnboardingScreen = ({ navigation }) => {
                                           // onChangeText={(text) => handleChangeText(field.atr, text)}
                                           defaultValue={values[field.atr]}
                                           onChangeText={(text) => {
-                                             handleChangeText(field.atr, text);
+                                             const trimmedText = text.trim();
+                                             handleChangeText(field.atr, trimmedText);
                                              handleChange(field.atr);
                                           }}
                                           placeholder={`${indx}` == 0 ? "Ingresa tus nombre(s)" : "Ingresa tu apellido"}
@@ -499,7 +502,7 @@ const OnboardingScreen = ({ navigation }) => {
                                              height: 50,
                                              borderRadius: 8,
                                              backgroundColor: colors.input,
-                                             color:colors.text,
+                                             color: colors.text,
                                              shadowColor: '#000',
                                              shadowOffset: {
                                                 width: 0,
@@ -514,8 +517,9 @@ const OnboardingScreen = ({ navigation }) => {
                                           key={`${field.atr}-${indx}`}
                                           value={values[field.atr]}
                                           onChangeText={(text) => {
-                                            handleChangeText(field.atr, text); 
-                                            handleChange(field.atr); 
+                                             const trimmedText = text.trim();
+                                             handleChangeText(field.atr, trimmedText);
+                                             handleChange(field.atr);
                                           }}
                                           placeholder="Ingresa tu correo"
                                           placeholderTextColor="#888"
@@ -547,172 +551,172 @@ const OnboardingScreen = ({ navigation }) => {
             animated={true}
             barStyle={'ligth'}
          />
-               {spiner ? (
-       <View style={{
-         flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22
-      }}>
-       <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
-       <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
-   </View>
-      ) : (
-         <View style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            color: colors.text,
-            position: 'relative',
-            paddingTop: 50,
-            backgroundColor: colors.background
-         }}>
+         {spiner ? (
             <View style={{
-               width: 70,
-               height: 65,
-               marginLeft: 15,
-               marginTop: 15,
-               position: 'absolute',
+               flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 22, backgroundColor: colors.background
             }}>
-               <Image
-                  source={require('../../assets/rideSchoolS.png')}
-                  style={{
-                     width: '90%',
-                     height: '90%',
-                  }}
-               />
+               <ActivityIndicator animating={true} size="large" color={MD2Colors.red800} style={{ transform: [{ scale: 1.5 }] }} />
+               <Text style={{ color: colors.text, marginTop: 40 }}>Cargando...</Text>
             </View>
-            {/*  Slides  */}
-            <KeyboardAvoidingView style={{ flex:1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-               <View style={{ flex: 1 }}>
-                  <FlatList
-                     ref={slidesRef}
-                     data={slides}
-                     scrollEnabled={false}
-                     onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: false, })}
-                     renderItem={Screen}
-                     horizontal
-                     showsHorizontalScrollIndicator={false}
-                     pagingEnabled
-                     scrollEventThrottle={100}
-                     onViewableItemsChanged={onViewableItemsChanged}
+         ) : (
+            <View style={{
+               flex: 1,
+               display: 'flex',
+               flexDirection: 'column',
+               color: colors.text,
+               position: 'relative',
+               paddingTop: 50,
+               backgroundColor: colors.background
+            }}>
+               <View style={{
+                  width: 70,
+                  height: 65,
+                  marginLeft: 15,
+                  marginTop: 15,
+                  position: 'absolute',
+               }}>
+                  <Image
+                     source={require('../../assets/rideSchoolS.png')}
+                     style={{
+                        width: '90%',
+                        height: '90%',
+                     }}
                   />
                </View>
-            </KeyboardAvoidingView>
-            {/*  Controles  */}
-            <View style={{
-               width: '100%',
-               height: '15%',
-               flexDirection: 'column',
-               position: 'relative',
-            }}>
-               {/* Indicador de Pagina */}
+               {/*  Slides  */}
+               <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                  <View style={{ flex: 1 }}>
+                     <FlatList
+                        ref={slidesRef}
+                        data={slides}
+                        scrollEnabled={false}
+                        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: false, })}
+                        renderItem={Screen}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        pagingEnabled
+                        scrollEventThrottle={100}
+                        onViewableItemsChanged={onViewableItemsChanged}
+                     />
+                  </View>
+               </KeyboardAvoidingView>
+               {/*  Controles  */}
                <View style={{
                   width: '100%',
-                  height: 20,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
+                  height: '15%',
+                  flexDirection: 'column',
+                  position: 'relative',
                }}>
-                  {
-                     slides.map((item, i) => {
+                  {/* Indicador de Pagina */}
+                  <View style={{
+                     width: '100%',
+                     height: 20,
+                     display: 'flex',
+                     flexDirection: 'row',
+                     justifyContent: 'center',
+                     alignItems: 'center',
+                  }}>
+                     {
+                        slides.map((item, i) => {
 
-                        let inputRange = [(i - 1) * width, i * width, (i + 1) * width]
+                           let inputRange = [(i - 1) * width, i * width, (i + 1) * width]
 
-                        let opacity = scrollX.interpolate({
-                           inputRange,
-                           outputRange: [0.3, 1, 0.3],
-                           extrapolate: 'clamp'
+                           let opacity = scrollX.interpolate({
+                              inputRange,
+                              outputRange: [0.3, 1, 0.3],
+                              extrapolate: 'clamp'
+                           })
+
+                           return <Animated.View
+                              key={'T' + i}
+                              style={{
+                                 width: 10,
+                                 height: 10,
+                                 backgroundColor: colors.primary,
+                                 opacity: opacity,
+                                 borderRadius: 5,
+                                 marginHorizontal: 5,
+                              }}>
+                           </Animated.View>
                         })
+                     }
+                  </View>
 
-                        return <Animated.View
-                           key={'T' + i}
-                           style={{
-                              width: 10,
-                              height: 10,
-                              backgroundColor: colors.primary,
-                              opacity: opacity,
-                              borderRadius: 5,
-                              marginHorizontal: 5,
-                           }}>
-                        </Animated.View>
-                     })
-                  }
+                  {/* Boton de contiuar y regresar */}
+                  <View style={{
+                     flex: 1,
+                     display: 'flex',
+                     flexDirection: 'row',
+                     paddingHorizontal: 35,
+                     paddingBottom: 10,
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                  }}>
+                     <TouchableOpacity
+                        // TODO: Styles disabled
+                        disabled={loading}
+                        onPress={regresar}
+                        style={{
+                           width: '40%',
+                           height: 60,
+                           backgroundColor: '#A0A0A0', //por definir en dark
+                           marginEnd: 10,
+                           padding: 10,
+                           borderRadius: 10,
+                           shadowColor: "#000", //por definir en dark
+                           shadowOffset: {
+                              width: 0,
+                              height: 3,
+                           },
+                           shadowOpacity: 0.27,
+                           shadowRadius: 4.65,
+                           elevation: 6,
+                           justifyContent: 'center',
+                        }}>
+                        <Text style={{
+                           color: 'white',
+                           fontSize: 20,
+                           fontWeight: 'bold',
+                           textAlign: 'center',
+
+                        }}>
+                           Regresar
+                        </Text>
+                     </TouchableOpacity>
+                     <TouchableOpacity
+                        // TODO: Styles disabled
+                        disabled={loading}
+                        onPress={scrollTo}
+                        style={{
+                           width: '40%',
+                           height: 60,
+                           backgroundColor: 'green', //por definir en dark
+                           padding: 10,
+                           borderRadius: 10,
+                           shadowColor: "#000", //por definir en dark
+                           shadowOffset: {
+                              width: 0,
+                              height: 3,
+                           },
+                           shadowOpacity: 0.27,
+                           shadowRadius: 4.65,
+                           elevation: 6,
+                           justifyContent: 'center',
+                        }}>
+                        <Text style={{
+                           color: 'white',
+                           fontSize: 20,
+                           fontWeight: 'bold',
+                           textAlign: 'center',
+                           shadowColor: colors.shadow
+                        }}>
+                           Continuar
+                        </Text>
+                     </TouchableOpacity>
+                  </View>
                </View>
-
-               {/* Boton de contiuar y regresar */}
-               <View style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  paddingHorizontal: 35,
-                  paddingBottom: 10,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-               }}>
-                  <TouchableOpacity
-                     // TODO: Styles disabled
-                     disabled={loading}
-                     onPress={regresar}
-                     style={{
-                        width: '40%',
-                        height: 60,
-                        backgroundColor: '#A0A0A0', //por definir en dark
-                        marginEnd: 10,
-                        padding: 10,
-                        borderRadius: 10,
-                        shadowColor: "#000", //por definir en dark
-                        shadowOffset: {
-                           width: 0,
-                           height: 3,
-                        },
-                        shadowOpacity: 0.27,
-                        shadowRadius: 4.65,
-                        elevation: 6,
-                        justifyContent: 'center',
-                     }}>
-                     <Text style={{
-                        color: 'white',
-                        fontSize: 20,
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-
-                     }}>
-                        Regresar
-                     </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                     // TODO: Styles disabled
-                     disabled={loading}
-                     onPress={scrollTo}
-                     style={{
-                        width: '40%',
-                        height: 60,
-                        backgroundColor: 'green', //por definir en dark
-                        padding: 10,
-                        borderRadius: 10,
-                        shadowColor: "#000", //por definir en dark
-                        shadowOffset: {
-                           width: 0,
-                           height: 3,
-                        },
-                        shadowOpacity: 0.27,
-                        shadowRadius: 4.65,
-                        elevation: 6,
-                        justifyContent: 'center',
-                     }}>
-                     <Text style={{
-                        color: 'white',
-                        fontSize: 20,
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                        shadowColor: colors.shadow
-                     }}>
-                        Continuar
-                     </Text>
-                  </TouchableOpacity>
-               </View>
-            </View>
-         </View>)}
+            </View>)}
       </>
    )
 }

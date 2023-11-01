@@ -17,7 +17,7 @@ import Informacion from '../Inicio/Informacion';
 
 const PerfilScreen = ({ navigation }) => {
   const { colors, isDark } = useTheme()
-  const { dataUser, getDataUser } = useAuth();
+  const { dataUser, getDataUser, logoutUser } = useAuth();
   const [modalALert, setModalAlert] = useState(false);
   const [modalPropsALert, setModalPropsALert] = useState({});
   const [modalDialog, setModalDialog] = useState(false);
@@ -137,15 +137,6 @@ const PerfilScreen = ({ navigation }) => {
         });
     } else {
       Alert.alert("No hay imagen", "Sube tu imagen para poder visualizarla")
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await firebase.auth().signOut();
-
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error.message);
     }
   }
 
@@ -296,7 +287,7 @@ const PerfilScreen = ({ navigation }) => {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity onPress={handleLogout}>
+          <TouchableOpacity onPress={logoutUser}>
             <View style={styles.settingsItem}>
               <Ionicons name="log-out" size={25} color="#DC3803" style={{ marginRight: 5 }} />
               <Text variant='titleMedium' style={{ color: "red" }}>Cerrar sesión</Text>
@@ -335,7 +326,6 @@ const PerfilScreen = ({ navigation }) => {
 
       </View>
     </PaperProvider >
-
   )
 }
 

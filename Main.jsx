@@ -22,13 +22,12 @@ import CompletarInfoConductor from './Screens/Perfil/CompletarInfoConductor';
 const Main = () => {
   const Stack = createStackNavigator();
   const { user, initializing, firstTime } = useAuth()
-
   return (
     <>
       {initializing ? <Loader /> : !user ?
         <Stack.Navigator>
           {
-            firstTime && <>
+             <>
               <Stack.Screen
                 name="Welcome"
                 component={WelcomeScreen}

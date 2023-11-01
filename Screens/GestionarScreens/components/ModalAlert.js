@@ -19,7 +19,7 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
     modalALert, setModalAlert, setModalReview, setModalOptions, setModalDialog, setModalPropsDialog, setModalRating }) => {
     const { colors } = useTheme()
     const { dataUser } = useAuth();
-
+  
     return (
         <Portal>
             <Modal visible={modalALert} onDismiss={setModalAlert} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
