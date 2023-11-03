@@ -122,12 +122,12 @@ const RidesConductor = ({ navigation }) => {
                                                 {
                                                     switch (item.oferta.estado) {
                                                         case "aceptada":
-                                                            navigation.navigate('ChatScreen');
+                                                            navigation.navigate('Chat');
                                                             break;
                                                         case "llego al destino":
                                                             setModalRating(true); 
                                                             break;
-                                                        case "finalizado":
+                                                        case "finalizada":
                                                             setModalRating(true);
                                                             break;
                                                         default:
@@ -212,6 +212,7 @@ const RidesConductor = ({ navigation }) => {
                         {modalRating && (
                             <ModalRating
                                 ride={selectedItem.ride}
+                                oferta={selectedItem.oferta}
                                 rol={"conductor"}
                                 modalRating={modalRating}
                                 setModalRating={setModalRating}

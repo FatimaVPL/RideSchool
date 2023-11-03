@@ -75,7 +75,7 @@ export async function updateRide(ofertas, index, rideID) {
         referenceConductor,
         'Oferta Aceptada',
         'Dirígete al punto de encuentro',
-        'GestionarOfertas'
+        'Mis Ofertas'
     );
 
     try {
@@ -254,7 +254,7 @@ export async function getDriverUsers() {
             userData.email,
             'Nuevo Ride Solicitado',
             'Realiza tu oferta',
-            'RidesMap'
+            'Rides'
         );
     }
 }
@@ -295,7 +295,7 @@ export async function sendMessage(message, rideID, userID, rol) {
         userReference,
         'Tienes un nuevo mensaje',
         'Entra a la app y revisa tus chats',
-        'ChatScreen'
+        'Chat'
     );
 
     return await docRef.collection('messages').doc().set({

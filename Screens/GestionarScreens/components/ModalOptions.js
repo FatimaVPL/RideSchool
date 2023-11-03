@@ -46,7 +46,7 @@ const ModalOptions = ({ ride, rol, modalOptions, setModalOptions, setModalDialog
                             color="green"
                             uncheckedColor="gray"
                             position="leading"
-                            labelStyle={{ color: 'black', textAlign: 'left' }}
+                            labelStyle={{ color: colors.textModal2, textAlign: 'left' }}
                             status={checkedItem === item.value ? 'checked' : 'unchecked'}
                             onPress={() => handleCheck(item.value)}
                         />
@@ -63,12 +63,13 @@ const ModalOptions = ({ ride, rol, modalOptions, setModalOptions, setModalDialog
                                 referenceUser,
                                 'Ride Cancelado',
                                 `El ride fue cancelado porque ${checkedItem}`,
-                                'GestionarRides'
+                                'Mis Rides'
                             );
                             setModalPropsDialog({
                                 icon: 'checkmark-circle-outline',
                                 color: '#EE6464',
                                 title: 'RIDE CANCELADO',
+                                type: 1
                             });
                             setModalDialog(true);
                             setModalOptions(false);

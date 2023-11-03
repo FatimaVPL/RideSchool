@@ -45,8 +45,7 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
                                     setModalPropsDialog({
                                         icon: 'checkmark-circle-outline',
                                         color: '#EE6464',
-                                        title: 'RIDE CANCELADO',
-                                        type: 1
+                                        title: 'RIDE CANCELADO'
                                     });
                                     setModalDialog(true);
                                     break;
@@ -54,21 +53,26 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
                                     const referenceRide = db.collection('rides').doc(data.ride.id);
                                     updateStatus(referenceRide, "cancelado");
                                     updateStatus(data.ride.ofertaID, "cancelada");
+
+                                    //Eliminar el chat
+                                    deleteField(data.oferta.conductorID.reference);
+                                    deleteField(data.oferta.pasajeroID.reference);
+
                                     setModalOptions(true);
                                     break;
                                 case 3:
                                     //RIDE EN CURSO
                                     updateRide(data.ofertas, indexOferta, data.ride.id);
 
-                                    //Enivar notificacion para recordar marcar que llego al destino
+                                    //Enviar notificacion para recordar marcar que llego al destino
                                     sendNotificationWithTimer(
                                         data.ride.conductorID?.reference,
                                         data.ride.pasajeroID?.reference,
-                                        0.5,//data.ride.informationRoute.duration,
+                                        data.ride.informationRoute.duration,
                                         data.ride.estado,
                                         '¿Llegaste a tu destino?',
                                         'Confirmalo en la app',
-                                        "GestionarOfertas",
+                                        "Mis Ofertas",
                                     );
                                     break;
                                 case 4:
@@ -79,8 +83,7 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
                                         setModalPropsDialog({
                                             icon: 'information-circle-outline',
                                             color: '#FFC300',
-                                            title: 'Primero completa tu registro como conductor',
-                                            type: 2
+                                            title: 'Primero completa tu registro como conductor'
                                         });
                                         setModalDialog(true);
                                     } else {

@@ -85,9 +85,9 @@ const ModalReview = ({ userType, modalReview, setModalReview, rideID }) => {
                     />
                 </View>
                 <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
-                    <Button mode="contained" buttonColor='#B2D474' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: 128 }}
+                    <Button mode="contained" buttonColor='#B2D474' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: '49%' }}
                         onPress={() => { sendCalifs(rideID, userTypeKey, califs); setModalReview(false); }}> Guardar </Button>
-                    <Button mode="contained" buttonColor='#B0B0B0' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: 128 }}
+                    <Button mode="contained" buttonColor='#B0B0B0' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: '49%' }}
                         onPress={() => setModalReview(false)} > Cancelar </Button>
                 </View>
             </Modal>
