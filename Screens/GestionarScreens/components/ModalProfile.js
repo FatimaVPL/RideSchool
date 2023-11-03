@@ -34,23 +34,6 @@ const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, se
                                 <Text style={{ fontSize: 15, color: colors.textModal2, marginLeft: 15 }}>{user.numRidesConductor} viajes</Text>
                             )}
                         </View>
-
-                        {/* CALIFICACION GENERAL 
-                        <View style={{ flexDirection: 'row', marginTop: 5 }}>
-                            {Array.from({ length: user.califConductor }).map((_, index) => (
-                                <Ionicons key={index} name="star" style={{ marginRight: 6, fontSize: 20, color: "#FFC107" }} />
-                            ))}
-                            {Array.from({ length: 5 - user.califConductor }).map((_, index) => (
-                                <Ionicons key={index} name="star" style={{ marginRight: 6, fontSize: 20, color: "#8C8A82" }} />
-                            ))}
-                        </View> */}
-
-                        {/* INSIGNIAS 
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '65%' }}>
-                            {user.numRidesConductor >= 30 && (<MaterialCommunityIcons name="medal" style={{ fontSize: 29 }} color={getInfoMedal(user.numRidesConductor)} />)}
-                            {user.licencia && (<MaterialCommunityIcons name="card-account-details-star" style={{ fontSize: 28 }} />)}
-                            {user.tarjetaCirculacion && (<MaterialCommunityIcons name="credit-card-check" style={{ fontSize: 30 }} />)}
-                        </View>*/}
                     </View>
                 </View>
 
