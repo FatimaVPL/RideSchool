@@ -67,15 +67,15 @@ export async function deleteDoc(id, collection) {
 //Enviar notificacion al conductor
 export async function updateRide(ofertas, index, rideID) {
     const oferta = ofertas[index].oferta;
-    const referenceConductor = oferta.conductorID.reference;
-    const referenceRide = oferta.rideID.reference;
+    const referenceConductor = oferta.conductorID?.reference;
+    const referenceRide = oferta.rideID?.reference;
     const referenceOferta = db.collection('ofertas').doc(oferta.id);
 
     sendNotificationByReference(
         referenceConductor,
         'Oferta Aceptada',
         'Dirígete al punto de encuentro',
-        'GestionarOfertas'
+        'Mis Ofertas'
     );
 
     try {
@@ -98,8 +98,8 @@ export async function updateRide(ofertas, index, rideID) {
                 estado: "aceptada"
             });
 
-            updateChat(doc.data().conductorID.reference, rideID);
-            updateChat(doc.data().pasajeroID.reference, rideID);
+            updateChat(doc.data().conductorID?.reference, rideID);
+            updateChat(doc.data().pasajeroID?.reference, rideID);
         }
     } catch (error) {
         console.log('Error al actualizar', error);
@@ -254,7 +254,7 @@ export async function getDriverUsers() {
             userData.email,
             'Nuevo Ride Solicitado',
             'Realiza tu oferta',
-            'RidesMap'
+            'Rides'
         );
     }
 }
@@ -295,7 +295,7 @@ export async function sendMessage(message, rideID, userID, rol) {
         userReference,
         'Tienes un nuevo mensaje',
         'Entra a la app y revisa tus chats',
-        'ChatScreen'
+        'Chat'
     );
 
     return await docRef.collection('messages').doc().set({

@@ -13,7 +13,6 @@ import { Avatar, LinearProgress } from 'react-native-elements';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { subscribeToUsers } from '../../firebaseSubscriptions';
 import * as ImagePicker from 'expo-image-picker';
-import Informacion from '../Inicio/Informacion';
 
 const PerfilScreen = ({ navigation }) => {
   const { colors, isDark } = useTheme()
@@ -143,6 +142,7 @@ const PerfilScreen = ({ navigation }) => {
   const SubirDocumentosScreen = () => {
     navigation.navigate('Subir documentos');
   }
+  
   const CompletarInfoConductor = () => {
     navigation.navigate('Completar informacion conductor');
   }
@@ -178,7 +178,7 @@ const PerfilScreen = ({ navigation }) => {
               ))}
             </View>
 
-            <Button icon="repeat" mode="contained" buttonColor='gray' style={{ width: '75%', alignSelf: 'center', marginTop: 10 }}
+            <Button /* icon="repeat" */ mode="contained" buttonColor='gray' style={{ width: '75%', alignSelf: 'center', marginTop: 10 }}
               labelStyle={{ fontWeight: 'bold', fontSize: 15, color: 'white' }}
               onPress={() => {
                 let content = dataUser.role === "Conductor" ? "PASAJERO" : "CONDUCTOR";
