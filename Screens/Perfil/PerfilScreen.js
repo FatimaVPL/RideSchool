@@ -286,7 +286,7 @@ const PerfilScreen = ({ navigation }) => {
         </View>
 
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        <View style={{ backgroundColor: 'gray', borderRadius: 15 }}>
+        <View style={{ backgroundColor: colors.infoPerfil, borderRadius: 20 }}>
             <Text style={{fontSize: 20, fontWeight: 'bold', color: 'green', textAlign: 'center', color: colors.cardText }}>¿Tienes alguna duda?</Text>
             <View style={{margin: 5, marginTop: 10}}>
                 <Text style={{ color: colors.text, fontSize: 18, textAlign: 'center' }}>Escribenos al correo:</Text>
