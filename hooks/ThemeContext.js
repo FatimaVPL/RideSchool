@@ -24,8 +24,8 @@ export function ThemeProvider({children}){
         colors: {
             transparent: isDark? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
             background: isDark ? '#121212' : '#F2F2F2',
-            background2: isDark ? '#283747' : '#FBFCFC',
-            background3: isDark ? '#D3D3D3' : '#F8F7F6',
+            background2: isDark ? '#283747' : '#f1f5f9',
+            background3: isDark ? '#f3f4f6' : '#F8F7F6',
             background4: isDark ? '#F0F0F0' : '#F8F7F6',
             backgroundCard: isDark ? '#EDEDED' : '#F8F7F6',
             text: isDark ? '#E7E7E7' : '#171717',
@@ -46,7 +46,11 @@ export function ThemeProvider({children}){
             textModal: isDark ? '#e5e7eb' : '#171717',
             textModal2: isDark ? '#d1d5db' : '#171717',
             divider: isDark ? 'white' : 'black',
-            cardOferta: isDark ? '#d1d5db' : '#e5e7eb'
+            cardOferta: isDark ? '#d1d5db' : '#e5e7eb',
+            infoPerfil: isDark ? 'gray' : '#D2CECE',
+            inputChat: isDark ? '#4b444c' : '#cbd5e1',
+            myMessage: isDark ? '#94a3b8' : '#cbd5e1',
+            yourMessage: isDark ? '#cbd5e1' : '#e2e8f0'
         },
         setDark: (isDark) => setThemeState(isDark ? 'dark' : 'light'),
     };
