@@ -50,7 +50,7 @@ const ModalRating = ({ ride, rol, modalRating, setModalRating, setModalReview, s
                 {((rol === "conductor" && ride.califC_P === undefined) ||
                     (rol === "pasajero" && ride.califP_C === undefined)) && (
                         <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
-                            <Button mode="contained" buttonColor='#B2D474' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: 135 }}
+                            <Button mode="contained" buttonColor='#B2D474' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: '49%' }}
                                 onPress={() => {
                                     const reference = db.collection('rides').doc(ride.id);
                                     updateStatus(reference, "finalizado")
@@ -65,7 +65,7 @@ const ModalRating = ({ ride, rol, modalRating, setModalRating, setModalReview, s
                                     setModalAlert(true);
                                     setModalRating(false);
                                 }}> Guardar </Button>
-                            <Button mode="contained" buttonColor='#B0B0B0' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: 135 }}
+                            <Button mode="contained" buttonColor='#B0B0B0' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: '49%' }}
                                 onPress={() => setModalRating(false)} > Cancelar </Button>
                         </View>
                     )}

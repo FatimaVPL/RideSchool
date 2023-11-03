@@ -36,7 +36,7 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
                                     //Eliminar ride
                                     deleteDoc(data.ride.id, "rides");
                                     //Eliminar ofertas
-                                    if (ofertas !== null) {
+                                    if (data.ofertas !== undefined) {
                                         for (const oferta of data.ofertas) {
                                             deleteDoc(oferta.oferta.id, "ofertas");
                                         }
@@ -62,8 +62,8 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
 
                                     //Enivar notificacion para recordar marcar que llego al destino
                                     sendNotificationWithTimer(
-                                        data.ride.conductorID.reference,
-                                        data.ride.pasajeroID.reference,
+                                        data.ride.conductorID?.reference,
+                                        data.ride.pasajeroID?.reference,
                                         0.5,//data.ride.informationRoute.duration,
                                         data.ride.estado,
                                         '¿Llegaste a tu destino?',

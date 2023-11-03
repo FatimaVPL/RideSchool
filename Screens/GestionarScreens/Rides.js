@@ -197,7 +197,7 @@ const GestionarRides = ({ navigation }) => {
                                                         {
                                                             switch (item.ride?.estado) {
                                                                 case "en curso":
-                                                                    navigation.navigate('ChatScreen');
+                                                                    navigation.navigate('Chat');
                                                                     break;
                                                                 case "finalizado":
                                                                     setModalRating(true);

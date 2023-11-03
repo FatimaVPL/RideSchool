@@ -67,8 +67,8 @@ export async function deleteDoc(id, collection) {
 //Enviar notificacion al conductor
 export async function updateRide(ofertas, index, rideID) {
     const oferta = ofertas[index].oferta;
-    const referenceConductor = oferta.conductorID.reference;
-    const referenceRide = oferta.rideID.reference;
+    const referenceConductor = oferta.conductorID?.reference;
+    const referenceRide = oferta.rideID?.reference;
     const referenceOferta = db.collection('ofertas').doc(oferta.id);
 
     sendNotificationByReference(
@@ -98,8 +98,8 @@ export async function updateRide(ofertas, index, rideID) {
                 estado: "aceptada"
             });
 
-            updateChat(doc.data().conductorID.reference, rideID);
-            updateChat(doc.data().pasajeroID.reference, rideID);
+            updateChat(doc.data().conductorID?.reference, rideID);
+            updateChat(doc.data().pasajeroID?.reference, rideID);
         }
     } catch (error) {
         console.log('Error al actualizar', error);
