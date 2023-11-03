@@ -9,7 +9,7 @@ import { useTheme } from "../../hooks/ThemeContext";
 import { getInfoMedal2 } from '../GestionarScreens/others/Functions';
 import ModalALert from '../GestionarScreens/components/ModalAlert';
 import ModalDialog from '../GestionarScreens/components/ModalDialog';
-import { Avatar, LinearProgress } from 'react-native-elements';
+import { Avatar, LinearProgress, AirbnbRating } from 'react-native-elements';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { subscribeToUsers } from '../../firebaseSubscriptions';
 import * as ImagePicker from 'expo-image-picker';
@@ -142,7 +142,7 @@ const PerfilScreen = ({ navigation }) => {
   const SubirDocumentosScreen = () => {
     navigation.navigate('Subir documentos');
   }
-  
+
   const CompletarInfoConductor = () => {
     navigation.navigate('Completar informacion conductor');
   }
@@ -166,17 +166,16 @@ const PerfilScreen = ({ navigation }) => {
 
           <View style={{ marginStart: 12, justifyContent: 'center' }}>
             <Text style={{ fontSize: 20, textAlign: 'center' }}>{`${dataUser.firstName} \n${dataUser.lastName}`}</Text>
-            <Text variant='bodySmall' style={{ textAlign: 'center' }}>{dataUser.email}</Text>
+            <Text variant='bodySmall' style={{ textAlign: 'center', marginBottom: 5 }}>{dataUser.email}</Text>
 
             {/* CALIFICACION GENERAL */}
-            <View style={{ flexDirection: 'row', marginTop: 10, alignSelf: 'center' }}>
-              {Array.from({ length: dataUser.role === "Pasajero" ? dataUser.califPasajero.promedio : dataUser.califConductor.promedio }).map((_, index) => (
-                <Ionicons key={index} name="star" style={{ marginRight: 6, fontSize: 22, color: "#FFC107" }} />
-              ))}
-              {Array.from({ length: 5 - (dataUser.role === "Pasajero" ? dataUser.califPasajero.promedio: dataUser.califConductor.promedio) }).map((_, index) => (
-                <Ionicons key={index} name="star" style={{ marginRight: 6, fontSize: 22, color: "#8C8A82" }} />
-              ))}
-            </View>
+            <AirbnbRating
+              count={5}
+              defaultRating={dataUser.role === "Pasajero" ? dataUser.califPasajero.promedio : dataUser.califConductor.promedio}
+              size={22}
+              showRating={false}
+              isDisabled={true}
+            />
 
             <Button /* icon="repeat" */ mode="contained" buttonColor='gray' style={{ width: '75%', alignSelf: 'center', marginTop: 10 }}
               labelStyle={{ fontWeight: 'bold', fontSize: 15, color: 'white' }}
@@ -240,7 +239,7 @@ const PerfilScreen = ({ navigation }) => {
           )}
         </View>
 
-        <View style={{marginTop: 40}}>
+        <View style={{ marginTop: 40 }}>
           <Divider style={{ backgroundColor: colors.divider }} />
           <TouchableOpacity onPress={() => {
             let content = dataUser.role === "Conductor" ? "PASAJERO" : "CONDUCTOR";
@@ -286,13 +285,13 @@ const PerfilScreen = ({ navigation }) => {
         </View>
 
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        <View style={{ backgroundColor: colors.infoPerfil, borderRadius: 20 }}>
-            <Text style={{fontSize: 20, fontWeight: 'bold', color: 'green', textAlign: 'center', color: colors.cardText }}>¿Tienes alguna duda?</Text>
-            <View style={{margin: 5, marginTop: 10}}>
-                <Text style={{ color: colors.text, fontSize: 18, textAlign: 'center' }}>Escribenos al correo:</Text>
-                <Text style={{ color: colors.linkText, fontSize: 18, fontWeight: 'bold', textAlign: 'center'  }}>rideschool8@gmail.com</Text>
+          <View style={{ backgroundColor: colors.infoPerfil, borderRadius: 20 }}>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'green', textAlign: 'center', color: colors.cardText }}>¿Tienes alguna duda?</Text>
+            <View style={{ margin: 5, marginTop: 10 }}>
+              <Text style={{ color: colors.text, fontSize: 18, textAlign: 'center' }}>Escribenos al correo:</Text>
+              <Text style={{ color: colors.linkText, fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}>rideschool8@gmail.com</Text>
             </View>
-        </View>
+          </View>
         </View>
 
         {modalALert && (
