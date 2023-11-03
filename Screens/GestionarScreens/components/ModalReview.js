@@ -35,7 +35,7 @@ const ModalReview = ({ userType, modalReview, setModalReview, rideID }) => {
             <Modal visible={modalReview} onDismiss={setModalReview} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
                 <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.textModal, textAlign: 'center' }}>Califica a tu {userType}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <Text style={{ marginBottom: 15, fontSize: 18, color: textModal2 }}>{values.title[0]}</Text>
+                    <Text style={{ marginBottom: 15, fontSize: 18, color: colors.textModal2 }}>{values.title[0]}</Text>
                     <AirbnbRating
                         count={5}
                         defaultRating={0}
@@ -85,9 +85,9 @@ const ModalReview = ({ userType, modalReview, setModalReview, rideID }) => {
                     />
                 </View>
                 <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
-                    <Button mode="contained" buttonColor='#B2D474' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: 128 }}
+                    <Button mode="contained" buttonColor='#B2D474' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: '49%' }}
                         onPress={() => { sendCalifs(rideID, userTypeKey, califs); setModalReview(false); }}> Guardar </Button>
-                    <Button mode="contained" buttonColor='#B0B0B0' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: 128 }}
+                    <Button mode="contained" buttonColor='#B0B0B0' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: '49%' }}
                         onPress={() => setModalReview(false)} > Cancelar </Button>
                 </View>
             </Modal>

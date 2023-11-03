@@ -24,7 +24,7 @@ const ChatScreen = () => {
   const handleSendMessage = () => {
     try {
       if (messageText !== '') {
-        sendMessage(messageText, messages[0].rideID, dataUser.uid, dataUser.role);
+        sendMessage(messageText, dataUser.chat, dataUser.uid, dataUser.role);
         setMessageText('');
       }
 
