@@ -16,10 +16,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 const FrmSolicitarRide = ({ navigation }) => {
 
-    const { colors } = useTheme()
-    const GestionarRidesScreen = () => {
-        navigation.navigate('Mis Rides');
-    }
+    const { colors } = useTheme();
+
     const validate = values => {
         const errors = {};
         if (!values.personas) {
@@ -66,8 +64,8 @@ const FrmSolicitarRide = ({ navigation }) => {
         geoFirestore.collection('rides').doc(docRef.id).set(newData)
             .then(() => {
                 //console.log(`Nuevo documento creado en GeoFirestore con ID: ${docRef.id}`);
-                //setSuccessModalVisible(true); // Mostrar modal de éxito
                 setModalDialog(true);
+                formik.resetForm();
             })
             .catch((error) => {
                 console.error('Error al crear un nuevo documento en GeoFirestore:', error);
@@ -289,18 +287,6 @@ const FrmSolicitarRide = ({ navigation }) => {
                     setModalDialog={setModalDialog}
                 />
             )}
-
-            <Portal>
-                <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ padding: 20, backgroundColor: colors.background3, width: '100%' }}>
-                    <Text style={{ fontSize: 20, color: '#171717' }}>¡Solicitud enviada con éxito!</Text>
-                    <Text style={{ marginTop: 10, color: '#171717' }}>Espera las ofertas de ride y acepta la que sea más de tu agrado.</Text>
-                    <Button style={styles.button} textColor='white' mode="contained" onPress={() => { 
-                        setSuccessModalVisible(false); 
-                        GestionarRidesScreen(); 
-                        formik.resetForm();
-                    }}>Entendido</Button>
-                </Modal>
-            </Portal>
 
         </PaperProvider>
     )
