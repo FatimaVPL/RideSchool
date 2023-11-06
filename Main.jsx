@@ -17,7 +17,6 @@ import RidesMap from './Screens/RidesSolicitados/RidesMap';
 import PerfilScreen from './Screens/Perfil/PerfilScreen';
 import SubirDocumentosScreen from './Screens/Perfil/SubirDocumentosScreen';
 import CompletarInfoConductor from './Screens/Perfil/CompletarInfoConductor';
-//jejeje xd
 
 const Main = () => {
   const Stack = createStackNavigator();
@@ -60,7 +59,7 @@ const Main = () => {
           <Stack.Screen name="Ajustes Generales" component={AjustesGeneralesScreen} options={{ presentation: "modal" }} />
           <Stack.Screen name="Solicitar Ride" component={FrmSolicitarRide} options={{ presentation: "modal" }} />
           <Stack.Screen name="GestionarOfertas" component={GestionarOfertas} options={{ presentation: "modal" }} />
-          <Stack.Screen name="GestionarRides" component={GestionarRides} options={{ presentation: "modal" }} />
+          <Stack.Screen name="GestionarRides" component={GestionarRides}  />
           <Stack.Screen name="ChatScreen" component={ChatScreen} />
           <Stack.Screen name="InicioScreen" component={InicioScreen} />   
           <Stack.Screen name="RidesMap" component={RidesMap} />  
