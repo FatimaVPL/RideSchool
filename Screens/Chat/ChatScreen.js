@@ -161,12 +161,10 @@ const styles = StyleSheet.create({
   },
   myMessage: {
     alignItems: 'flex-end',
-    //backgroundColor: '#94a3b8',
     borderBottomRightRadius: 10,
   },
   yourMessage: {
     alignItems: 'flex-start',
-    //backgroundColor: '#cbd5e1',
     borderBottomLeftRadius: 5,
   }
 });

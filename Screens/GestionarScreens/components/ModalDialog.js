@@ -6,7 +6,7 @@ import { useTheme } from "../../../hooks/ThemeContext";
 
 // 1 = Ride Cancelado
 // 2 = Completar info
-const ModalDialog = ({ icon, color, title, modalDialog, setModalDialog }) => {
+const ModalDialog = ({ icon, color, title, navigation=null, screen, modalDialog, setModalDialog }) => {
     const { colors } = useTheme();
     return (
         <Portal>
@@ -18,7 +18,12 @@ const ModalDialog = ({ icon, color, title, modalDialog, setModalDialog }) => {
 
                 <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
                     <Button mode="contained" buttonColor='#B0B0B0' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 16 }} style={{ width: '95%' }}
-                        onPress={() => setModalDialog(false)}
+                        onPress={() => {
+                            if (navigation !== null) {
+                                navigation.navigate(screen);
+                            }
+                            setModalDialog(false);
+                        }}
                         > OK</Button>
                 </View>
             </Modal>

@@ -50,8 +50,8 @@ export default function WelcomeScreen({ navigation }) {
       const user = userCredential.user;
 
       //Notificaciones
-      registerIndieID(email.toLowerCase(), 13000, 'Dke2V9YbViRt26fTH2Mv7q');
-      //registerIndieID(email.toLowerCase(), 14050, 'teVYjQw7P4lRK3FcQSIuzV');
+      //registerIndieID(email.toLowerCase(), 13000, 'Dke2V9YbViRt26fTH2Mv7q');
+      registerIndieID(email.toLowerCase(), 14050, 'teVYjQw7P4lRK3FcQSIuzV');
       
       // Verificar si el correo electrónico ha sido verificado
       if (!user.emailVerified) {

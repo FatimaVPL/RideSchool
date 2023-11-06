@@ -317,7 +317,6 @@ const PerfilScreen = ({ navigation }) => {
             icon={modalPropsDialog.icon}
             color={modalPropsDialog.color}
             title={modalPropsDialog.title}
-            type={modalPropsALert.type}
             modalDialog={modalDialog}
             setModalDialog={setModalDialog}
           />

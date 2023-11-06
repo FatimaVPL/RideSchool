@@ -131,8 +131,7 @@ const RidesMap = ({ navigation }) => {
                         {modalDetails && (
                             <ModalOfertaDetails
                                 ride={data[index].ride}
-                                //email={user.email}
-                                //uid={user.uid}
+                                navigation={navigation}
                                 modalDetails={modalDetails}
                                 setModalDetails={setModalDetails}
                                 setModalAlert={setModalDialog}
@@ -145,6 +144,8 @@ const RidesMap = ({ navigation }) => {
                                 color={"#81BC12"}
                                 title={'SOLICITUD ENVIADA'}
                                 type={'Te notificaremos cuando el pasajero confirme el ride'}
+                                navigation={navigation}
+                                screen={'Mis Ofertas'}
                                 modalDialog={modalDialog}
                                 setModalDialog={setModalDialog}
                             />

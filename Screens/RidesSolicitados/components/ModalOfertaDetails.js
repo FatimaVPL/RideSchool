@@ -8,7 +8,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { sendNotificationByReference } from "../../../hooks/Notifications";
 import { useTheme } from "../../../hooks/ThemeContext";
 
-const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert }) => {
+const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert}) => {
     const { user } = useAuth();
     const { colors } = useTheme();
     
@@ -32,7 +32,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
             );
             
             const docRef = db.collection('ofertas').doc();
-            return await docRef.set({
+            await docRef.set({
                 id: docRef.id,
                 fechaSolicitud: new Date(),
                 estado: 'pendiente',
@@ -41,6 +41,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                 conductorID: { reference: db.collection('users').doc(user === null ? "" : user.email), uid: user === null ? "" : user.uid },
                 ...values
             })
+
         } catch (error) {
             console.log("Error al guardar", error)
         }

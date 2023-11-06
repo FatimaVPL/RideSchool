@@ -8,8 +8,8 @@ import { PaperProvider } from 'react-native-paper';
 import { ChatProvider } from './context/ChatContext';
 
 export default function App() {
-  registerNNPushToken(13000, 'Dke2V9YbViRt26fTH2Mv7q');
-  //registerNNPushToken(14050, 'teVYjQw7P4lRK3FcQSIuzV');
+  //registerNNPushToken(13000, 'Dke2V9YbViRt26fTH2Mv7q');
+  registerNNPushToken(14050, 'teVYjQw7P4lRK3FcQSIuzV');
 
   return (
     <NavigationContainer>
