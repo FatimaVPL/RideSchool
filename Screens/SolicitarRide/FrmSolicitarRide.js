@@ -11,9 +11,9 @@ import { GeoFirestore } from 'geofirestore';
 import { getDriverUsers } from '../GestionarScreens/others/Queries';
 import Lottie from 'lottie-react-native';
 import { useTheme } from '../../hooks/ThemeContext';
+import ModalDialog from '../GestionarScreens/components/ModalDialog';
 
-
-const FrmSolicitarRide = () => {
+const FrmSolicitarRide = ({ navigation }) => {
 
     const { colors } = useTheme()
 
@@ -62,8 +62,9 @@ const FrmSolicitarRide = () => {
         // Crea un nuevo documento en la colección de GeoFirestore
         geoFirestore.collection('rides').doc(docRef.id).set(newData)
             .then(() => {
-                console.log(`Nuevo documento creado en GeoFirestore con ID: ${docRef.id}`);
-                setSuccessModalVisible(true); // Mostrar modal de éxito
+                //console.log(`Nuevo documento creado en GeoFirestore con ID: ${docRef.id}`);
+                //setSuccessModalVisible(true); // Mostrar modal de éxito
+                setModalDialog(true);
             })
             .catch((error) => {
                 console.error('Error al crear un nuevo documento en GeoFirestore:', error);
@@ -85,18 +86,18 @@ const FrmSolicitarRide = () => {
         },
         onSubmit: values => {
             saveRideToFirestore(values)
-            .then(documentId => {
-                //console.log(`Document written with ID: ${documentId}`);
-                getDriverUsers();
-            })
-            .catch(error => {
-                console.error(`Error adding document: ${error}`);
-            });
+                .then(documentId => {
+                    //console.log(`Document written with ID: ${documentId}`);
+                    getDriverUsers();
+                })
+                .catch(error => {
+                    console.error(`Error adding document: ${error}`);
+                });
         }
     });
 
     /* Modal aceptar */
-    const [successModalVisible, setSuccessModalVisible] = React.useState(false);
+    const [modalDialog, setModalDialog] = React.useState(false);
 
     /* Modal puntos */
     const [visible, setVisible] = React.useState(false);
@@ -196,7 +197,6 @@ const FrmSolicitarRide = () => {
                             </SafeAreaView>
                             <View style={{
                                 padding: 10,
-                                //flex: 0.15,
                                 justifyContent: 'space-between',
                                 backgroundColor: colors.background2,
                                 flexDirection: 'row',
@@ -275,17 +275,20 @@ const FrmSolicitarRide = () => {
                 </View>
             </FormikProvider>
 
-            <Portal>
-                <Modal visible={successModalVisible} onDismiss={() => setSuccessModalVisible(false)} contentContainerStyle={{ padding: 20, backgroundColor: colors.background3, width: '100%' }}>
-                    <Text style={{ fontSize: 20, color: '#171717' }}>¡Solicitud enviada con éxito!</Text>
-                    <Text style={{ marginTop: 10, color: '#171717' }}>Espera las ofertas de ride y acepta la que sea más de tu agrado.</Text>
-                    <Button style={styles.button} textColor='white' mode="contained" onPress={() => { setSuccessModalVisible(false) }}>Entendido</Button>
-                </Modal>
-            </Portal>
-
+            {modalDialog && (
+                <ModalDialog
+                    icon={'checkmark-circle-outline'}
+                    color={'#A9CA6D'}
+                    title={'¡Solicitud enviada con éxito!'}
+                    navigation={navigation}
+                    screen={'Mis Rides'}
+                    modalDialog={modalDialog}
+                    setModalDialog={setModalDialog}
+                />
+            )}
         </PaperProvider>
-    );
-};
+    )
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -295,6 +298,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
     },
-});
+})
 
 export default FrmSolicitarRide;

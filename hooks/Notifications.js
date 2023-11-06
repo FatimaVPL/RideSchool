@@ -8,10 +8,10 @@ export const sendNotificationByReference = async (reference, title, message, scr
             const id = await doc.data().email;
             axios.post(`https://app.nativenotify.com/api/indie/notification`, {
                 subID: id,
-                appId: 13000,
-                appToken: 'Dke2V9YbViRt26fTH2Mv7q',
-                //appId: 14050,
-                //appToken: 'teVYjQw7P4lRK3FcQSIuzV',
+                //appId: 13000,
+                //appToken: 'Dke2V9YbViRt26fTH2Mv7q',
+                appId: 14050,
+                appToken: 'teVYjQw7P4lRK3FcQSIuzV',
                 title: title,
                 message: message,
                 icon: '../assets/rideSchoolS.png',
@@ -35,10 +35,10 @@ export const sendNotificationByEmail = async (email, title, message, screen) => 
     try {
         axios.post(`https://app.nativenotify.com/api/indie/notification`, {
             subID: email,
-            appId: 13000,
-            appToken: 'Dke2V9YbViRt26fTH2Mv7q',
-            //appId: 14050,
-            //appToken: 'teVYjQw7P4lRK3FcQSIuzV',
+            //appId: 13000,
+            //appToken: 'Dke2V9YbViRt26fTH2Mv7q',
+            appId: 14050,
+            appToken: 'teVYjQw7P4lRK3FcQSIuzV',
             title: title,
             message: message,
             icon: '../assets/rideSchoolS.png',
