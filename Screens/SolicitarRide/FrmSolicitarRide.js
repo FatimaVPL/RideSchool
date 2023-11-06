@@ -11,6 +11,7 @@ import { GeoFirestore } from 'geofirestore';
 import { getDriverUsers } from '../GestionarScreens/others/Queries';
 import Lottie from 'lottie-react-native';
 import { useTheme } from '../../hooks/ThemeContext';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 const FrmSolicitarRide = () => {
@@ -130,7 +131,7 @@ const FrmSolicitarRide = () => {
         <PaperProvider>
             <FormikProvider value={formik}>
 
-                <View style={[styles.container, { backgroundColor: colors.background }]}>
+                <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
 
                     <Text
                         style={{
@@ -272,7 +273,7 @@ const FrmSolicitarRide = () => {
                         Solicitar Ride
                     </Button>
 
-                </View>
+                </ScrollView>
             </FormikProvider>
 
             <Portal>
@@ -291,8 +292,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         display: 'flex',
-        justifyContent: 'start',
-        alignItems: 'center',
+       // justifyContent: 'start',
+        // alignItems: 'center',
         paddingHorizontal: 20,
     },
 });
