@@ -59,14 +59,14 @@ function ButtonTabScreen() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        // headerShown: false,
+        //headerShown: false,
         tabBarActiveTintColor: colors.colorSelect,
         tabBarInactiveTintColor: "#78A57D",
         tabBarStyle: {
           paddingHorizontal: 5,
           paddingTop: 0,
           backgroundColor: colors.background2,
-       // //position: 'absolute',
+          //position: 'absolute',
           borderTopWidth: 0,
         },
       })}

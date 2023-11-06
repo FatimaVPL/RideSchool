@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, TouchableOpacity, FlatList, ImageBackground, Image } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { useTheme } from '../../hooks/ThemeContext';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PaperProvider, TextInput } from 'react-native-paper';
@@ -12,13 +12,12 @@ import { sendMessage } from '../GestionarScreens/others/Queries';
 const ChatScreen = () => {
 
   const insets = useSafeAreaInsets();
-  const { colors } = useTheme()
-  const { dataUser } = useAuth()
+  const { colors, isDark } = useTheme()
+  const { dataUser, getDataUser } = useAuth()
   const { dataMessages } = useChat()
   const scrollRef = React.useRef(null)
   const textAreaRef = React.useRef(null)
   const [messageText, setMessageText] = useState('')
-  //const [messages, setMessages] = useState(dumyMessages)
   const [messages, setMessages] = useState(dataMessages)
 
   const handleSendMessage = () => {
@@ -51,7 +50,7 @@ const ChatScreen = () => {
         <View style={[styles.container, { backgroundColor: 'black' }]}>
           <KeyboardAvoidingView style={styles.full}>
             <ImageBackground
-              source={require('../../assets/fondo-black.png')}
+              source={isDark ? require('../../assets/fondo-black.png') : require('../../assets/fondo-white.png')}
               style={{ flex: 1, resizeMode: 'cover' }}
             >
               <View style={{ flex: 1 }}>
@@ -62,9 +61,9 @@ const ChatScreen = () => {
                     renderItem={({ item: m }) => {
                       return (
                         <View style={[styles.messageContainer, m.own ? styles.myMessageContainer : styles.yourMessageContainer]}>
-                          <View style={[styles.message, m.own ? styles.myMessage : styles.yourMessage]}>
-                            <Text style={{fontSize: 17}}>{m.text}</Text>
-                            <Text style={{fontSize: 10}}>{formatDate(m.date, null)}</Text>
+                          <View style={[styles.message, m.own ? styles.myMessage : styles.yourMessage, m.own ? { backgroundColor: colors.myMessage } : {backgroundColor: colors.yourMessage}]}>
+                            <Text style={{ fontSize: 17 }}>{m.text}</Text>
+                            <Text style={{ fontSize: 10 }}>{formatDate(m.date, null)}</Text>
                           </View>
                         </View>
                       );
@@ -75,7 +74,7 @@ const ChatScreen = () => {
 
               <View style={{ display: 'flex', flexDirection: 'row', height: 58, justifyContent: 'flex-end', paddingBottom: 5 }}>
                 {/* Text Area */}
-                <View style={{ flex: 1, backgroundColor: '#4b444c', borderRadius: 20, overflow: 'hidden', marginLeft: 5, marginRight: 5 }}>
+                <View style={{ flex: 1, backgroundColor: colors.inputChat, borderRadius: 20, overflow: 'hidden', marginLeft: 5, marginRight: 5 }}>
                   <TextInput
                     ref={textAreaRef}
                     value={messageText}
@@ -84,6 +83,7 @@ const ChatScreen = () => {
                     onFocus={scrollToBottom}
                     underline={false}
                     selectionColor="#64748b"
+                    backgroundColor={colors.inputChat}
                   />
                 </View>
                 {/* Send Button */}
@@ -100,9 +100,9 @@ const ChatScreen = () => {
         </View>
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-          <Image source={require('../../assets/bloqueado.png')} style={{width: 150, height: 150}}></Image>
-          <Text style={{marginTop: 15, fontSize: 18, textAlign: 'center'}}>Esta pantalla se habilitara cuando {'\n'}te encuentres en un ride</Text>
-          </View>
+          <Image source={require('../../assets/bloqueado.png')} style={{ width: 150, height: 150 }}></Image>
+          <Text style={{ marginTop: 15, fontSize: 18, textAlign: 'center' }}>Esta pantalla se habilitara cuando {'\n'}te encuentres en un ride</Text>
+        </View>
       )}
     </PaperProvider>
   );
@@ -161,12 +161,12 @@ const styles = StyleSheet.create({
   },
   myMessage: {
     alignItems: 'flex-end',
-    backgroundColor: '#94a3b8',
+    //backgroundColor: '#94a3b8',
     borderBottomRightRadius: 10,
   },
   yourMessage: {
     alignItems: 'flex-start',
-    backgroundColor: '#cbd5e1',
+    //backgroundColor: '#cbd5e1',
     borderBottomLeftRadius: 5,
   }
 });
