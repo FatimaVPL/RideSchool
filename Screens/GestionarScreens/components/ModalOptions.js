@@ -3,12 +3,13 @@ import { useState } from 'react'
 import { Modal, Portal, Text, Button, Checkbox } from 'react-native-paper';
 import { View, FlatList } from "react-native";
 import { sendCancelation } from "../others/Queries";
-import { sendNotificationByReference } from "../../../hooks/Notifications";
 import { useTheme } from "../../../hooks/ThemeContext";
+import { useNotificationContext } from "../../../context/NotificationsContext";
 
 const ModalOptions = ({ ride, rol, modalOptions, setModalOptions, setModalDialog, setModalPropsDialog }) => {
     const { colors } = useTheme();
     const [checkedItem, setCheckedItem] = useState({});
+    const { sendPushNotification } = useNotificationContext();
 
     const handleCheck = (itemValue) => {
         if (checkedItem === itemValue) {
@@ -57,14 +58,13 @@ const ModalOptions = ({ ride, rol, modalOptions, setModalOptions, setModalDialog
                     <Button mode="contained" buttonColor='#B0B0B0' textColor='white' labelStyle={{ fontWeight: 'bold', fontSize: 15 }} style={{ width: '90%' }}
                         onPress={() => {
                             sendCancelation(ride.id, checkedItem);
-                            let referenceUser = null;
-                            { rol === "pasajero" ? referenceUser = ride.conductorID.reference : referenceUser = ride.pasajeroID.reference }
-                            sendNotificationByReference(
-                                referenceUser,
+                            let tokenUser = null;
+                            { rol === "pasajero" ? tokenUser = ride.conductorID.token : tokenUser = ride.pasajeroID.token }
+                            sendPushNotification(
                                 'Ride Cancelado',
                                 `El ride fue cancelado porque ${checkedItem}`,
-                                'Mis Rides'
-                            );
+                                tokenUser
+                            )
                             setModalPropsDialog({
                                 icon: 'checkmark-circle-outline',
                                 color: '#EE6464',

@@ -1,5 +1,4 @@
 import { db, firebase } from "../../../config-firebase";
-import { sendNotificationByReference, sendNotificationByEmail } from "../../../hooks/Notifications";
 
 //Enviar calificacion general al ride y al perfil
 export async function updateRating({ comentario = "", puntaje = 3, id = "", fileName, userReference }) {
@@ -65,18 +64,23 @@ export async function deleteDoc(id, collection) {
 //Estado de la oferta a ACEPTADA
 //Estado de las otras ofertas a DESCARTADAS
 //Enviar notificacion al conductor
-export async function updateRide(ofertas, index, rideID) {
+
+export const updateRide = async (ofertas, index, rideID, sendPushNotification) => {
     const oferta = ofertas[index].oferta;
-    const referenceConductor = oferta.conductorID?.reference;
+    const tokenConductor = oferta.conductorID?.token;
     const referenceRide = oferta.rideID?.reference;
     const referenceOferta = db.collection('ofertas').doc(oferta.id);
 
-    sendNotificationByReference(
-        referenceConductor,
-        'Oferta Aceptada',
-        'Dirígete al punto de encuentro',
-        'Mis Ofertas'
-    );
+    try {
+        sendPushNotification(
+            'Oferta Aceptada',
+            'Dirígete al punto de encuentro',
+            tokenConductor
+        )
+
+    } catch (error) {
+        console.log('Error al enviar notificacion oferta aceptada', error);
+    }
 
     try {
         const doc = await referenceRide.get();
@@ -242,20 +246,19 @@ export async function updateRole(email, rol) {
 }
 
 //Enviar notificacion de nuevo a ride a los usuarios que se encuentran en el rol de conductor 
-export async function getDriverUsers() {
-    //console.log('Realizando consulta')
+export const getDriverUsers = async (sendPushNotification) => {
     const usersSnapshot = await db.collection('users').where('role', '==', 'Conductor').get();
-    const users = [];
 
     for (const userDoc of usersSnapshot.docs) {
         const userData = userDoc.data();
-        //users.push(userData.email);
-        sendNotificationByEmail(
-            userData.email,
+
+        const { schedulePushNotification } = useNotificationContext();
+
+        sendPushNotification(
             'Nuevo Ride Solicitado',
             'Realiza tu oferta',
-            'Rides'
-        );
+            userData.token
+        )
     }
 }
 
@@ -274,33 +277,55 @@ export async function deleteField(reference) {
 }
 
 //Enviar mensaje en el chat y notificacion
-export async function sendMessage(message, rideID, userID, rol) {
+export const sendMessage = async (message, rideID, userID, rol, sendPushNotification) => {
     const docRef = db.collection('rides').doc(rideID);
-    let userReference;
+    let userToken;
 
     try {
         const doc = await docRef.get();
         if (doc.exists) {
             if (rol === "Pasajero") {
-                userReference = doc.data().conductorID.reference;
+                userToken = doc.data().conductorID.token;
             } else {
-                userReference = doc.data().pasajeroID.reference;
+                userToken = doc.data().pasajeroID.token;
             }
         }
     } catch (error) {
         console.log('Error al obtener los datos', error);
     }
 
-    sendNotificationByReference(
-        userReference,
-        'Tienes un nuevo mensaje',
-        'Entra a la app y revisa tus chats',
-        'Chat'
-    );
+    try {
+
+        sendPushNotification(
+            'Tienes un nuevo mensaje',
+            'Entra a la app y revisa tus chats',
+            userToken
+        )
+
+    } catch (error) {
+        console.log('Error al enviar notificacion chat', error);
+    }
 
     return await docRef.collection('messages').doc().set({
         date: new Date(),
         text: message,
         userID: userID
     })
+}
+
+//Registrar el token en el pefil del usuario
+export async function sendToken(expoPushToken, email) {
+    var user = db.collection('users').doc(email);
+
+    try {
+        const docSnapshot = await user.get();
+
+        if (docSnapshot.exists) {
+            user.update({
+                token: expoPushToken
+            });
+        }
+    } catch (error) {
+        console.log('Error al guardar token', error);
+    }
 }

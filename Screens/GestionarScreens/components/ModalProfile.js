@@ -3,9 +3,7 @@ import { Modal, Portal, Text, Button } from 'react-native-paper';
 import { View } from "react-native";
 import { Avatar } from 'react-native-elements';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { getInfoMedal } from "../others/Functions";
 import { useTheme } from "../../../hooks/ThemeContext";
 
 const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, setModalAlert }) => {
@@ -27,7 +25,7 @@ const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, se
 
                         <View style={{ flexDirection: 'row', marginTop: 5 }}>
                             {user.califConductor.promedio !== 0 && (
-                                <><Text style={{ fontSize: 15, color: colors.textModal2 }}>{user.califConductor.promedio}
+                                <><Text style={{ fontSize: 15, color: colors.textModal2 }}>{user.califConductor.promedio.toFixed(1)}
                                 </Text><Ionicons name="star" style={{ marginLeft: 5, fontSize: 20, color: "#FFC107" }} /></>
                             )}
                             {user.numRidesConductor !== 0 && (

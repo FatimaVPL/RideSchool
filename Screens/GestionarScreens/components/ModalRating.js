@@ -21,7 +21,7 @@ const ModalRating = ({ ride, oferta, rol, modalRating, setModalRating, setModalR
                 <Text style={{ marginBottom: 15, fontWeight: 'bold', fontSize: 20, color: colors.textModal, textAlign: 'center' }}>Califica tu experiencia</Text>
                 <AirbnbRating
                     count={5}
-                    reviews={['Terrible', 'Bad', 'OK', 'Good', 'Excellent']}
+                    reviews={['Terrible', 'Malo', 'Bueno', 'Muy Bueno', 'Excelente']}
                     defaultRating={score}
                     size={30}
                     onFinishRating={setScore}
@@ -67,7 +67,7 @@ const ModalRating = ({ ride, oferta, rol, modalRating, setModalRating, setModalR
                                         icon: 'form',
                                         color: 'green',
                                         title: 'Contestar encuesta detallada',
-                                        content: `Realiza una evaluación detallada de tu  ${rol}`,
+                                        content: `Realiza una evaluación detallada de tu ${rol === "Pasajero" ? 'conductor' : 'pasajero'}`,
                                         type: 4
                                     });
                                     setModalAlert(true);
