@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import { formatDate } from '../GestionarScreens/others/Functions';
 import { sendMessage } from '../GestionarScreens/others/Queries';
+import { useNotificationContext } from '../../context/NotificationsContext';
 
 const ChatScreen = () => {
 
@@ -15,6 +16,7 @@ const ChatScreen = () => {
   const { colors, isDark } = useTheme()
   const { dataUser, getDataUser } = useAuth()
   const { dataMessages } = useChat()
+  const { sendPushNotification } = useNotificationContext()
   const scrollRef = React.useRef(null)
   const textAreaRef = React.useRef(null)
   const [messageText, setMessageText] = useState('')
@@ -23,7 +25,7 @@ const ChatScreen = () => {
   const handleSendMessage = () => {
     try {
       if (messageText !== '') {
-        sendMessage(messageText, dataUser.chat, dataUser.uid, dataUser.role);
+        sendMessage(messageText, dataUser.chat, dataUser.uid, dataUser.role, sendPushNotification);
         setMessageText('');
       }
 
@@ -61,7 +63,7 @@ const ChatScreen = () => {
                     renderItem={({ item: m }) => {
                       return (
                         <View style={[styles.messageContainer, m.own ? styles.myMessageContainer : styles.yourMessageContainer]}>
-                          <View style={[styles.message, m.own ? styles.myMessage : styles.yourMessage, m.own ? { backgroundColor: colors.myMessage } : {backgroundColor: colors.yourMessage}]}>
+                          <View style={[styles.message, m.own ? styles.myMessage : styles.yourMessage, m.own ? { backgroundColor: colors.myMessage } : { backgroundColor: colors.yourMessage }]}>
                             <Text style={{ fontSize: 17 }}>{m.text}</Text>
                             <Text style={{ fontSize: 10 }}>{formatDate(m.date, null)}</Text>
                           </View>

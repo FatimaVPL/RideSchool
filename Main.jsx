@@ -20,7 +20,7 @@ import CompletarInfoConductor from './Screens/Perfil/CompletarInfoConductor';
 
 const Main = () => {
   const Stack = createStackNavigator();
-  const { user, initializing, firstTime } = useAuth()
+  const { user, initializing, firstTime, clearUsage } = useAuth()
   return (
     <>
       {initializing ? <Loader /> : !user ?

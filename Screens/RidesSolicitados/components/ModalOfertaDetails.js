@@ -5,12 +5,13 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { db } from "../../../config-firebase";
 import { useAuth } from "../../../context/AuthContext";
-import { sendNotificationByReference } from "../../../hooks/Notifications";
 import { useTheme } from "../../../hooks/ThemeContext";
+import { useNotificationContext } from "../../../context/NotificationsContext";
 
 const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert}) => {
-    const { user } = useAuth();
+    const { user, dataUser } = useAuth();
     const { colors } = useTheme();
+    const { sendPushNotification } = useNotificationContext();
     
     const validationSchema = Yup.object().shape({
         cooperacion: Yup.number()
@@ -24,8 +25,8 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
 
     async function setValues(values) {
         try {
-            sendNotificationByReference(
-                ride.pasajeroID.reference,
+            sendPushNotification(
+                ride.pasajeroID.token,
                 'Nueva Oferta',
                 'Tienes una nueva oferta de Ride!',
                 'GestionarRides'
@@ -38,7 +39,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                 estado: 'pendiente',
                 rideID: { reference: db.collection('rides').doc(ride.id), id: ride.id },
                 pasajeroID: ride.pasajeroID,
-                conductorID: { reference: db.collection('users').doc(user === null ? "" : user.email), uid: user === null ? "" : user.uid },
+                conductorID: { reference: db.collection('users').doc(user === null ? "" : user.email), uid: user === null ? "" : user.uid, token: dataUser.token },
                 ...values
             })
 

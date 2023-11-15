@@ -17,12 +17,12 @@ const CardOferta = ({ item, index, parentItem, setselectedRide, setModalUser, se
             <Card.Content>
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ flexDirection: 'row' }}>
-                        <Ionicons name="person" style={{ fontSize: 21, paddingTop: 6, marginRight: 6 }} />
-                        <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 15, color: 'black' }}>{cut(item.conductor.firstName, item.conductor.lastName)}</Text>
+                        <Ionicons name="person" style={{ fontSize: 21, paddingTop: 4, marginRight: 6 }} />
+                        <Text style={{ marginBottom: 10, paddingTop: 4, fontSize: 15, color: 'black' }}>{cut(item.conductor.firstName, item.conductor.lastName)}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginLeft: 80 }}>
-                        <Text style={{ color: 'black', marginRight: 5, fontSize: 22, fontWeight: 'bold' }}>$</Text>
-                        <Text style={{ marginBottom: 10, paddingTop: 6, fontSize: 16, color: 'black' }}>{item.oferta.cooperacion}</Text>
+                        <Text style={{ color: 'black', marginRight: 5, fontSize: 20, fontWeight: 'bold' }}>$</Text>
+                        <Text style={{ marginBottom: 10, paddingTop: 4, fontSize: 16, color: 'black' }}>{item.oferta.cooperacion}</Text>
                     </View>
                 </View>
             </Card.Content>
