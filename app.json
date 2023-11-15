@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "AwesomeProject",
+    "name": "RideSchool",
     "slug": "AwesomeProject",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -27,7 +27,7 @@
         "expo-notifications",
         {
           "icon": "./assets/rideSchoolS.png",
-          "color": "#ffffff"
+          "color": "#151515"
         }
       ]
     ],
@@ -39,6 +39,14 @@
       }
     },
     "android": {
+      "notification": {
+        "icon": "./assets/rideSchoolS.png",
+        "color": "#00ff00",
+        "androidNotificationIcon": {
+          "small": "./assets/rideSchoolS.png",
+          "large": "./assets/rideSchoolS.png"
+        }
+      },
       "userInterfaceStyle": "automatic",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

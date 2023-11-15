@@ -4,9 +4,9 @@ import { View } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { deleteDoc, updateRide, updateStatus, updateRole, deleteField } from "../others/Queries";
 import { db } from "../../../config-firebase";
-import { sendNotificationByReference, sendNotificationWithTimer } from "../../../hooks/Notifications";
 import { useAuth } from "../../../context/AuthContext";
 import { useTheme } from "../../../hooks/ThemeContext";
+import { useNotificationContext } from "../../../context/NotificationsContext";
 
 // 1 = Cancelar en ride en estado pendiente -- Eliminar ride la BD y las ofertas asociadas
 // 2 = Cancelar en estado en curso/aceptada -- Cambiar estado del ride y oferta a cancelado, enviar notificacion 
@@ -19,7 +19,8 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
     modalALert, setModalAlert, setModalReview, setModalOptions, setModalDialog, setModalPropsDialog, setModalRating }) => {
     const { colors } = useTheme()
     const { dataUser } = useAuth();
-  
+    const { sendPushNotification } = useNotificationContext();
+
     return (
         <Portal>
             <Modal visible={modalALert} onDismiss={setModalAlert} contentContainerStyle={{ backgroundColor: colors.grayModal, padding: 20, borderRadius: 15, width: '80%', alignSelf: 'center', justifyContent: 'center', }}>
@@ -62,18 +63,7 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
                                     break;
                                 case 3:
                                     //RIDE EN CURSO
-                                    updateRide(data.ofertas, indexOferta, data.ride.id);
-
-                                    //Enviar notificacion para recordar marcar que llego al destino
-                                    sendNotificationWithTimer(
-                                        data.ride.conductorID?.reference,
-                                        data.ride.pasajeroID?.reference,
-                                        data.ride.informationRoute.duration,
-                                        data.ride.estado,
-                                        '¿Llegaste a tu destino?',
-                                        'Confirmalo en la app',
-                                        "Mis Ofertas",
-                                    );
+                                    updateRide(data.ofertas, indexOferta, data.ride.id, sendPushNotification);
                                     break;
                                 case 4:
                                     setModalReview(true);
@@ -110,12 +100,11 @@ const ModalALert = ({ icon, color, title, content, type, data, indexOferta, rol,
                                     deleteField(data.oferta.pasajeroID.reference);
 
                                     //Enviar notificacion
-                                    sendNotificationByReference(
-                                        dataUser.rol === "pasajero" ? data.oferta.conductorID.reference : data.oferta.pasajeroID.reference,
+                                    sendPushNotification(
                                         'Llegaste a tu destino',
                                         'Recuerda calificar tu experiencia',
-                                        dataUser.rol === "pasajero" ? "GestionarOfertas" : "GestionarRides",
-                                    );
+                                        dataUser.role === "Pasajero" ? data.oferta.conductorID.token : data.oferta.pasajeroID.token
+                                    )
 
                                     //Calificar experiencia
                                     setModalRating(true);

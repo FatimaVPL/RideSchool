@@ -3,9 +3,7 @@ import { Modal, Portal, Text, Button } from 'react-native-paper';
 import { View } from "react-native";
 import { Avatar } from 'react-native-elements';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { getInfoMedal } from "../others/Functions";
 import { useTheme } from "../../../hooks/ThemeContext";
 
 const Profile = ({ user, oferta, modalUser, setModalUser, setModalPropsAlert, setModalAlert }) => {

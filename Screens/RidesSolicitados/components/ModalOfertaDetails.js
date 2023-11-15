@@ -7,11 +7,13 @@ import { db } from "../../../config-firebase";
 import { useAuth } from "../../../context/AuthContext";
 import { sendNotificationByReference } from "../../../hooks/Notifications";
 import { useTheme } from "../../../hooks/ThemeContext";
+import { useNotificationContext } from "../../../context/NotificationsContext";
 
-const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert}) => {
-    const { user } = useAuth();
+const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert }) => {
+    const { user, dataUser } = useAuth();
     const { colors } = useTheme();
-    
+    const { sendPushNotification } = useNotificationContext();
+
     const validationSchema = Yup.object().shape({
         cooperacion: Yup.number()
             .typeError('Debe ser un número')
@@ -24,13 +26,13 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
 
     async function setValues(values) {
         try {
-            sendNotificationByReference(
+            sendPushNotification(
                 ride.pasajeroID.reference,
                 'Nueva Oferta',
                 'Tienes una nueva oferta de Ride!',
                 'GestionarRides'
             );
-            
+
             const docRef = db.collection('ofertas').doc();
             await docRef.set({
                 id: docRef.id,
@@ -38,7 +40,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                 estado: 'pendiente',
                 rideID: { reference: db.collection('rides').doc(ride.id), id: ride.id },
                 pasajeroID: ride.pasajeroID,
-                conductorID: { reference: db.collection('users').doc(user === null ? "" : user.email), uid: user === null ? "" : user.uid },
+                conductorID: { reference: db.collection('users').doc(user === null ? "" : user.email), uid: user === null ? "" : user.uid, token: dataUser.token },
                 ...values
             })
 
@@ -62,7 +64,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                     onSubmit={(values) => { setValues(values) }}
                 >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
-                        <View style={{backgroundColor: colors.grayModal}}>
+                        <View style={{ backgroundColor: colors.grayModal }}>
                             <TextInput
                                 style={{ margin: 7, height: 60 }}
                                 mode="outlined"
@@ -71,7 +73,7 @@ const ModalOfertaDetails = ({ ride, modalDetails, setModalDetails, setModalAlert
                                 onChangeText={handleChange('cooperacion')}
                                 onBlur={handleBlur('cooperacion')}
                                 keyboardType='numeric'
-                                theme={{ colors: { text: colors.cardText , primary: colors.cardText } }}
+                                theme={{ colors: { text: colors.cardText, primary: colors.cardText } }}
                             />
                             {touched.cooperacion && errors.cooperacion && <Text style={{ color: 'red' }}>{errors.cooperacion}</Text>}
 

@@ -13,10 +13,12 @@ import Lottie from 'lottie-react-native';
 import { useTheme } from '../../hooks/ThemeContext';
 import ModalDialog from '../GestionarScreens/components/ModalDialog';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useNotificationContext } from '../../context/NotificationsContext';
 
 const FrmSolicitarRide = ({ navigation }) => {
 
     const { colors } = useTheme();
+    const {sendPushNotification} = useNotificationContext();
 
     const validate = values => {
         const errors = {};
@@ -35,7 +37,8 @@ const FrmSolicitarRide = ({ navigation }) => {
     };
 
     //const db = firebase.firestore();
-    const { user } = useAuth();
+    const { user, dataUser } = useAuth();
+    //console.log(dataUser.token)
 
     async function saveRideToFirestore(rideData) {
         const { origin, destination, date, directionOrigin, directionDestination, ...rest } = rideData;
@@ -52,7 +55,7 @@ const FrmSolicitarRide = ({ navigation }) => {
         const newData = {
             id: docRef.id,
             coordinates: originGeoPoint,
-            pasajeroID: { reference: db.collection('users').doc(user.email), uid: user.uid }, // Aquí guardamos el ID del documento dentro del objeto
+            pasajeroID: { reference: db.collection('users').doc(user.email), uid: user.uid, token: dataUser?.token }, // Aquí guardamos el ID del documento dentro del objeto
             origin: { coordinates: originGeoPoint, direction: directionOrigin },
             destination: { coordinates: destinationGeoPoint, direction: directionDestination },
             date: date === null ? new Date() : date,
@@ -64,8 +67,6 @@ const FrmSolicitarRide = ({ navigation }) => {
         geoFirestore.collection('rides').doc(docRef.id).set(newData)
             .then(() => {
                 //console.log(`Nuevo documento creado en GeoFirestore con ID: ${docRef.id}`);
-                setModalDialog(true);
-                formik.resetForm();
             })
             .catch((error) => {
                 console.error('Error al crear un nuevo documento en GeoFirestore:', error);
@@ -89,7 +90,9 @@ const FrmSolicitarRide = ({ navigation }) => {
             saveRideToFirestore(values)
                 .then(documentId => {
                     //console.log(`Document written with ID: ${documentId}`);
-                    getDriverUsers();
+                    setModalDialog(true);
+                    formik.resetForm();
+                    getDriverUsers(sendPushNotification);
                 })
                 .catch(error => {
                     console.error(`Error adding document: ${error}`);
@@ -136,11 +139,11 @@ const FrmSolicitarRide = ({ navigation }) => {
 
                     <Text
                         style={{
-                            fontSize: 21,
+                            fontSize: 26,
                             fontWeight: 'bold',
                             color: colors.text,
-                            marginBottom: 5,
-                            marginTop: 20,
+                            marginBottom: 20,
+                            marginTop: 40,
                             textAlign: 'center'
                         }}>
                         Completa la información {'\n'} y solicita tu ride
@@ -149,12 +152,12 @@ const FrmSolicitarRide = ({ navigation }) => {
                     <View style={{
                         height: 160,
                         width: '100%',
-                        marginBottom: 25,
+                        marginBottom: 35,
                     }}>
                         <Lottie source={require('../../assets/LottieFiles/passagerOrCar.json')} />
                     </View>
 
-                    <View style={{ flexDirection: 'column', width: '100%', marginBottom: 10, alignItems: 'center' }}>
+                    {/* <View style={{ flexDirection: 'column', width: '100%', marginBottom: 10, alignItems: 'center' }}>
                         <Button
                             style={{ width: '100%' }}
                             icon="clock" mode="contained"
@@ -164,7 +167,7 @@ const FrmSolicitarRide = ({ navigation }) => {
                             Fecha y hora del ride
                         </Button>
                         <Text style={{ color: colors.textRide, fontSize: 18, fontWeight: 'bold' }}>{rightNow ? format(formik.values?.date, 'Pp') : "Justo ahora"}</Text>
-                    </View>
+                    </View> */}
 
                     <DateTimePickerModal
                         isVisible={isDatePickerVisible}
@@ -175,7 +178,7 @@ const FrmSolicitarRide = ({ navigation }) => {
 
                     <View style={{ flexDirection: 'column', width: '100%', alignItems: 'center', marginBottom: 5 }}>
                         <Button
-                            style={{ width: '100%' }}
+                            style={{ width: '100%', height: 42 }}
                             icon="map" mode="contained"
                             onPress={showModal}
                             buttonColor='#D6A50C'
@@ -264,12 +267,12 @@ const FrmSolicitarRide = ({ navigation }) => {
                         />
                     </View>
                     <Button
-                        style={{ width: '100%' }}
+                        style={{ width: '100%', height: 45 }}
                         icon="car" mode="contained"
                         textColor='white'
                         buttonColor='green'
                         onPress={formik.handleSubmit}
-                        labelStyle={{ fontSize: 17 }}>
+                        labelStyle={{ fontSize: 17, textAlign: 'center', textAlignVertical: 'center' }}>
                         Solicitar Ride
                     </Button>
 
@@ -296,7 +299,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         display: 'flex',
-       // justifyContent: 'start',
+        // justifyContent: 'start',
         // alignItems: 'center',
         paddingHorizontal: 20,
     },

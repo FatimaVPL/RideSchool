@@ -21,3 +21,6 @@ yarn.lock
 
 # hgh
 package.json
+
+# Carpeta de Android build
+/app/build/

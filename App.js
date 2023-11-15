@@ -16,13 +16,13 @@ export default function App() {
     <NavigationContainer>
       <AuthProvider>
         <ThemeProvider>
-          <NotificationProvider>
+            <NotificationProvider>
             <ChatProvider>
               <PaperProvider>
                 <Main />
               </PaperProvider>
             </ChatProvider>
-          </NotificationProvider>
+            </NotificationProvider>
         </ThemeProvider>
       </AuthProvider>
     </NavigationContainer>
