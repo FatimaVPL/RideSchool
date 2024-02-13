@@ -140,7 +140,7 @@ export default function WelcomeScreen({ navigation }) {
                 <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate('Onboarding')} >
-                <Text style={styles.linkText}>Registrate</Text>
+                <Text style={styles.linkText}>Regístrate</Text>
               </TouchableOpacity>
               <StatusBar style="auto" />
             </View >
